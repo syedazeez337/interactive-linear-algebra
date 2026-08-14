@@ -79,7 +79,11 @@
       W.read(
         W.sideBySide([['v  ='], W.colBlock([st.x, st.y])], 1) + '\n\n' +
         'v₁ = ' + st.x + '        v₂ = ' + st.y + '\n' +
-        'components: 2   →   v ∈ R²\n\n' +
+        'the small 1 and 2 are component numbers, not powers\n\n' +
+        'components: 2   →   v ∈ R²\n' +
+        '∈ means "is in", and R² is the set of all pairs of\n' +
+        'real numbers, so this reads "v is a pair of numbers"\n\n' +
+        '‖v‖, the double bars, means the length of v\n' +
         '‖v‖ = √(' + st.x + '² + ' + st.y + '²) = √' + (st.x * st.x + st.y * st.y) + ' = ' + f(mag)
       );
     }
@@ -92,7 +96,7 @@
         'v₁ = ' + st.x + ', how far it runs along x.',
         'v₂ = ' + st.y + ', how far it runs along y.',
         'Stack them in a column: v = [' + st.x + ', ' + st.y + '].',
-        'Two components, so v ∈ R². Its length is ' + f(Math.hypot(st.x, st.y)) + '.'
+        'Two components, so v ∈ R², read "v is in R two", meaning v is a pair of real numbers. Its length is ' + f(Math.hypot(st.x, st.y)) + '.'
       ]
     };
   });
@@ -248,8 +252,8 @@
       { label: 'scalar', fn: () => { st.dims = []; st.name = 'a single number'; draw(); } },
       { label: 'embedding 768', fn: () => { st.dims = [768]; st.name = 'one word embedding'; draw(); } },
       { label: 'weight 1000×768', fn: () => { st.dims = [1000, 768]; st.name = 'one layer’s weight matrix'; draw(); } },
-      { label: 'RGB image', fn: () => { st.dims = [224, 224, 3]; st.name = 'one colour image, H × W × channels'; draw(); } },
-      { label: 'batch', fn: () => { st.dims = [32, 128, 768]; st.name = 'batch of sentences, batch × tokens × d'; draw(); } },
+      { label: 'colour image', fn: () => { st.dims = [224, 224, 3]; st.name = 'one colour image, height × width × 3 colour channels (red, green, blue)'; draw(); } },
+      { label: 'batch', fn: () => { st.dims = [32, 128, 768]; st.name = 'batch of sentences, sentences × tokens × embedding width'; draw(); } },
       { label: 'video batch', fn: () => { st.dims = [8, 16, 224, 224]; st.name = 'batch of video clips, order 4'; draw(); } }
     ]));
     return {
@@ -503,6 +507,8 @@
       pl.handle(st.x, st.y, INK);
       W.read(
         W.sideBySide([['v ='], W.colBlock([st.x, st.y])], 1) + '\n\n' +
+        'the hat in v̂ is said "v hat" and marks the unit\n' +
+        'vector, the one pointing the same way with length 1\n\n' +
         '‖v‖ = √(' + (st.x * st.x) + ' + ' + (st.y * st.y) + ') = ' + f(n, 4) + '\n\n' +
         (n ? W.sideBySide([['v̂ = v/‖v‖ ='], W.colBlock([f(st.x / n, 4), f(st.y / n, 4)])], 1) : 'v̂ undefined') + '\n\n' +
         (n ? '‖v̂‖ = √(' + f((st.x / n) * (st.x / n), 4) + ' + ' + f((st.y / n) * (st.y / n), 4) + ') = ' +
@@ -642,6 +648,9 @@
         '            a·b            ' + d + '\n' +
         'cos θ = ───────────  =  ─────────────── = ' + f(cos, 4) + '\n' +
         '         ‖a‖ ‖b‖        ' + f(na, 3) + ' × ' + f(nb, 3) + '\n\n' +
+        'θ is the Greek letter theta, the angle between them,\n' +
+        'and arccos is the inverse cosine: it takes a cosine\n' +
+        'value and hands back the angle that produced it\n\n' +
         'θ = arccos(' + f(cos, 4) + ') = ' + f(deg, 2) + '°\n\n' +
         'CASES\n' +
         '  a·b > 0   θ < 90°    broadly agree\n' +
@@ -791,11 +800,14 @@
       const n = Math.abs(st.x) + Math.abs(st.y);
       W.read(
         W.sideBySide([['v ='], W.colBlock([st.x, st.y])], 1) + '\n\n' +
+        'L1, said "ell one", is the sum of absolute values.\n' +
+        'The bars |x| mean absolute value, the size without\n' +
+        'the sign. The small 1 on ‖v‖₁ says which norm.\n\n' +
         '‖v‖₁ = |v₁| + |v₂|\n' +
         '     = |' + st.x + '| + |' + st.y + '|\n' +
         '     = ' + Math.abs(st.x) + ' + ' + Math.abs(st.y) + '\n' +
         '     = ' + f(n) + '\n\n' +
-        'MANHATTAN / TAXICAB NORM\n' +
+        'ALSO CALLED THE MANHATTAN OR TAXICAB NORM\n' +
         'The dashed red path is the distance a taxi drives:\n' +
         'across ' + Math.abs(st.x) + ' then up ' + Math.abs(st.y) + '. It never cuts the corner.\n\n' +
         'unit ball: the diamond of all vectors with ‖v‖₁ = 1'
@@ -811,7 +823,7 @@
           'The dashed red path shows the Manhattan route, horizontal then vertical, never diagonal.',
           'Absolute values mean the sign of each component is ignored. Only distance from the axes counts.',
           'The diamond is the unit ball: every point on it has ‖v‖₁ = 1. Notice it has corners on the axes.',
-          'L1 favours axis-aligned directions: a unit step along an axis costs 1, but a diagonal step of the same L2 length costs more.'
+          'L1 favours axis-aligned directions: a unit step along an axis costs 1, but a diagonal step of the same L2 length, meaning the same ordinary straight-line length, costs more.'
         ];
       }
     };
@@ -832,11 +844,15 @@
       pl.handle(st.x, st.y, INK);
       W.read(
         W.sideBySide([['v ='], W.colBlock([st.x, st.y])], 1) + '\n\n' +
+        'L∞, said "ell infinity", is the largest absolute\n' +
+        'value. ∞ is the infinity sign, max means take the\n' +
+        'largest of the listed numbers, and |x| is absolute\n' +
+        'value, the size without the sign.\n\n' +
         '‖v‖∞ = max(|v₁|, |v₂|)\n' +
         '     = max(|' + st.x + '|, |' + st.y + '|)\n' +
         '     = max(' + Math.abs(st.x) + ', ' + Math.abs(st.y) + ')\n' +
         '     = ' + f(m) + '\n\n' +
-        'MAX / CHEBYSHEV NORM\n' +
+        'ALSO CALLED THE MAXIMUM OR CHEBYSHEV NORM\n' +
         'Only the single biggest component matters.\n' +
         'The faint square shows every vector with ‖v‖∞ = ' + f(m) + '\n' +
         ', the square just touches the larger of the two components.\n\n' +
@@ -880,10 +896,15 @@
       pl.dot(scaled.x, scaled.y, OX, 4);
       W.read(
         W.sideBySide([['v ='], W.colBlock([st.x, st.y])], 1) + '\n\n' +
+        'THREE WAYS TO MEASURE LENGTH\n' +
+        '  L1, the sum of absolute values\n' +
+        '  L2, the ordinary straight-line length\n' +
+        '  L∞, said "ell infinity", the largest single value\n' +
+        'The small number on ‖v‖ says which one is meant.\n\n' +
         '‖v‖₁  = |' + st.x + '| + |' + st.y + '|  = ' + f(l1) + '\n' +
         '‖v‖₂  = √(' + (st.x * st.x) + ' + ' + (st.y * st.y) + ')  = ' + f(l2, 4) + '\n' +
         '‖v‖∞  = max(' + Math.abs(st.x) + ', ' + Math.abs(st.y) + ')  = ' + f(li) + '\n\n' +
-        'ORDER\n' +
+        'ORDER,  ≤ meaning "is no bigger than"\n' +
         '  ‖v‖∞ ≤ ‖v‖₂ ≤ ‖v‖₁\n' +
         '  ' + f(li) + ' ≤ ' + f(l2, 4) + ' ≤ ' + f(l1) + '\n\n' +
         'UNIT BALLS, every point at distance 1 from the origin\n' +

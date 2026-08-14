@@ -396,8 +396,11 @@
   function paintPanel() {
     const n = byId[current];
     document.getElementById('ptitle').textContent = n.name;
-    document.getElementById('psub').textContent =
-      n.items ? 'checklist item ' + n.items : 'not switched on yet';
+    /* Nodes whose name is an abbreviation or a symbol carry the words in full,
+       so the title is never the only place a reader meets the term. */
+    const sub = document.getElementById('psub');
+    const item = n.items ? 'checklist item ' + n.items : 'not switched on yet';
+    sub.textContent = n.full ? n.full + ' · ' + item : item;
     const body = document.getElementById('panel-prose');
     if (n.form === 'locked') {
       body.innerHTML = '<p class="ptext">Section ' + n.key + ' of the checklist. Drawn dashed ' +
@@ -433,6 +436,7 @@
     document.getElementById('inside').classList.add('on');
     document.getElementById('inside-key').textContent = n.key;
     document.getElementById('inside-name').textContent = n.name;
+    document.getElementById('inside-full').textContent = n.full || '';
     Widgets.mount(n.widget, document.getElementById('widget-wrap'),
       document.getElementById('readout'), document.getElementById('steps'));
     document.getElementById('btn-flow').textContent = '▶ RUN THE STEPS';

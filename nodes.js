@@ -14,8 +14,8 @@ const GROUPS = [
   { id:'xform', label: 'TRANSFORMATION' },
   { id:'rank',  label: 'RANK & INFORMATION' },
   { id:'proj',  label: 'PROJECTION' },
-  { id:'eigen', label: 'EIGENVALUES & PCA' },
-  { id:'svd',   label: 'SVD & LOW-RANK' },
+  { id:'eigen', label: 'EIGENVALUES & PRINCIPAL COMPONENTS' },
+  { id:'svd',   label: 'SINGULAR VALUES & LOW RANK' },
   { id:'attn',  label: 'ATTENTION' }
 ];
 
@@ -57,7 +57,7 @@ const NODES = [
     gx:0, gy:5, w:2, d:2, h:2, form:'op',
     means:'Laying one arrow tail to head against the other and reading off where you finish. The order you lay them in makes no difference to where you land, which is why a + b and b + a agree.',
     compute:'Add component by component. [2,3] + [4,5] = [2+4, 3+5] = [6,8]. Both vectors need the same number of components.',
-    watch:'Dimensions must match. [2,3] + [4,5,6] is undefined, because a 2D and a 3D vector cannot be added at all.'
+    watch:'Dimensions must match. [2,3] + [4,5,6] is undefined, because a 2-component and a 3-component vector cannot be added at all.'
   },
   {
     id:'S', key:'S', name:'SUBTRACTION', group:'vops', items:'1.5',
@@ -136,26 +136,28 @@ const NODES = [
   /* ---------------- NORMS (tall measurements) ---------------- */
   {
     id:'L1', key:'L1', name:'L1 NORM', group:'norms', items:'4.1',
+    full:'the L1 norm, said "ell one", the sum of the absolute values',
     gx:24.5, gy:3.6, w:1.9, d:1.9, h:5, form:'measure',
-    means:'Distance measured along the streets rather than through the buildings, which is where the names Manhattan and taxicab come from. Minimising with this norm drives components to exactly zero, so it is the one to reach for when you want a sparse answer.',
-    compute:'‖v‖₁ = |v₁| + |v₂| + … + |vₙ|. For [3,−4] that is 3 + 4 = 7.',
+    means:'Distance measured along the streets rather than through the buildings, which is where the names Manhattan and taxicab come from. The 1 in the name is the power each component is raised to before the sum, which is why it is written L1. Minimising with this norm drives components to exactly zero, so it is the one to reach for when you want a sparse answer.',
+    compute:'‖v‖₁ = |v₁| + |v₂| + … + |vₙ|. The double bars ‖ ‖ mean the length of the vector, the subscript 1 says which norm, and |v₁| means the absolute value of the first component. For [3,−4] that is 3 + 4 = 7.',
     watch:'The L1 norm treats a step along one axis and a diagonal step differently. [3,0] and [3,4] are not equally “small”.',
     widget:'l1norm'
   },
   {
     id:'LI', key:'LI', name:'L∞ NORM', group:'norms', items:'4.2',
+    full:'the L-infinity norm, said "ell infinity", the largest absolute value',
     gx:24, gy:7.6, w:1.9, d:1.9, h:4.5, form:'measure',
-    means:'The worst case, reported on its own. Everything except the largest component is discarded, which suits questions about the biggest single error rather than the total. Also called the max or Chebyshev norm.',
-    compute:'‖v‖∞ = max(|v₁|, |v₂|, …, |vₙ|). For [3,−4] that is max(3,4) = 4.',
-    watch:'It is blind to every component except the biggest. [5,0] and [5,1000] have the same L∞ norm, a different shape from L2.',
+    means:'The worst case, reported on its own. Everything except the largest component is discarded, which suits questions about the biggest single error rather than the total. The ∞ symbol is infinity, the limit the power in the name is pushed to, and the norm is also called the maximum norm or the Chebyshev norm.',
+    compute:'‖v‖∞ = max(|v₁|, |v₂|, …, |vₙ|), where max means take the largest of the listed numbers. For [3,−4] that is max(3,4) = 4.',
+    watch:'It is blind to every component except the biggest. [5,0] and [5,1000] have the same L-infinity norm, a different shape from the ordinary straight-line norm L2.',
     widget:'linfnorm'
   },
   {
     id:'NC', key:'NC', name:'COMPARE NORMS', group:'norms', items:'4.3',
     gx:22, gy:10.2, w:2.4, d:2.4, h:2.4, form:'op',
-    means:'The three norms disagree about what a unit circle looks like. L2 draws the round one, L1 a diamond with corners on the axes, L∞ a square. Those corners are why L1 produces sparse answers and L2 does not.',
-    compute:'For any vector, ‖v‖∞ ≤ ‖v‖₂ ≤ ‖v‖₁. With [3,−4] the three give 4, 5 and 7.',
-    watch:'These are not interchangeable. L1 shrinks large outliers less, L∞ shrinks them more, and L2 sits between. Sparsity and robustness later depend on exactly this.',
+    means:'The three norms disagree about what a unit circle looks like. L2, the ordinary straight-line norm, draws the round one; L1, the sum of absolute values, draws a diamond with corners on the axes; L-infinity, the largest absolute value, draws a square. Those corners are why L1 produces sparse answers and L2 does not.',
+    compute:'For any vector, ‖v‖∞ ≤ ‖v‖₂ ≤ ‖v‖₁, that is, the largest-value norm is never bigger than the straight-line norm, which is never bigger than the sum-of-values norm. With [3,−4] the three give 4, 5 and 7.',
+    watch:'These are not interchangeable. L1 shrinks large outliers less, L-infinity shrinks them more, and L2 sits between. Sparsity and robustness later depend on exactly this.',
     widget:'normcompare'
   },
 
@@ -163,7 +165,7 @@ const NODES = [
   {
     id:'W', key:'W', name:'VECTOR SPACE', group:'space', items:'1.15, 1.16',
     gx:0, gy:11, w:5, d:4, h:0.5, form:'structure',
-    means:'The smallest set of rules that make the vector operations behave. Rⁿ is the example you have been using all along, but matrices and polynomials obey the same rules, so anything proved here applies to them too.',
+    means:'The smallest set of rules that make the vector operations behave. R^n, meaning all lists of n real numbers, is the example you have been using all along, but matrices and polynomials obey the same rules, so anything proved here applies to them too.',
     compute:'Check the eight axioms: four for addition (commutative, associative, a zero vector, an inverse for each vector), two for multiplication and two distributive. A set fails if any operation escapes it.',
     watch:'You can add two vectors and scale a vector. You cannot multiply two vectors, and you cannot add a number to a vector.'
   },
@@ -171,7 +173,7 @@ const NODES = [
     id:'E', key:'E', name:'DIMENSION', group:'space', items:'1.17',
     gx:8.2, gy:16.6, w:3, d:2.5, h:0.6, form:'structure',
     means:'A count of directions, not of components. A line through the origin in R² has dimension 1 even though each vector on it carries two components, so the two numbers differ more often than not.',
-    compute:'dim V is the number of vectors in any basis of V. A line through the origin in R² has a one-vector basis, so dim = 1 while the vectors on it still carry 2 components. Every basis of a given space has the same size.',
+    compute:'dim V, short for the dimension of V, is the number of vectors in any basis of V. A line through the origin in R² has a one-vector basis, so dim = 1 while the vectors on it still carry 2 components. Every basis of a given space has the same size.',
     watch:'Not the same as item 1.3. A vector’s dimension is its component count; a space’s dimension is its basis size. They often differ.'
   },
   {
@@ -186,13 +188,13 @@ const NODES = [
     gx:4.1, gy:16.6, w:3, d:2.5, h:0.6, form:'structure',
     means:'Nothing in the set repeats what the others already say. Two independent vectors in R² reach the whole plane while two dependent ones reach only a line, so independence decides how much of the space you can cover.',
     compute:'[1,0] and [0,1] are independent, since no scalar c gives c[1,0] = [0,1]. But [1,2] and [2,4] are dependent, because the second is twice the first. For two vectors in R², a zero determinant means dependent.',
-    watch:'More than n vectors in Rⁿ must be dependent, no matter what they are.'
+    watch:'More than n vectors in R^n, the space of lists of n numbers, must be dependent, no matter what they are.'
   },
   {
     id:'R', key:'R', name:'THE RELATIONSHIP', group:'space', items:'1.20',
     gx:0, gy:20.5, w:6, d:2.5, h:0.5, form:'structure',
     means:'Four names for one situation. A basis has to hit the dimension exactly, because too few vectors cannot reach everywhere and too many cannot stay independent.',
-    compute:'In Rⁿ, fewer than n vectors never span and more than n are always dependent. At exactly n, independent and spanning and basis all mean the same thing.',
+    compute:'In R^n, fewer than n vectors never span and more than n are always dependent. To span is to reach every point in the space by combining the vectors. At exactly n, independent and spanning and basis all mean the same thing.',
     watch:'The basis theorem means that once you know the dimension you only need to check one of the two conditions, not both.'
   },
 
@@ -215,7 +217,7 @@ const NODES = [
     id:'TR', key:'TR', name:'TRANSPOSE', group:'mops', items:'2.6',
     gx:21, gy:12.5, w:2.5, d:2.5, h:1.7, form:'op',
     means:'Bookkeeping for most of the subject, and load-bearing in one place. The transpose in QKᵀ is the only reason the inner dimensions of attention meet, so the operation earns its keep right at the end.',
-    compute:'(Aᵀ)ⱼ,ₖ = Aₖ,ⱼ, so rows become columns. [[1,2,3],[4,5,6]] transposes to [[1,4],[2,5],[3,6]], turning 2 × 3 into 3 × 2. Transposing twice returns A.',
+    compute:'(Aᵀ)ⱼ,ₖ = Aₖ,ⱼ, where the superscript ᵀ means transpose and the subscripts j and k are the row and column numbers, so rows become columns. [[1,2,3],[4,5,6]] transposes to [[1,4],[2,5],[3,6]], turning 2 × 3 into 3 × 2. Transposing twice returns A.',
     watch:'Transposing changes the size unless the matrix is square. A 2 × 3 becomes a 3 × 2.'
   },
 
@@ -253,13 +255,15 @@ const NODES = [
   },
   {
     id:'DR', key:'DR', name:'4D → 3D', group:'xform', items:'2.11',
+    full:'four dimensions down to three, written R^4 → R^3',
     gx:19, gy:20.8, w:3, d:2, h:1.2, form:'op', slices:4,
-    means:'Information leaves and does not come back. Several different 4D vectors land on the same 3D output, so once the collapse has happened no matrix can recover which one you started from.',
-    compute:'Needs 4 columns and 3 rows, so a 3 × 4 matrix. Dropping the fourth row of the identity deletes the fourth component. Nullity is at least 1 whenever there are more columns than rows.',
+    means:'Information leaves and does not come back. Several different four-component vectors land on the same three-component output, so once the collapse has happened no matrix can recover which one you started from.',
+    compute:'Needs 4 columns and 3 rows, so a 3 × 4 matrix. Dropping the fourth row of the identity deletes the fourth component. Nullity, the number of independent directions the matrix sends to zero, is at least 1 whenever there are more columns than rows.',
     watch:'Irreversible. No matrix can recover the discarded component.'
   },
   {
     id:'DI', key:'DI', name:'4D → 6D', group:'xform', items:'2.12',
+    full:'four dimensions up to six, written R^4 → R^6',
     gx:23, gy:20.8, w:3, d:2, h:1.2, form:'op', slices:6,
     means:'A larger output space holds no more information. Every output is a combination of the four columns, so the results fill a 4-dimensional slice of the 6-dimensional space and never the whole of it.',
     compute:'Needs 4 columns and 6 rows, so a 6 × 4 matrix. Rank is capped at 4 by the column count, whatever the entries are.',
@@ -271,7 +275,7 @@ const NODES = [
     id:'RK', key:'RK', name:'RANK', group:'rank', items:'5.1',
     gx:31.5, gy:22, w:1.8, d:1.8, h:4.5, form:'measure',
     means:'A count of how much a matrix knows. Size and rank are different things: a 1000 × 1000 matrix of rank 5 carries five directions of information and the rest is repetition.',
-    compute:'rank A = the number of pivots in reduced row echelon form. For [[1,2],[3,4]] both columns are independent, so rank A = 2. Rank never exceeds min(m,n).',
+    compute:'rank A = the number of pivots in reduced row echelon form, often shortened to RREF. A pivot is the leading non-zero entry of a row once the matrix has been tidied into that staircase shape. For [[1,2],[3,4]] both columns are independent, so rank A = 2. Rank never exceeds min(m,n), the smaller of the row and column counts.',
     watch:'Rank counts independent directions, not entries. A huge matrix can still be rank 1, and a rank-1 matrix cannot carry more than one direction of information.',
     widget:'rank'
   },
@@ -279,16 +283,17 @@ const NODES = [
     id:'RS', key:'RS', name:'RANK & SPAN', group:'rank', items:'5.2, 5.3',
     gx:36.4, gy:22, w:5, d:3, h:0.5, form:'structure',
     means:'Rank measures the reachable space. The span of the columns is the set of every output the matrix can produce, and the dimension of that span is what rank counts.',
-    compute:'Columns spanning a line give rank 1, a plane rank 2. For an m × n matrix, rank ≤ min(m,n), and rank + nullity = n.',
+    compute:'Columns spanning a line give rank 1, a plane rank 2. For an m × n matrix, rank ≤ min(m,n), and rank + nullity = n, where nullity counts the independent directions the matrix flattens to zero.',
     watch:'Two different matrices can have the same span and the same rank even when their entries look completely different.',
     widget:'rankspan'
   },
   {
     id:'LO', key:'LO', name:'LORA', group:'rank', items:'5.4',
+    full:'low-rank adaptation',
     gx:44, gy:22, w:2.4, d:2.4, h:2.4, form:'op',
-    means:'Rank turned into a training budget. The bet is that the change a model needs is low rank even when the weight matrix is not, so a thin update captures it while the original weights stay frozen.',
-    compute:'W_new = W + BA, with B of size (d × r), A of size (r × k) and r ≪ min(d,k). Trainable parameters fall from d×k to r(d+k). For d = k = 768 and r = 8 that is 12,288 instead of 589,824.',
-    watch:'r is the budget of new information. Too small and the update cannot represent what you need; too large and you have thrown away the point of the trick.',
+    means:'Rank turned into a training budget. LoRA is short for low-rank adaptation. The bet is that the change a model needs is low rank even when the weight matrix is not, so a thin update captures it while the original weights stay frozen.',
+    compute:'W_new = W + BA, where W is the original weight matrix, B has size (d × r), A has size (r × k), and r, the rank of the update, is much smaller than either d or k. The symbol ≪ means "much less than" and min(d,k) means the smaller of d and k. Trainable parameters fall from d×k to r(d+k). For d = k = 768 and r = 8 that is 12,288 instead of 589,824.',
+    watch:'The rank r is the budget of new information. Too small and the update cannot represent what you need; too large and you have thrown away the point of the trick.',
     widget:'lora'
   },
 
@@ -305,15 +310,15 @@ const NODES = [
     id:'PF', key:'PF', name:'PROJECTION FORMULA', group:'proj', items:'6.2, 6.3',
     gx:29.3, gy:24, w:2.2, d:2.2, h:2.2, form:'op',
     means:'A ruler and a reading. Dividing by u·u turns u into a unit ruler, and the dot product v·u reads off how far v reaches along it, so the two pieces together give the shadow.',
-    compute:'proj_u(v) = ((v·u)/(u·u))u. When u is already a unit vector the denominator is 1 and the formula shortens to (v·û)û.',
+    compute:'proj_u(v) = ((v·u)/(u·u))u, read "the projection of v onto u". The dot · is the dot product. When u is already a unit vector, one of length exactly 1, the denominator is 1 and the formula shortens to (v·û)û, where the hat on û marks it as that unit vector.',
     watch:'The formula always returns a multiple of u, so it must lie on the line. If v is already on the line, it returns v unchanged.',
     widget:'projformula'
   },
   {
     id:'PI', key:'PI', name:'WHY PROJECTION MATTERS', group:'proj', items:'6.4, 6.5',
     gx:48.1, gy:24, w:4, d:3, h:0.5, form:'structure',
-    means:'Replacing a point with the best available stand-in. Least squares is this idea applied to data that refuses to fit, and PCA opens by asking which line to project a whole cloud onto.',
-    compute:'The residual v − proj_u(v) is the error, and minimising its length is the least-squares problem. By Pythagoras ‖proj‖² + ‖residual‖² = ‖v‖², so keeping the most and losing the least are one goal.',
+    means:'Replacing a point with the best available stand-in. Least squares is this idea applied to data that refuses to fit, and principal component analysis, PCA, opens by asking which line to project a whole cloud onto.',
+    compute:'The residual, meaning what is left over, is v − proj_u(v), and minimising its length is the least-squares problem. Here proj_u(v) is read "the projection of v onto u". By Pythagoras ‖proj‖² + ‖residual‖² = ‖v‖², so keeping the most and losing the least are one goal.',
     watch:'“Best” means closest in Euclidean distance, which is a choice. Other norms give different best approximations.',
     widget:'whyproj'
   },
@@ -323,7 +328,7 @@ const NODES = [
     id:'EV', key:'EV', name:'EIGENVECTOR', group:'eigen', items:'7.1, 7.2, 7.4',
     gx:0, gy:28, w:2.2, d:2.2, h:2.2, form:'op',
     means:'A direction the matrix leaves alone. Most vectors get turned as well as stretched, and the eigenvectors are the exceptions where only the length changes.',
-    compute:'Av = λv, with v non-zero. To test a candidate, multiply and check the answer is a multiple of the input. For [[2,2],[−4,8]], v = [1,1] gives [4,4] = 4v.',
+    compute:'Av = λv, with v non-zero. The Greek letter λ is lambda, the eigenvalue, and the equation reads "A applied to v gives back a scalar multiple of v". To test a candidate, multiply and check the answer is a multiple of the input. For [[2,2],[−4,8]], v = [1,1] gives [4,4] = 4v.',
     watch:'Most vectors do get turned. Only very special directions are eigenvectors, and a matrix may have none (over the reals) or several.',
     widget:'eigen'
   },
@@ -331,41 +336,45 @@ const NODES = [
     id:'EC', key:'EC', name:'EIGENVALUE & CALCULATION', group:'eigen', items:'7.3, 7.5',
     gx:9.3, gy:28, w:1.8, d:1.8, h:4.5, form:'measure',
     means:'The stretch factor that arrives with each eigenvector. Its sign and size say what happened: a negative value flips the direction, magnitude above 1 grows, below 1 shrinks, and zero collapses the direction entirely.',
-    compute:'Solve det(A − λI) = 0 for the eigenvalues, then solve (A − λI)v = 0 for each one. For [[2,1],[1,2]] the polynomial is λ² − 4λ + 3, giving λ = 3 and λ = 1.',
+    compute:'Solve det(A − λI) = 0 for the eigenvalues, then solve (A − λI)v = 0 for each one. Here det is the determinant, λ is lambda the eigenvalue, and I is the identity matrix, the one with ones down the diagonal that leaves any vector unchanged. For [[2,1],[1,2]] the polynomial is λ² − 4λ + 3, giving λ = 3 and λ = 1.',
     watch:'The zero vector always satisfies Av = λv but is not an eigenvector. Eigenvectors must be non-zero.',
     widget:'eigencalc'
   },
   {
     id:'PD', key:'PD', name:'PCA IN DEPTH', group:'eigen', items:'7.6',
+    full:'principal component analysis',
     gx:15.2, gy:28, w:5, d:3, h:0.5, form:'structure',
-    means:'The search for the line a cloud of data spreads along. Maximising that spread turns out to be an eigenvector problem, which is why the covariance matrix appears: its eigenvectors are the directions and its eigenvalues are the variance each one carries.',
-    compute:'Centre the data, build the covariance matrix, then take its eigenvectors sorted by eigenvalue. The largest eigenvalue gives the first principal component. Covariance is symmetric, so the components come out perpendicular.',
-    watch:'Eigenvectors are directions, not axes you choose. PCA always finds the same axes for the same data, up to sign.',
+    means:'The search for the line a cloud of data spreads along. PCA is short for principal component analysis, and a principal component is one of those directions of spread. Maximising the spread turns out to be an eigenvector problem, which is why the covariance matrix appears: its eigenvectors are the directions and its eigenvalues are the variance each one carries.',
+    compute:'Centre the data, build the covariance matrix, then take its eigenvectors sorted by eigenvalue. Covariance measures how much two coordinates move together, and variance is the spread of one coordinate on its own. The largest eigenvalue gives the first principal component, written PC1, and the next gives PC2. Covariance is symmetric, so the components come out perpendicular.',
+    watch:'Eigenvectors are directions, not axes you choose. Principal component analysis always finds the same axes for the same data, up to sign.',
     widget:'pca'
   },
 
   /* ---------------- SVD & LOW-RANK ---------------- */
   {
     id:'SV', key:'SV', name:'SVD', group:'svd', items:'8.1',
+    full:'singular value decomposition',
     gx:23, gy:28, w:2.4, d:2.4, h:2.4, form:'op',
-    means:'The decomposition that works when eigenvectors will not. Eigenvalues need a square matrix and can still fail, while every matrix without exception has an SVD, which is why it carries so much of applied linear algebra.',
-    compute:'A = UΣVᵀ, with U and V orthogonal and Σ diagonal holding the singular values. For an m × n matrix, U is m × m, Σ is m × n and Vᵀ is n × n.',
+    means:'The decomposition that works when eigenvectors will not. SVD is short for singular value decomposition, and to decompose a matrix is to write it as a product of simpler ones. Eigenvalues need a square matrix and can still fail, while every matrix without exception has a singular value decomposition, which is why it carries so much of applied linear algebra.',
+    compute:'A = UΣVᵀ, said "U sigma V transposed". U and V are orthogonal, meaning their columns are perpendicular unit vectors, so they only rotate or reflect. The capital Greek letter Σ is sigma; here it is a diagonal matrix holding the singular values, not a summation sign. The superscript ᵀ means transpose, rows and columns swapped. For an m × n matrix, U is m × m, Σ is m × n and Vᵀ is n × n.',
     watch:'U and Vᵀ are not the same. The first is a change of output basis, the second a change of input basis.',
     widget:'svd'
   },
   {
     id:'SG', key:'SG', name:'SVD GEOMETRY', group:'svd', items:'8.2, 8.3',
+    full:'the singular value decomposition seen as a picture',
     gx:31, gy:28, w:4, d:3, h:0.5, form:'structure',
     means:'Every matrix does the same three things in the same order. A circle always comes out as an ellipse, because the stretching happens along fixed axes and the two rotations only decide where those axes end up pointing.',
-    compute:'Read A = UΣVᵀ right to left. Vᵀ rotates the input, Σ scales axis i by σᵢ, U rotates into the output space. The σᵢ are the semi-axis lengths of the ellipse and the columns of U are its axes.',
+    compute:'Read A = UΣVᵀ right to left. Vᵀ rotates the input, Σ scales axis i by σᵢ, U rotates into the output space. The lower-case Greek letter σ is sigma, and σᵢ is the i-th singular value, the amount of stretch along axis i. The σᵢ are the semi-axis lengths of the ellipse, meaning the distances from its centre to its ends, and the columns of U are its axes.',
     watch:'The order matters and cannot be swapped. Rotate → scale → rotate is what the factors literally say.',
     widget:'svdgeom'
   },
   {
     id:'SP', key:'SP', name:'LOW-RANK & PIXELS', group:'svd', items:'8.4, 8.5',
+    full:'approximating an image with only its largest singular values',
     gx:40.6, gy:28, w:3, d:2.4, h:0.85, form:'object', grid:[2,3],
-    means:'Photographs turn out to be close to low rank without anyone arranging it. Their singular values fall away quickly, so a few layers carry most of the picture, and Eckart-Young proves that truncating the SVD is the best rank-k approximation available.',
-    compute:'A ≈ U_k Σ_k V_kᵀ, keeping the top k singular values. Storage drops from 1,000,000 numbers to k(1000 + 1000 + 1). At k = 100 that is 200,100, or 20% of the original.',
+    means:'Photographs turn out to be close to low rank without anyone arranging it. Their singular values fall away quickly, so a few layers carry most of the picture. The Eckart-Young theorem, named after Carl Eckart and Gale Young, proves that truncating the singular value decomposition, meaning cutting it off after the first k terms, is the best rank-k approximation available.',
+    compute:'A ≈ U_k Σ_k V_kᵀ, where the subscript k means "keep only the first k columns" and ≈ means approximately equal. Keeping the top k singular values drops storage from 1,000,000 numbers to k(1000 + 1000 + 1). At k = 100 that is 200,100, or 20% of the original.',
     watch:'Low rank is an approximation. The dropped singular values are information you chose to throw away.',
     widget:'svdpixels'
   },
@@ -373,25 +382,28 @@ const NODES = [
   /* ---------------- ATTENTION ---------------- */
   {
     id:'QK', key:'QK', name:'Q, K, V', group:'attn', items:'9.1, 9.2',
+    full:'query, key and value',
     gx:3, gy:31.5, w:4, d:2.5, h:0.9, form:'object', layers:3,
-    means:'Three different questions asked of the same tokens. A query says what a token is looking for and a key says what it offers, so those two settle the weights; the value is the content that moves.',
-    compute:'Q = XW_Q, K = XW_K, V = XW_V, all linear maps of the same X. With X of size (n × d), Q and K come out (n × d_k) and V comes out (n × d_v).',
-    watch:'Q, K and V are different projections of the same input. They are not three separate inputs.',
+    means:'Three different questions asked of the same tokens. Q stands for query, K for key and V for value. A token is one piece of the input, a word or part of a word. A query says what a token is looking for and a key says what it offers, so those two settle the weights; the value is the content that moves.',
+    compute:'Q = XW_Q, K = XW_K, V = XW_V, all linear maps of the same X. X is the stack of input tokens, one per row, and W_Q, W_K and W_V are the learned weight matrices that produce the query, key and value. With X of size (n × d), where n is the number of tokens and d the size of each one, Q and K come out (n × d_k) and V comes out (n × d_v). Here d_k is the width of a query or key, and d_v the width of a value.',
+    watch:'Query, key and value are different projections of the same input. They are not three separate inputs.',
     widget:'qkv'
   },
   {
     id:'QT', key:'QT', name:'QKᵀ & SCALING', group:'attn', items:'9.3, 9.4',
+    full:'the query matrix times the transposed key matrix, then divided by √d_k',
     gx:28.6, gy:31.5, w:2, d:2, h:2, form:'op',
-    means:'Scores for every pair, and a correction for scale. Without the transpose the inner dimensions never meet, and without the division the scores grow with d_k until softmax saturates and the gradients vanish.',
-    compute:'S = QKᵀ / √d_k. Sizes (n × d_k)(d_k × n) = (n × n), one score per query-key pair. Entry (i,j) is qᵢ · kⱼ.',
-    watch:'Without the transpose the shapes do not match. Without the √d_k the softmax gets pushed into saturation for large d_k.',
+    means:'Scores for every pair, and a correction for scale. QKᵀ is the query matrix times the key matrix transposed. Without that transpose the inner dimensions never meet, and without the division the scores grow with d_k, the width of a key, until softmax saturates, meaning it hands nearly all the weight to one entry, and the gradients vanish.',
+    compute:'S = QKᵀ / √d_k, where S is the matrix of scores. Sizes (n × d_k)(d_k × n) = (n × n), one score per query-key pair. Entry (i,j) is qᵢ · kⱼ, the dot product of query i with key j.',
+    watch:'Without the transpose the shapes do not match. Without dividing by √d_k, the square root of the key width, softmax gets pushed into saturation for large d_k.',
     widget:'qkt'
   },
   {
     id:'SM', key:'SM', name:'SOFTMAX', group:'attn', items:'9.5',
+    full:'the soft maximum, which turns scores into probabilities',
     gx:38.7, gy:31.5, w:2, d:2, h:2, form:'op',
-    means:'Scores turned into weights that behave like probabilities. The exponential exaggerates differences so the largest score dominates, and nothing ever reaches zero, which keeps the whole operation differentiable.',
-    compute:'softmax(z)ᵢ = e^zᵢ / Σⱼ e^zⱼ. For [2,1,0] the result is [0.665, 0.245, 0.090]. Subtract the row maximum before exponentiating to avoid overflow; the answer is unchanged.',
+    means:'Scores turned into weights that behave like probabilities. The name is short for soft maximum: a hard maximum would give all the weight to the winner, while this one shares it out. The exponential exaggerates differences so the largest score dominates, and nothing ever reaches zero, which keeps the whole operation differentiable, meaning it has a well-defined slope everywhere so training can follow it.',
+    compute:'softmax(z)ᵢ = e^zᵢ / Σⱼ e^zⱼ. Read that as: raise e, the number 2.71828…, to the power of each score, then divide each result by the total of all of them. Here the capital Σ is a summation sign and the subscript j means "add over every entry". For [2,1,0] the result is [0.665, 0.245, 0.090]. Subtract the row maximum before exponentiating to avoid overflow, meaning numbers too large for the computer to hold; the answer is unchanged.',
     watch:'Softmax is not a hard max. It always gives some weight to everyone, and exponentiating makes large scores dominate sharply.',
     widget:'softmax'
   },
@@ -399,7 +411,7 @@ const NODES = [
     id:'AT', key:'AT', name:'FULL ATTENTION', group:'attn', items:'9.6',
     gx:44.3, gy:31.5, w:5, d:3, h:0.5, form:'structure',
     means:'A lookup where nothing is chosen outright. Every token reads a weighted blend of all the values rather than picking one, which keeps the operation differentiable and lets a single matrix multiplication serve a whole sequence.',
-    compute:'Attention(Q,K,V) = softmax(QKᵀ/√d_k)V. Four steps: score with QKᵀ, divide by √d_k, softmax each row, multiply by V. The output is (n × d_v).',
+    compute:'Attention(Q,K,V) = softmax(QKᵀ/√d_k)V, with Q the queries, K the keys and V the values. Four steps: score with QKᵀ, divide by √d_k, apply softmax to each row, multiply by V. The output is (n × d_v), one value-width row per token.',
     watch:'The output is a weighted sum of values, not of keys. Keys and queries only decide the weights.',
     widget:'attention'
   }

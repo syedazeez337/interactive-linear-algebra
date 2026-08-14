@@ -145,6 +145,9 @@
         : 'ΔW = B·A  (rank up to 2)';
       W.read(
         W.sideBySide([['W ='], blockOf(st.W, 2, 2), ['   ΔW ='], blockOf(D, 2, 2), ['   W+ΔW ='], blockOf(Wnew, 2, 2)], 2) + '\n\n' +
+        'LoRA is short for low-rank adaptation. W is the\n' +
+        'original weight matrix, the Greek capital delta in ΔW\n' +
+        'means "the change in", and r is the rank of that change.\n\n' +
         'LoRA keeps W frozen and learns ΔW = BA.\n' +
         '  B is 2 × r, A is r × 2\n\n' +
         'r = ' + st.r + '   →   ' + full + '\n\n' +
@@ -492,6 +495,9 @@
         'eigenvalues of that matrix\n' +
         '  λ₁ = ' + f(S.l1, 4) + '   λ₂ = ' + f(S.l2, 4) + '\n' +
         '  λ₁ + λ₂ = ' + f(S.l1 + S.l2, 4) + ' = trace ✓\n\n' +
+        'PC1 and PC2 are the first and second principal\n' +
+        'components, the directions the data spreads along.\n' +
+        'Variance is how widely the points spread along one.\n\n' +
         'PC1 = [' + f(S.e1.x, 3) + ', ' + f(S.e1.y, 3) + ']   variance ' + f(S.l1, 3) + '\n' +
         'PC2 = [' + f(S.e2.x, 3) + ', ' + f(S.e2.y, 3) + ']   variance ' + f(S.l2, 3) + '\n' +
         '  PC1 · PC2 = ' + f(S.e1.x * S.e2.x + S.e1.y * S.e2.y, 3) + ', perpendicular ✓\n\n' +
@@ -529,15 +535,21 @@
       const S = svd2(A);
       W.read(
         W.sideBySide([['A ='], blockOf(A, 2, 2)], 2) + '\n\n' +
-        'A = U Σ Vᵀ\n\n' +
+        'SVD is short for singular value decomposition.\n' +
+        'A = U Σ Vᵀ, said "U sigma V transposed".\n\n' +
         '  U   = orthogonal change of output basis\n' +
-        '  Σ   = diagonal scaling  [[σ₁, 0], [0, σ₂]]\n' +
-        '  Vᵀ  = orthogonal change of input basis\n\n' +
-        'singular values (from AᵀA):\n' +
+        '  Σ   = capital sigma, the diagonal matrix of\n' +
+        '        stretch factors  [[σ₁, 0], [0, σ₂]]\n' +
+        '  Vᵀ  = orthogonal change of input basis, the raised\n' +
+        '        T meaning transpose\n\n' +
+        'orthogonal means the columns are perpendicular unit\n' +
+        'vectors, so U and Vᵀ only rotate or reflect.\n\n' +
+        'singular values, the lower-case σ, are the stretch\n' +
+        'factors. They come from the eigenvalues of AᵀA:\n' +
         '  σ₁ = ' + f(S.s1, 4) + '\n' +
         '  σ₂ = ' + f(S.s2, 4) + '\n\n' +
         'every matrix, square, rectangular, singular or not, \n' +
-        'has an SVD'
+        'has a singular value decomposition'
       );
     }
     uiA = W.ui.mat(2, 2, A, draw, 44);
@@ -627,15 +639,22 @@
         '  σ₁ = ' + st.s1 + '\n' +
         '  σ₂ = ' + st.s2 + '\n' +
         '  σ₃ = ' + st.s3 + '\n\n' +
+        'k is how many layers you keep. Energy is the sum of\n' +
+        'the squared singular values, written Σσ², where the\n' +
+        'capital Σ means "add up" and σ is a singular value.\n\n' +
         'keep top k = ' + st.k + '\n' +
-        '  energy kept  ' + f(pct, 1) + '%   (Σσ² of the kept layers)\n' +
+        '  energy kept  ' + f(pct, 1) + '%   (Σσ² of the kept layers,\n' +
+        '                       as a share of the whole)\n' +
         '  storage      ' + storage + '\n\n' +
         (st.k === 1
           ? 'keeping one singular value captures most of the image\n  but throws away the fine detail'
           : st.k === 2 ? 'two singular values recover much of the remaining detail'
             : 'keeping all three is lossless but stores everything') + '\n\n' +
-        'A ≈ U_k Σ_k V_kᵀ. That is how JPEG-like ideas and\n' +
-        'low-rank compression trade size against fidelity'
+        'A ≈ U_k Σ_k V_kᵀ, where ≈ means approximately equal\n' +
+        'and the subscript k means "keep only the first k".\n' +
+        'That is how the ideas behind JPEG, the common photo\n' +
+        'format, and low-rank compression in general trade\n' +
+        'size against fidelity'
       );
     }
     sk = W.ui.slider('k', 1, 3, 1, 1, v => { st.k = v; draw(); });
@@ -662,10 +681,15 @@
     function draw() {
       const X = [[1, 2], [3, 4], [5, 6]];
       W.read(
+        'Q is the query, K the key, V the value.\n' +
+        'a token is one piece of the input, a word or part of one.\n' +
+        'n counts the tokens, d is the width of each one,\n' +
+        'd_k the width of a query or key, d_v of a value.\n\n' +
         'input tokens  X  is n × d = ' + st.n + ' × ' + st.d + '\n\n' +
         'each token is a row of X:\n' +
         X.slice(0, st.n).map(r => '  [' + r.join(', ') + ']').join('\n') + '\n\n' +
-        'learned projections:\n' +
+        'learned projections, where W_Q, W_K and W_V are the\n' +
+        'weight matrices the model learns:\n' +
         '  Q = X W_Q   (n × d_k)\n' +
         '  K = X W_K   (n × d_k)\n' +
         '  V = X W_V   (n × d_v)\n\n' +
@@ -675,16 +699,16 @@
     }
     pick = W.ui.pick('tokens n', [1, 2, 3].map(v => ({ v, t: String(v) })), 3, v => { st.n = +v; draw(); });
     return {
-      extra: W.ui.bar(pick.el, W.ui.note('Q, K, V all have n rows, one per token')),
+      extra: W.ui.bar(pick.el, W.ui.note('query, key and value all have n rows, one per token')),
       draw: draw,
       reset: function () { st.n = 3; pick.set(3); draw(); },
       steps: function () {
         return [
-          'Attention works on a sequence of n token vectors, each of dimension d.',
-          'Three learned matrices W_Q, W_K, W_V project those tokens into three different spaces.',
-          'The result is Q, K, and V, each with n rows, one row per token.',
+          'Attention works on a sequence of n token vectors, each of dimension d. A token is one piece of the input, a word or part of a word.',
+          'Three learned weight matrices, written W_Q, W_K and W_V, project those tokens into three different spaces.',
+          'The result is Q for query, K for key and V for value, each with n rows, one row per token.',
           'Q is “what am I looking for”, K is “what do I contain”, V is “what would I hand over”.',
-          'Q and K share the same dimension d_k because they must be dotted together; V can have a different dimension d_v.'
+          'Query and key share the same width, called d_k, because they must be dotted together; the value can have a different width, called d_v.'
         ];
       }
     };
@@ -704,6 +728,10 @@
       const raw = Math.sqrt(dk);
       const scaled = raw / Math.sqrt(dk);
       W.read(
+        'Q is the query matrix, K the key matrix, n the number\n' +
+        'of tokens, and d_k the width of one query or key.\n' +
+        'The raised T in Kᵀ means transpose, rows swapped\n' +
+        'with columns.\n\n' +
         'Q is n × d_k = ' + n + ' × ' + dk + '\n' +
         'K is n × d_k = ' + n + ' × ' + dk + '\n\n' +
         'QKᵀ is (' + n + ' × ' + dk + ')(' + dk + ' × ' + n + ') = ' + n + ' × ' + n + '\n' +
@@ -827,6 +855,8 @@
         f(Q[i * 2 + 1]) + '×' + f(K[j * 2 + 1]) + ') = ' + f(P.S[i * 2 + j], 2);
       const rowSum = i => f(P.Wt[i * 2] + P.Wt[i * 2 + 1], 4);
       W.read(
+        'Q is the query, K the key, V the value. n counts the\n' +
+        'tokens and d_k is the width of one query or key.\n\n' +
         'n = 2 tokens   d_k = ' + dk + '   √d_k = ' + f(root, 4) + '\n\n' +
         W.sideBySide([['Q ='], blockOf(Q, 2, 2), ['  K ='], blockOf(K, 2, 2), ['  V ='], blockOf(st.V, 2, 2)], 2) + '\n\n' +
         'STEP 1   S = QKᵀ, every query against every key\n' +

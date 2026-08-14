@@ -305,7 +305,8 @@
         'COUNTING IN R^n  (n = 2 here)\n' +
         '  fewer than n vectors  → can never span\n' +
         '  more than n vectors   → must be dependent\n' +
-        '  exactly n vectors     → independent ⇔ spans ⇔ basis'
+        '  exactly n vectors     → independent ⇔ spans ⇔ basis\n' +
+        '                          ⇔ means "exactly when"'
       );
     }
     W.attachDrag(pl, () => vs.slice(0, st.n), function (i, x, y) { vs[i].x = x; vs[i].y = y; draw(); });
@@ -770,6 +771,8 @@
         W.sideBySide([['A ='], blockOf(st.A, 3, 4), ['   x ='], W.colBlock(st.x.map(v => f(v)))], 2) + '\n\n' +
         rows.join('\n') + '\n\n' +
         'Ax = [' + y.map(v => f(v)).join(', ') + ']\n\n' +
+        'rank counts the independent directions the output can\n' +
+        'reach; nullity counts the directions crushed to zero.\n' +
         'rank A = ' + rk + '     nullity = ' + (4 - rk) + '     rank + nullity = 4  ✓\n\n' +
         twin + (msg ? '\n' + msg : '')
       );

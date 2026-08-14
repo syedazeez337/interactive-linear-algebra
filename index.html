@@ -74,6 +74,7 @@
         <div id="inside-head">
           <span class="ik" id="inside-key">V</span>
           <span class="inm" id="inside-name">VECTOR</span>
+          <span class="ifull" id="inside-full"></span>
           <span class="back" id="inside-back" style="cursor:pointer">← COME BACK OUT</span>
         </div>
         <div id="inside-body">
@@ -123,6 +124,34 @@
         <mark>Trace one step</mark> advances a single node, or a single line of arithmetic
         once you are inside one. Clicking a <mark>section header</mark> in the sidebar
         zooms the map to that group.</p>
+
+        <div class="phead">NOTATION USED HERE</div><div class="rule"></div>
+        <p class="ptext">Every short form on this map, spelled out.</p>
+        <div class="legend notation">
+          <div><span class="sw">R<sup>n</sup></span><span>all lists of n real numbers</span></div>
+          <div><span class="sw">v&#8321;</span><span>the first component of the vector v</span></div>
+          <div><span class="sw">&#8214;v&#8214;</span><span>the length, or norm, of v</span></div>
+          <div><span class="sw">|k|</span><span>absolute value: the size of k, ignoring its sign</span></div>
+          <div><span class="sw">u &middot; v</span><span>the dot product of u and v, a single number</span></div>
+          <div><span class="sw">v&#770;</span><span>&ldquo;v hat&rdquo;, the unit vector along v, length exactly 1</span></div>
+          <div><span class="sw">A&#7488;</span><span>A transposed: rows and columns swapped</span></div>
+          <div><span class="sw">det A</span><span>the determinant of A, the area scale factor</span></div>
+          <div><span class="sw">dim V</span><span>the dimension of V, the size of any basis</span></div>
+          <div><span class="sw">rank</span><span>how many independent directions the output can reach</span></div>
+          <div><span class="sw">nullity</span><span>how many independent directions get flattened to zero</span></div>
+          <div><span class="sw">span</span><span>every point reachable by combining the given vectors</span></div>
+          <div><span class="sw">proj</span><span>projection: the closest point in a smaller space</span></div>
+          <div><span class="sw">&lambda;</span><span>lambda, an eigenvalue: the stretch along an eigenvector</span></div>
+          <div><span class="sw">&sigma;</span><span>sigma, a singular value: a stretch factor in the SVD</span></div>
+          <div><span class="sw">&Sigma;</span><span>capital sigma: a sum, or the diagonal matrix of singular values</span></div>
+          <div><span class="sw">SVD</span><span>singular value decomposition</span></div>
+          <div><span class="sw">PCA</span><span>principal component analysis; PC1 is its first direction</span></div>
+          <div><span class="sw">RREF</span><span>reduced row echelon form</span></div>
+          <div><span class="sw">LoRA</span><span>low-rank adaptation</span></div>
+          <div><span class="sw">Q K V</span><span>query, key and value, in attention</span></div>
+          <div><span class="sw">d_k</span><span>the width of one query or key; d_v is the width of one value</span></div>
+          <div><span class="sw">softmax</span><span>soft maximum: turns scores into weights that sum to 1</span></div>
+        </div>
 
         <div class="phead">THE WRITTEN NOTES</div><div class="rule"></div>
         <p class="ptext">This map follows a written checklist. The full workshop notes,
