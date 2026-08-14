@@ -7,7 +7,7 @@
 var Widgets = (function () {
   'use strict';
 
-  const INK = '#14140F', OXIDE = '#8C3A1E', MUTE = '#6B6754';
+  const INK = '#14140F', OXIDE = '#7E3319', MUTE = '#4B4837';
   const GROUND = '#CEC69B', GROUND2 = '#C5BC8E';
   const HAIR = 'rgba(20,20,15,.16)', HAIR2 = 'rgba(20,20,15,.4)';
   const FAINT = 'rgba(20,20,15,.38)';

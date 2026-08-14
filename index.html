@@ -7,6 +7,15 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<noscript>
+  <div style="padding:20px 22px;border-bottom:1px solid #14140F;background:#C5BC8E;
+              font-family:monospace;font-size:13px;line-height:1.7;color:#14140F">
+    <strong>This map needs JavaScript.</strong> The playgrounds compute their
+    arithmetic in the browser, so nothing is drawn without it. The written workshop
+    notes cover the same 63 items and are entirely static:
+    <a href="notes.html" style="color:#14140F">read the notes instead</a>.
+  </div>
+</noscript>
 <div id="app">
 
   <!-- ---------------- stat bar ---------------- -->
@@ -45,7 +54,15 @@
 
     <!-- ---------------- stage ---------------- -->
     <div id="stage">
-      <canvas id="atlas"></canvas>
+      <!-- A canvas is a bitmap and exposes nothing to assistive technology, so the
+           sidebar list is the accessible equivalent of this map. The fallback text
+           inside the tag is shown if canvas is unavailable. -->
+      <canvas id="atlas" role="img"
+              aria-label="Isometric map of 48 linear algebra topics. Use the topic list in the sidebar to navigate.">
+        An isometric map of 48 linear algebra topics. Your browser does not support
+        canvas, but every topic is listed in the sidebar and described in the panel,
+        and the written notes are available at <a href="notes.html">notes.html</a>.
+      </canvas>
       <div id="zoom">
         <button id="zin" title="zoom in">+</button>
         <button id="zout" title="zoom out">−</button>

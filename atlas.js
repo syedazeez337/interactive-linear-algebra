@@ -11,7 +11,7 @@
   const GROUND = '#CEC69B';
   const HATCH = 'rgba(20,20,15,.55)';
   const GRID = 'rgba(20,20,15,.13)';
-  const OXIDE = '#8C3A1E';
+  const OXIDE = '#7E3319';
 
   const UX = 30, UY = 15, UZ = 26;
   const GX = 32, GY = 24;
@@ -294,31 +294,53 @@
     return null;
   }
 
-  /* ---------------- sidebar ---------------- */
+  /* ---------------- sidebar ----------------
+     Rows and section headers are real buttons, not clickable divs. The canvas is
+     invisible to assistive technology, so this list is the accessible equivalent
+     of the map: it must be reachable by keyboard and announced properly. */
   function buildSidebar() {
     const el = document.getElementById('sidebar');
     el.innerHTML = '';
     GROUPS.forEach(function (g) {
       const list = NODES.filter(n => n.group === g.id);
       if (!list.length) return;
-      const h = document.createElement('div');
+      const live = list.some(n => n.form !== 'locked');
+      const h = document.createElement(live ? 'button' : 'div');
       h.className = 'grp'; h.textContent = g.label;
       h.dataset.group = g.id;
-      h.title = 'focus this section on the map';
-      if (list.some(n => n.form !== 'locked')) h.addEventListener('click', () => focusGroup(g.id));
+      if (live) {
+        h.type = 'button';
+        h.setAttribute('aria-label', 'Focus section ' + g.label + ' on the map');
+        h.addEventListener('click', () => focusGroup(g.id));
+      }
       el.appendChild(h);
+
+      const ul = document.createElement('ul');
+      ul.className = 'rowlist';
+      ul.setAttribute('aria-label', g.label);
       list.forEach(function (n) {
-        const row = document.createElement('div');
-        row.className = 'row' + (n.form === 'locked' ? ' locked' : '');
+        const li = document.createElement('li');
+        const locked = n.form === 'locked';
+        const row = document.createElement(locked ? 'div' : 'button');
+        row.className = 'row' + (locked ? ' locked' : '');
         row.dataset.id = n.id;
         row.innerHTML = '<span class="rk"></span><span class="rn"></span><span class="rc"></span>';
         row.querySelector('.rk').textContent = n.key;
         row.querySelector('.rn').textContent = n.name;
         row.querySelector('.rc').textContent = n.items ? String(n.items).split(',').length : '';
-        if (n.form !== 'locked') row.addEventListener('click', () => toggleNode(n.id));
-        row.title = n.form === 'locked' ? 'not switched on' : (n.items || '');
-        el.appendChild(row);
+        if (locked) {
+          row.setAttribute('aria-disabled', 'true');
+          row.title = 'not switched on';
+        } else {
+          row.type = 'button';
+          row.setAttribute('aria-label', n.name + (n.items ? ', checklist item ' + n.items : ''));
+          row.title = n.items || '';
+          row.addEventListener('click', () => toggleNode(n.id));
+        }
+        li.appendChild(row);
+        ul.appendChild(li);
       });
+      el.appendChild(ul);
     });
   }
 
@@ -406,55 +428,111 @@
     select(PATH[j], true);
   }
 
-  /* ---------------- events ---------------- */
-  CV.addEventListener('mousedown', function (e) {
-    dragging = true; dragMoved = false; lastX = e.clientX; lastY = e.clientY;
-    CV.classList.add('drag');
-  });
-  window.addEventListener('mouseup', function () { dragging = false; CV.classList.remove('drag'); });
-  window.addEventListener('mousemove', function (e) {
+  /* ---------------- events ----------------
+     Pointer events rather than mouse events, so touch and pen drive the map as
+     well as a mouse. The canvas carries touch-action:none so the browser does not
+     claim the gesture for page scrolling before we see it. */
+
+  const REDUCED_MOTION = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const pointers = new Map();   /* live pointers, for pinch */
+  let pinchDist = 0, pinchMid = null;
+
+  function localPt(e) {
     const r = CV.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+  function applyZoom(nz, cx, cy) {
+    nz = Math.min(2.4, Math.max(0.34, nz));
+    const f = nz / zoom;
+    panX = cx - (cx - panX) * f;
+    panY = cy - (cy - panY) * f;
+    zoom = nz; render();
+  }
+  function twoPointerState() {
+    const p = [...pointers.values()];
+    return {
+      dist: Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y),
+      mid: { x: (p[0].x + p[1].x) / 2, y: (p[0].y + p[1].y) / 2 }
+    };
+  }
+
+  CV.addEventListener('pointerdown', function (e) {
+    CV.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, localPt(e));
+    if (pointers.size === 2) {
+      const s = twoPointerState(); pinchDist = s.dist; pinchMid = s.mid;
+      dragging = false;
+    } else if (pointers.size === 1) {
+      dragging = true; dragMoved = false;
+      lastX = e.clientX; lastY = e.clientY;
+      CV.classList.add('drag');
+    }
+  });
+
+  CV.addEventListener('pointermove', function (e) {
+    if (pointers.has(e.pointerId)) pointers.set(e.pointerId, localPt(e));
+
+    /* two fingers: pinch to zoom about the midpoint */
+    if (pointers.size === 2) {
+      const s = twoPointerState();
+      if (pinchDist > 0) applyZoom(zoom * (s.dist / pinchDist), s.mid.x, s.mid.y);
+      pinchDist = s.dist; pinchMid = s.mid;
+      return;
+    }
+
     if (dragging) {
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
       if (Math.abs(dx) + Math.abs(dy) > 2) dragMoved = true;
       panX += dx; panY += dy; lastX = e.clientX; lastY = e.clientY;
       render(); return;
     }
-    if (inside) return;
-    const pt = { x: e.clientX - r.left, y: e.clientY - r.top };
-    if (pt.x < 0 || pt.y < 0 || pt.x > r.width || pt.y > r.height) { hover = null; tip.style.opacity = 0; render(); return; }
+
+    /* hover readout is a pointing-device affordance; skip it for touch */
+    if (inside || e.pointerType === 'touch') return;
+    const pt = localPt(e);
+    if (pt.x < 0 || pt.y < 0 || pt.x > CV.clientWidth || pt.y > CV.clientHeight) {
+      hover = null; tip.style.opacity = 0; render(); return;
+    }
     const n = hitTest(pt);
     const id = n ? n.id : null;
     if (id !== hover) { hover = id; render(); }
     if (n) {
-      tip.textContent = n.key + ' · ' + n.name + (n.form === 'locked' ? ' · not switched on' : '');
+      tip.textContent = n.key + ' · ' + n.name;
       tip.style.left = (pt.x + 14) + 'px';
       tip.style.top = (pt.y + 14) + 'px';
       tip.style.opacity = 1;
     } else tip.style.opacity = 0;
   });
+
+  function endPointer(e) {
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchDist = 0;
+    if (pointers.size === 0) { dragging = false; CV.classList.remove('drag'); }
+  }
+  CV.addEventListener('pointerup', endPointer);
+  CV.addEventListener('pointercancel', endPointer);
+  CV.addEventListener('lostpointercapture', endPointer);
+
+  /* Tap or click. On touch there is no hover and no double-click, so the first
+     tap selects a node and a second tap on the same node opens it. */
   CV.addEventListener('click', function (e) {
-    if (dragMoved) return;
-    const r = CV.getBoundingClientRect();
-    const n = hitTest({ x: e.clientX - r.left, y: e.clientY - r.top });
-    if (n && n.form !== 'locked') select(n.id, false);
+    if (dragMoved || inside) return;
+    const n = hitTest(localPt(e));
+    if (!n || n.form === 'locked') return;
+    if (current === n.id) openNode(n.id); else select(n.id, false);
   });
   CV.addEventListener('dblclick', function (e) {
     if (inside) return;
-    const r = CV.getBoundingClientRect();
-    const n = hitTest({ x: e.clientX - r.left, y: e.clientY - r.top });
+    const n = hitTest(localPt(e));
     if (n && n.form !== 'locked') openNode(n.id);
   });
+
   CV.addEventListener('wheel', function (e) {
     e.preventDefault();
-    const r = CV.getBoundingClientRect();
-    const mx = e.clientX - r.left, my = e.clientY - r.top;
-    const k = e.deltaY < 0 ? 1.12 : 1 / 1.12;
-    const nz = Math.min(2.4, Math.max(0.34, zoom * k));
-    const f = nz / zoom;
-    panX = mx - (mx - panX) * f;
-    panY = my - (my - panY) * f;
-    zoom = nz; render();
+    const pt = localPt(e);
+    applyZoom(zoom * (e.deltaY < 0 ? 1.12 : 1 / 1.12), pt.x, pt.y);
   }, { passive: false });
 
   document.getElementById('zin').addEventListener('click', () => { zoom = Math.min(2.4, zoom * 1.2); render(); });
@@ -486,6 +564,9 @@
       }
       return;
     }
+    /* A CSS animation rule cannot stop a requestAnimationFrame loop, so honour
+       the reduced-motion preference here: step the path instead of animating it. */
+    if (REDUCED_MOTION) { move(1); return; }
     flow.playing = !flow.playing;
     this.setAttribute('aria-pressed', flow.playing ? 'true' : 'false');
     this.textContent = flow.playing ? '■ PAUSE THE FLOW' : '▶ RESUME THE FLOW';

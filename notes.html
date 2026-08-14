@@ -5,24 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Linear Algebra Workshop &mdash; Complete Checklist</title>
 <style>
+/* Palette matched to the atlas so the two pages read as one site. Deliberately a
+   single visual world with no dark variant: the atlas is a technical drawing whose
+   olive ground is part of its identity, and switching between the two pages should
+   not change the lighting. Every colour is painted explicitly, so the page holds
+   whatever the host background is. */
 :root{
-  --paper:#FCFBF9; --raise:#FFFFFF; --ink:#17171A; --ink-2:#3A3B40;
-  --mute:#6E7076; --line:#E2E0DC; --line-2:#D2CFC9;
-  --blue:#1B4DB1; --blue-soft:#EEF2FB; --red:#A8321F; --red-soft:#FAF0ED;
+  --paper:#CEC69B; --raise:#D5CEA6; --ink:#14140F; --ink-2:#3D3B2E;
+  --mute:#4B4837; --line:rgba(20,20,15,.22); --line-2:rgba(20,20,15,.42);
+  --blue:#17418F; --blue-soft:#DCD8B6; --red:#7E3319; --red-soft:#DFD2B6;
   --serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
   --mono:ui-monospace,"SF Mono","Cascadia Mono","Segoe UI Mono",Consolas,monospace;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --paper:#131315; --raise:#1B1B1E; --ink:#EAE8E4; --ink-2:#C6C4C0;
-    --mute:#94969C; --line:#2C2C31; --line-2:#3A3A40;
-    --blue:#8FB1F0; --blue-soft:#1B2233; --red:#E39177; --red-soft:#2E1F1B;
-  }
-}
-:root[data-theme="dark"]{
-  --paper:#131315; --raise:#1B1B1E; --ink:#EAE8E4; --ink-2:#C6C4C0;
-  --mute:#94969C; --line:#2C2C31; --line-2:#3A3A40;
-  --blue:#8FB1F0; --blue-soft:#1B2233; --red:#E39177; --red-soft:#2E1F1B;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}

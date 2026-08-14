@@ -7,14 +7,17 @@
   --ground-3:#BBB182;
   --ink:#14140F;
   --ink-2:#3D3B2E;
-  --mute:#6B6754;
+  --mute:#4B4837;
   --hair:rgba(20,20,15,.20);
   --hair-2:rgba(20,20,15,.42);
-  --oxide:#8C3A1E;
+  --oxide:#7E3319;
   --mono:"SF Mono","Cascadia Mono","DejaVu Sans Mono",Menlo,Consolas,"Courier New",monospace;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
+/* One visible focus treatment for everything reachable by keyboard. */
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.row:focus-visible,.grp:focus-visible{outline-offset:-2px}
 body{
   margin:0; background:var(--ground); color:var(--ink);
   font-family:var(--mono); font-size:13px; line-height:1.5;
@@ -51,14 +54,17 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 /* Section headers focus their group on the map. The marker and the hover label
    are there so that is discoverable rather than hidden behind a title tooltip. */
 .grp{font-size:9.5px;letter-spacing:.13em;color:var(--mute);padding:14px 4px 6px;
-  cursor:pointer;display:flex;align-items:center;gap:7px}
+  cursor:pointer;display:flex;align-items:center;gap:7px;
+  width:100%;text-align:left;background:transparent;border:0;font-family:inherit}
 .grp::before{content:'▸';font-size:7px;opacity:.6;flex:0 0 auto}
 .grp:hover{color:var(--ink)}
 .grp:hover::after{content:'focus';margin-left:auto;font-size:8px;letter-spacing:.1em;opacity:.7}
 .grp[aria-current="true"]{color:var(--ink);font-weight:bold}
 .grp[aria-current="true"]::before{content:'▾';opacity:1}
+.rowlist{list-style:none;margin:0;padding:0}
 .row{display:flex;gap:7px;align-items:flex-start;border:1px solid var(--ink);
-  padding:6px 7px;margin-bottom:-1px;cursor:pointer;background:transparent}
+  padding:6px 7px;margin-bottom:-1px;cursor:pointer;background:transparent;
+  width:100%;text-align:left;font:inherit;color:inherit}
 .row:hover{background:var(--ground-2)}
 .row[aria-current="true"]{background:var(--ink);color:var(--ground)}
 .row .rk{font-size:9.5px;color:var(--mute);min-width:17px;padding-top:1px}
@@ -71,8 +77,11 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 
 /* ---------- canvas stage ---------- */
 #stage{position:relative;overflow:hidden;background:var(--ground)}
-#atlas{display:block;width:100%;height:100%;cursor:grab}
+/* touch-action:none stops the browser claiming drags and pinches for page
+   scrolling, so the canvas can implement its own pan and zoom. */
+#atlas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
 #atlas.drag{cursor:grabbing}
+#atlas:focus-visible{outline:2px solid var(--ink);outline-offset:-3px}
 #zoom{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:5px}
 #zoom button{width:26px;height:26px;border:1px solid var(--ink);background:transparent;
   cursor:pointer;line-height:1;font-size:14px;padding:0}
@@ -151,9 +160,11 @@ mark{background:var(--ink);color:var(--ground);padding:0 3px}
   #controls{margin-left:0;flex:1 1 100%;padding:7px 12px;
     border-top:1px solid var(--hair-2);flex-wrap:wrap}
 
+  /* dvh tracks the viewport as mobile browser toolbars slide away; plain vh is
+     kept first as the fallback for anything older than iOS 15.4 / Chrome 108. */
   #sidebar{border-right:0;border-bottom:1px solid var(--ink);
-    max-height:34vh;padding:6px 8px 14px}
-  #stage{height:62vh;min-height:340px}
+    max-height:34vh;max-height:34dvh;padding:6px 8px 14px}
+  #stage{height:62vh;height:62dvh;min-height:340px}
   #panel{border-left:0;border-top:1px solid var(--ink)}
   #panel-body{overflow:visible;padding:14px 14px 32px}
   #hints{font-size:8.5px;letter-spacing:.05em;padding:6px 10px}
