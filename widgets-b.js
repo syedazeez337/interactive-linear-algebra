@@ -293,7 +293,7 @@
       if (r === 2) pl.shape([[-9, -9], [9, -9], [9, 9], [-9, 9]], 'rgba(140,58,30,.08)', null);
       else if (r === 1) { const d = vs.slice(0, st.n).find(v => v.x || v.y); if (d) pl.line(d.x, d.y, 'rgba(140,58,30,.3)', 10); }
       const cols = [INK, OX, '#4A5A2E'];
-      for (let i = 0; i < st.n; i++) { pl.vec(vs[i].x, vs[i].y, cols[i], 'v' + (i + 1)); pl.handle(vs[i].x, vs[i].y, cols[i]); }
+      for (let i = 0; i < st.n; i++) { pl.vec(vs[i].x, vs[i].y, cols[i], 'v' + '₁₂₃'[i]); pl.handle(vs[i].x, vs[i].y, cols[i]); }
       const indep = r === st.n, spans = r === 2, basis = indep && spans;
       W.read(
         'vectors in the set : ' + st.n + '\n' +
@@ -302,7 +302,7 @@
         'spans R² ?      ' + (spans ? 'YES' : 'NO, the span is ' + (r === 1 ? 'a line' : 'a point')) + '\n' +
         'dim of span     ' + r + '\n' +
         'basis of R² ?   ' + (basis ? 'YES' : 'NO, ' + (!spans ? 'too few directions' : 'redundant, too many vectors')) + '\n\n' +
-        'COUNTING IN Rⁿ  (n = 2 here)\n' +
+        'COUNTING IN R^n  (n = 2 here)\n' +
         '  fewer than n vectors  → can never span\n' +
         '  more than n vectors   → must be dependent\n' +
         '  exactly n vectors     → independent ⇔ spans ⇔ basis'
@@ -525,7 +525,9 @@
   /* ============ MV - matrix x vector ============ */
   W.register('matvec', function () {
     const pl = W.Plane(560, 380, 44);
-    const A = [2, 1, 1, 2], x = { x: 2, y: 1 };
+    /* x must not start on top of a column of A, or the two arrows and their
+       labels land in the same place. Column 1 here is (2, 1). */
+    const A = [2, 1, 1, 2], x = { x: 2, y: -1 };
     let uiA;
     function ax() { return { x: A[0] * x.x + A[1] * x.y, y: A[2] * x.x + A[3] * x.y }; }
     function draw() {
@@ -563,7 +565,7 @@
       W.ui.note('drag x'));
     return {
       cv: pl.cv, extra: bar, draw: draw,
-      reset: function () { A[0] = 2; A[1] = 1; A[2] = 1; A[3] = 2; x.x = 2; x.y = 1; uiA.sync(); draw(); },
+      reset: function () { A[0] = 2; A[1] = 1; A[2] = 1; A[3] = 2; x.x = 2; x.y = -1; uiA.sync(); draw(); },
       steps: function () {
         const o = ax(), det = A[0] * A[3] - A[1] * A[2];
         return [
@@ -685,8 +687,10 @@
       pl.shape([[0, 0], [1, 0], [1, 1], [0, 1]], 'rgba(20,20,15,.10)', 'rgba(20,20,15,.45)');
       const p10 = ap(1, 0), p11 = ap(1, 1), p01 = ap(0, 1);
       pl.shape([[0, 0], [p10.x, p10.y], [p11.x, p11.y], [p01.x, p01.y]], 'rgba(140,58,30,.16)', OX);
-      pl.vec(1, 0, 'rgba(20,20,15,.45)', 'e₁', { width: 1.8, labOff: [4, 16] });
-      pl.vec(0, 1, 'rgba(20,20,15,.45)', 'e₂', { width: 1.8, labOff: [-24, -4] });
+      /* Both basis labels sit next to an axis tick number, so push them far
+         enough along the axis to read as separate words. */
+      pl.vec(1, 0, 'rgba(20,20,15,.45)', 'e₁', { width: 1.8, labOff: [11, 16] });
+      pl.vec(0, 1, 'rgba(20,20,15,.45)', 'e₂', { width: 1.8, labOff: [-34, -4] });
       pl.vec(p10.x, p10.y, INK, 'Ae₁', { width: 3, labOff: [10, -6] });
       pl.vec(p01.x, p01.y, OX, 'Ae₂', { width: 3, labOff: [10, -6] });
       const det = A[0] * A[3] - A[1] * A[2];
@@ -758,8 +762,11 @@
         rows.push('  row' + (r + 1) + '·x = ' + parts.join(' + ') + ' = ' + f(y[r]));
       }
       W.read(
-        'A is 3 × 4   . 4 columns in, 3 rows out\n' +
-        'so A maps R⁴ → R³\n\n' +
+        /* Superscript 4 and above collapse into a blob at the 12.5px readout
+           size, so the dimension that carries the whole point becomes
+           unreadable. The caret form stays legible at any size. */
+        'A is 3 × 4, so 4 columns in and 3 rows out\n' +
+        'A maps R^4 → R^3\n\n' +
         W.sideBySide([['A ='], blockOf(st.A, 3, 4), ['   x ='], W.colBlock(st.x.map(v => f(v)))], 2) + '\n\n' +
         rows.join('\n') + '\n\n' +
         'Ax = [' + y.map(v => f(v)).join(', ') + ']\n\n' +
@@ -787,7 +794,7 @@
       steps: function () {
         const y = matVec(st.A, 3, 4, st.x), rk = rank(st.A.slice(), 3, 4);
         return [
-          'To go from R⁴ to R³ you need 4 columns and 3 rows, a 3 × 4 matrix.',
+          'To go from R^4 to R^3 you need 4 columns and 3 rows, a 3 × 4 matrix.',
           'Each of the 3 output entries is one row of A dotted with the whole 4-component input.',
           'Ax = [' + y.map(v => f(v)).join(', ') + ']. Four numbers went in, three came out.',
           'rank A = ' + rk + ', so nullity = ' + (4 - rk) + '. At least one whole direction gets crushed to zero.',
@@ -814,8 +821,8 @@
         rows.push('  row' + (r + 1) + ' = ' + parts.join(' + ') + ' = ' + f(y[r]));
       }
       W.read(
-        'A is 6 × 4   . 4 columns in, 6 rows out\n' +
-        'so A maps R⁴ → R⁶\n\n' +
+        'A is 6 × 4, so 4 columns in and 6 rows out\n' +
+        'A maps R^4 → R^6\n\n' +
         W.sideBySide([['A ='], blockOf(st.A, 6, 4), ['  x ='], W.colBlock(st.x.map(v => f(v)))], 2) + '\n\n' +
         rows.join('\n') + '\n\n' +
         'Ax = [' + y.map(v => f(v)).join(', ') + ']\n\n' +
@@ -825,7 +832,7 @@
         '  4 columns, so the outputs can only fill a\n' +
         '  ' + rk + '-dimensional slice of the 6-dimensional space.\n' +
         '  ' + (6 - rk) + ' of the 6 directions are never reached.\n\n' +
-        'The output lives in R⁶ but does not fill it.\n' +
+        'The output lives in R^6 but does not fill it.\n' +
         'Raising dimension cannot create information.'
       );
     }
@@ -842,10 +849,10 @@
       steps: function () {
         const y = matVec(st.A, 6, 4, st.x), rk = rank(st.A.slice(), 6, 4);
         return [
-          'To go from R⁴ to R⁶ you need 4 columns and 6 rows, a 6 × 4 matrix.',
+          'To go from R^4 to R^6 you need 4 columns and 6 rows, a 6 × 4 matrix.',
           'Ax = [' + y.map(v => f(v)).join(', ') + ']. Six numbers came out of four.',
           'But no information was created. Every output is a linear combination of just 4 columns.',
-          'rank A = ' + rk + ', so the outputs only ever fill a ' + rk + '-dimensional slice of R⁶.',
+          'rank A = ' + rk + ', so the outputs only ever fill a ' + rk + '-dimensional slice of R^6.',
           'Edit the bottom rows and you can change which slice, but never how big it is. The ceiling is the column count.'
         ];
       }

@@ -261,7 +261,7 @@ const NODES = [
   {
     id:'DI', key:'DI', name:'4D → 6D', group:'xform', items:'2.12',
     gx:23, gy:20.8, w:3, d:2, h:1.2, form:'op', slices:6,
-    means:'A larger output space holds no more information. Every output is a combination of the four columns, so the results fill a 4-dimensional slice of R⁶ and never the whole of it.',
+    means:'A larger output space holds no more information. Every output is a combination of the four columns, so the results fill a 4-dimensional slice of the 6-dimensional space and never the whole of it.',
     compute:'Needs 4 columns and 6 rows, so a 6 × 4 matrix. Rank is capped at 4 by the column count, whatever the entries are.',
     watch:'A bigger output space is not more information. This is the idea that becomes rank in section 5.'
   },

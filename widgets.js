@@ -24,6 +24,19 @@ var Widgets = (function () {
     return s.replace('-', '−');
   }
   function pad(s, n) { s = String(s); while (s.length < n) s = ' ' + s; return s; }
+
+  /* A label offset perpendicular to the direction (x, y), for the case where
+     two arrows share a line: v and kv, v and v-hat, proj and the u it lies on.
+     There the default offset runs the text straight into the other arrow.
+     Positive d puts the label on one side, negative d on the other; drop
+     shifts it down the screen afterwards. */
+  function perpOff(x, y, d, drop) {
+    const n = Math.hypot(x, y);
+    if (!n) return [d, drop || 0];
+    let px = y / n, py = x / n;
+    if (px < 0) { px = -px; py = -py; }
+    return [px * d, py * d + (drop || 0)];
+  }
   function sgn(n) { return n < 0 ? '− ' + Math.abs(n) : '+ ' + n; }
   /* column of numbers as bracketed text rows, for the readout */
   function colBlock(vals, width) {
@@ -106,8 +119,23 @@ var Widgets = (function () {
         c.closePath(); c.fill();
         if (lab) {
           c.font = 'bold 12px ' + MONO; c.textAlign = 'left'; c.textBaseline = 'bottom';
-          const off = opts.labOff || [9, -5];
-          const q = P.fit(b.x + off[0], b.y + off[1], c.measureText(lab).width, 12, 'bottom');
+          const lw = c.measureText(lab).width;
+          let lx, ly;
+          if (opts.labOff) {
+            lx = b.x + opts.labOff[0]; ly = b.y + opts.labOff[1];
+          } else {
+            /* Push the label clear of the tip along the arrow's own direction.
+               A fixed diagonal offset lands on the 11px arrowhead or on the
+               drag handle whenever the arrow happens to point that way. */
+            const cx = Math.cos(ang), cy = Math.sin(ang), d = 14;
+            const ex = b.x + cx * d, ey = b.y + cy * d;
+            /* For a horizontal or vertical arrow, sit the box clear of the line
+               rather than centred on it, so a second arrow sharing that line
+               does not run through the text. */
+            lx = cx > 0.3 ? ex + 2 : cx < -0.3 ? ex - 2 - lw : ex + 5;
+            ly = cy > 0.3 ? ey + 13 : cy < -0.3 ? ey - 2 : ey - 3;
+          }
+          const q = P.fit(lx, ly, lw, 12, 'bottom');
           c.fillText(lab, q.x, q.y);
         }
         c.restore();
@@ -183,12 +211,16 @@ var Widgets = (function () {
         return P;
       },
 
-      /* small square marking a right angle between unit dirs u and v */
-      rightAngle: function (ux, uy, vx, vy, s) {
+      /* Small square marking a right angle between dirs u and v. The corner
+         defaults to the origin; pass cx,cy when the angle sits elsewhere,
+         such as the foot of a triangle. */
+      rightAngle: function (ux, uy, vx, vy, s, cx, cy) {
         const n1 = Math.hypot(ux, uy), n2 = Math.hypot(vx, vy);
         if (!n1 || !n2) return P;
+        const ox = cx || 0, oy = cy || 0;
         const a = [ux / n1 * s, uy / n1 * s], b = [vx / n2 * s, vy / n2 * s];
-        P.shape([[0, 0], a, [a[0] + b[0], a[1] + b[1]], b], null, INK);
+        P.shape([[ox, oy], [ox + a[0], oy + a[1]],
+          [ox + a[0] + b[0], oy + a[1] + b[1]], [ox + b[0], oy + b[1]]], null, INK);
         return P;
       },
 
@@ -357,6 +389,7 @@ var Widgets = (function () {
     /* exposed to widget files */
     Plane: Plane, attachDrag: attachDrag, ui: ui,
     f: f, pad: pad, sgn: sgn, colBlock: colBlock, sideBySide: sideBySide,
+    perpOff: perpOff,
     INK: INK, OXIDE: OXIDE, MUTE: MUTE, GROUND: GROUND, GROUND2: GROUND2,
     HAIR2: HAIR2, FAINT: FAINT, MONO: MONO,
     read: function (txt) { if (readEl) readEl.textContent = minus(txt); renderSteps(); },

@@ -22,14 +22,18 @@
         c.beginPath(); c.moveTo(p.x, o.y - 5); c.lineTo(p.x, o.y + 5); c.stroke();
         c.fillStyle = 'rgba(20,20,15,.55)'; c.fillText(String(i), p.x, o.y + 9);
       }
-      /* magnitude bar from 0 to k */
-      pl.seg(0, 0.55, st.k, 0.55, OX, null, 5);
-      pl.text(st.k / 2, 0.62, '|k| = ' + f(Math.abs(st.k)), OX);
+      /* magnitude bar from 0 to k. Three things want the strip above the axis,
+         so give each its own band: value label at the handle, then the bar,
+         then the bar's own label above it. */
+      pl.seg(0, 1, st.k, 1, OX, null, 5);
       pl.handle(st.k, 0, INK);
+      const mid = pl.S(st.k / 2, 1.75), hp = pl.S(st.k, 0);
+      c.fillStyle = OX; c.font = '11px ' + W.MONO;
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText('|k| = ' + f(Math.abs(st.k)), mid.x, mid.y);
       c.fillStyle = INK; c.font = 'bold 15px ' + W.MONO;
-      c.textAlign = 'center'; c.textBaseline = 'bottom';
-      const hp = pl.S(st.k, 0);
-      c.fillText('k = ' + f(st.k), hp.x, hp.y - 12);
+      c.textBaseline = 'bottom';
+      c.fillText('k = ' + f(st.k), hp.x, hp.y - 8);
       paint();
     }
     function paint() {
@@ -242,9 +246,9 @@
     }
     const bar = W.ui.bar(W.ui.buttons([
       { label: 'scalar', fn: () => { st.dims = []; st.name = 'a single number'; draw(); } },
-      { label: 'embedding R⁷⁶⁸', fn: () => { st.dims = [768]; st.name = 'one word embedding'; draw(); } },
+      { label: 'embedding 768', fn: () => { st.dims = [768]; st.name = 'one word embedding'; draw(); } },
       { label: 'weight 1000×768', fn: () => { st.dims = [1000, 768]; st.name = 'one layer’s weight matrix'; draw(); } },
-      { label: 'RGB image', fn: () => { st.dims = [224, 224, 3]; st.name = 'one colour image . H × W × channels'; draw(); } },
+      { label: 'RGB image', fn: () => { st.dims = [224, 224, 3]; st.name = 'one colour image, H × W × channels'; draw(); } },
       { label: 'batch', fn: () => { st.dims = [32, 128, 768]; st.name = 'batch of sentences, batch × tokens × d'; draw(); } },
       { label: 'video batch', fn: () => { st.dims = [8, 16, 224, 224]; st.name = 'batch of video clips, order 4'; draw(); } }
     ]));
@@ -308,7 +312,9 @@
       pl.clear();
       const d = { x: b.x - a.x, y: b.y - a.y };
       pl.vec(a.x, a.y, INK, 'a');
-      pl.vec(b.x, b.y, INK, 'b');
+      /* b and b−a both end at b and arrive from nearly the same direction, so
+         their labels stack. Send b's out to the far side of its own line. */
+      pl.vec(b.x, b.y, INK, 'b', { labOff: W.perpOff(b.x, b.y, -18, -2) });
       pl.vec(b.x, b.y, OX, 'b−a', { fromX: a.x, fromY: a.y, width: 3 });
       pl.vec(d.x, d.y, OX, null, { dash: [5, 4], width: 1.6 });
       pl.handle(a.x, a.y, INK); pl.handle(b.x, b.y, INK);
@@ -346,8 +352,10 @@
       pl.clear();
       pl.line(st.x, st.y, 'rgba(20,20,15,.10)', 8);
       const kx = st.k * st.x, ky = st.k * st.y;
-      pl.vec(kx, ky, OX, 'kv', { width: 3 });
-      pl.vec(st.x, st.y, INK, 'v');
+      /* v and kv share a line, so send their labels perpendicular on opposite
+         sides. That holds whichever of the two is the longer one. */
+      pl.vec(kx, ky, OX, 'kv', { width: 3, labOff: W.perpOff(st.x, st.y, 18, 6) });
+      pl.vec(st.x, st.y, INK, 'v', { labOff: W.perpOff(st.x, st.y, -18, -4) });
       pl.handle(st.x, st.y, INK);
       const nv = Math.hypot(st.x, st.y), nk = Math.hypot(kx, ky);
       W.read(
@@ -443,7 +451,11 @@
       pl.shape([[0, 0], [st.x, 0], [st.x, st.y]], 'rgba(140,58,30,.09)', null);
       pl.seg(0, 0, st.x, 0, OX, null, 2.4);
       pl.seg(st.x, 0, st.x, st.y, OX, null, 2.4);
-      if (st.x && st.y) pl.rightAngle(st.x > 0 ? -0.4 : 0.4, 0, 0, st.y > 0 ? 0.4 : -0.4, 1);
+      /* The right angle is at the foot of the triangle, (x, 0), not at the origin.
+         Its legs run back along the base and up the vertical side. */
+      if (st.x && st.y) {
+        pl.rightAngle(st.x > 0 ? -1 : 1, 0, 0, st.y > 0 ? 1 : -1, 0.32, st.x, 0);
+      }
       pl.vec(st.x, st.y, INK, 'v', { width: 3 });
       pl.handle(st.x, st.y, INK);
       pl.text(st.x / 2, 0, '|' + st.x + '|', OX);
@@ -470,7 +482,7 @@
           'Square them: ' + (st.x * st.x) + ' and ' + (st.y * st.y) + '.',
           'Add: ' + (st.x * st.x) + ' + ' + (st.y * st.y) + ' = ' + sq + '.',
           'Take the square root: ‖v‖ = √' + sq + ' = ' + f(Math.sqrt(sq), 4) + '.',
-          'In Rⁿ nothing changes except the number of terms: ‖v‖ = √(v₁² + … + vₙ²).'
+          'In R^n nothing changes except the number of terms: ‖v‖ = √(v₁² + … + vₙ²).'
         ];
       }
     };
@@ -485,7 +497,9 @@
       pl.circle(1, 'rgba(140,58,30,.55)', [4, 4]);
       const n = Math.hypot(st.x, st.y);
       pl.vec(st.x, st.y, INK, 'v');
-      if (n) pl.vec(st.x / n, st.y / n, OX, 'v̂', { width: 3 });
+      /* v̂ is parallel to v by construction, so its label has to go
+         perpendicular or it lands on the v arrow. */
+      if (n) pl.vec(st.x / n, st.y / n, OX, 'v̂', { width: 3, labOff: W.perpOff(st.x, st.y, 18, 6) });
       pl.handle(st.x, st.y, INK);
       W.read(
         W.sideBySide([['v ='], W.colBlock([st.x, st.y])], 1) + '\n\n' +
@@ -714,8 +728,10 @@
       const na = Math.hypot(a.x, a.y), nb = Math.hypot(bs.x, bs.y);
       pl.vec(a.x, a.y, 'rgba(20,20,15,.35)', null, { width: 1.6 });
       pl.vec(bs.x, bs.y, 'rgba(140,58,30,.35)', null, { width: 1.6 });
-      if (na) pl.vec(a.x / na, a.y / na, INK, 'â', { width: 3 });
-      if (nb) pl.vec(bs.x / nb, bs.y / nb, OX, 'b̂', { width: 3 });
+      /* Each unit vector lies on its own full-length arrow, so both labels go
+         perpendicular rather than out along the shared direction. */
+      if (na) pl.vec(a.x / na, a.y / na, INK, 'â', { width: 3, labOff: W.perpOff(a.x, a.y, 16, 8) });
+      if (nb) pl.vec(bs.x / nb, bs.y / nb, OX, 'b̂', { width: 3, labOff: W.perpOff(bs.x, bs.y, -16, 8) });
       pl.handle(a.x, a.y, INK); pl.handle(b.x, b.y, OX);
       const dRaw = a.x * b.x + a.y * b.y;
       const dScaled = a.x * bs.x + a.y * bs.y;

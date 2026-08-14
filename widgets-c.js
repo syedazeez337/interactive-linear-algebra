@@ -206,7 +206,8 @@
       const p = { x: s * u.x, y: s * u.y };
       pl.vec(u.x, u.y, INK, 'u', { width: 2 });
       pl.vec(v.x, v.y, OX, 'v');
-      pl.vec(p.x, p.y, INK, 'proj', { width: 3 });
+      /* proj sits on the u line, so its label goes perpendicular to it. */
+      pl.vec(p.x, p.y, INK, 'proj', { width: 3, labOff: W.perpOff(u.x, u.y, 16, 10) });
       pl.seg(p.x, p.y, v.x, v.y, 'rgba(140,58,30,.6)', [4, 3]);
       pl.handle(v.x, v.y, OX); pl.handle(u.x, u.y, INK);
       W.read(
@@ -295,7 +296,9 @@
       const e = { x: v.x - p.x, y: v.y - p.y };
       pl.vec(u.x, u.y, INK, 'u');
       pl.vec(v.x, v.y, OX, 'v');
-      pl.vec(p.x, p.y, INK, 'best', { width: 3 });
+      /* proj lies on the u line, so its label goes perpendicular, below the
+         line and away from the dashed error segment running up to v. */
+      pl.vec(p.x, p.y, INK, 'best', { width: 3, labOff: W.perpOff(u.x, u.y, 16, 10) });
       pl.seg(p.x, p.y, v.x, v.y, OX, [4, 3]);
       pl.handle(v.x, v.y, OX);
       const err = Math.hypot(e.x, e.y);
@@ -337,11 +340,14 @@
     function av() { return { x: A[0] * v.x + A[1] * v.y, y: A[2] * v.x + A[3] * v.y }; }
     function draw() {
       pl.clear();
-      pl.vec(v.x, v.y, INK, 'v', { width: 3 });
       const o = av();
+      const sameLine = Math.abs(det2(v.x, o.x, v.y, o.y)) < EPS && (o.x || o.y);
+      /* On an eigenvector the two arrows lie on one line, which is the state
+         this widget asks you to find, so v's label has to step off that line
+         or the Av arrow runs straight through the text. */
+      pl.vec(v.x, v.y, INK, 'v', { width: 3, labOff: sameLine ? W.perpOff(v.x, v.y, -16, -4) : null });
       pl.vec(o.x, o.y, OX, 'Av', { width: 3 });
       pl.handle(v.x, v.y, INK);
-      const sameLine = Math.abs(det2(v.x, o.x, v.y, o.y)) < EPS && (o.x || o.y);
       W.read(
         W.sideBySide([['A ='], blockOf(A, 2, 2), ['   v ='], W.colBlock([v.x, v.y])], 2) + '\n\n' +
         'Av = [' + f(o.x, 3) + ', ' + f(o.y, 3) + ']\n\n' +
@@ -471,7 +477,9 @@
       });
       pts.forEach(p => pl.dot(p.x, p.y, INK, 5));
       pl.dot(S.mx, S.my, OX, 7);
-      pl.text(S.mx, S.my, 'mean', OX);
+      /* Oxide text on the oxide PC1 band, over a 7px oxide dot, barely reads.
+         Step the label off along PC2 and set it in ink. */
+      pl.text(S.mx + S.e2.x * 0.42, S.my + S.e2.y * 0.42, 'mean', INK);
       pl.text(S.mx + S.e1.x * a1, S.my + S.e1.y * a1, 'PC1', OX);
 
       const pct = S.tr ? S.l1 / S.tr * 100 : 0;
@@ -555,14 +563,22 @@
     const A = [2, 1, 0, 1]; let uiA;
     function draw() {
       pl.clear();
-      pl.shape([[0, 0], [1, 0], [1, 1], [0, 1]], 'rgba(20,20,15,.10)', 'rgba(20,20,15,.45)');
-      const p10 = { x: A[0], y: A[2] }, p01 = { x: A[1], y: A[3] };
-      pl.shape([[0, 0], [p10.x, p10.y], [p10.x + p01.x, p10.y + p01.y], [p01.x, p01.y]], 'rgba(140,58,30,.16)', OX);
+      /* The readout and the steps both talk about the unit circle and the
+         ellipse it becomes, so draw those two, not a square and a parallelogram.
+         Sampling A(cos t, sin t) gives the image exactly. */
+      const N = 120, circle = [], ellipse = [];
+      for (let i = 0; i < N; i++) {
+        const t = i / N * Math.PI * 2, ct = Math.cos(t), sn = Math.sin(t);
+        circle.push([ct, sn]);
+        ellipse.push([A[0] * ct + A[1] * sn, A[2] * ct + A[3] * sn]);
+      }
+      pl.shape(circle, 'rgba(20,20,15,.08)', 'rgba(20,20,15,.45)');
+      pl.shape(ellipse, 'rgba(140,58,30,.16)', OX);
       const S = svd2(A);
       const a1 = { x: S.s1 * S.u1.x, y: S.s1 * S.u1.y };
       const a2 = { x: S.s2 * S.u2.x, y: S.s2 * S.u2.y };
-      pl.vec(a1.x, a1.y, INK, 'σ₁u₁', { width: 3, labOff: [10, -6] });
-      pl.vec(a2.x, a2.y, OX, 'σ₂u₂', { width: 3, labOff: [10, -6] });
+      pl.vec(a1.x, a1.y, INK, 'σ₁u₁', { width: 3 });
+      pl.vec(a2.x, a2.y, OX, 'σ₂u₂', { width: 3 });
       W.read(
         'A maps the unit circle to an ellipse.\n' +
         'Its axes are the true singular vectors u₁ and u₂.\n\n' +
@@ -593,10 +609,16 @@
   W.register('svdpixels', function () {
     const st = { k: 1, s1: 40, s2: 20, s3: 8 };
     let sk;
+    /* Energy is the squared Frobenius norm, which the SVD splits as the sum of
+       the squared singular values. Summing the values themselves understates
+       how much of the image the top layer already carries. */
+    function energy(k) {
+      const sq = [st.s1 * st.s1, st.s2 * st.s2, st.s3 * st.s3];
+      const full = sq[0] + sq[1] + sq[2];
+      return sq.slice(0, k).reduce((a, b) => a + b, 0) / full * 100;
+    }
     function draw() {
-      const full = st.s1 + st.s2 + st.s3;
-      const kept = st.k === 1 ? st.s1 : st.k === 2 ? st.s1 + st.s2 : full;
-      const pct = (kept / full * 100);
+      const pct = energy(st.k);
       const storage = st.k === 1 ? '~k(1000+1000+1) = 2001 numbers'
         : st.k === 2 ? '~k(1000+1000+1) = 4002 numbers' : '1000×1000 = 1,000,000 numbers';
       W.read(
@@ -606,7 +628,7 @@
         '  σ₂ = ' + st.s2 + '\n' +
         '  σ₃ = ' + st.s3 + '\n\n' +
         'keep top k = ' + st.k + '\n' +
-        '  energy kept  ' + f(pct, 1) + '%\n' +
+        '  energy kept  ' + f(pct, 1) + '%   (Σσ² of the kept layers)\n' +
         '  storage      ' + storage + '\n\n' +
         (st.k === 1
           ? 'keeping one singular value captures most of the image\n  but throws away the fine detail'
@@ -622,12 +644,10 @@
       draw: draw,
       reset: function () { st.k = 1; sk.set(1); draw(); },
       steps: function () {
-        const full = st.s1 + st.s2 + st.s3;
-        const kept = st.k === 1 ? st.s1 : st.k === 2 ? st.s1 + st.s2 : full;
         return [
           'An image is just a matrix, and the SVD splits it into layers ranked by importance.',
           'The singular values are the sizes of those layers. Here σ₁ = ' + st.s1 + ' dominates.',
-          'Keeping only the top k = ' + st.k + ' values keeps ' + f(kept / full * 100, 1) + '% of the energy.',
+          'Keeping only the top k = ' + st.k + ' values keeps ' + f(energy(st.k), 1) + '% of the energy, measured as Σσ².',
           'Storage is roughly k×(rows+columns+1) instead of rows×columns, a huge saving for small k.',
           'Low rank is lossy: the dropped singular values are fine detail you chose to discard.'
         ];
@@ -676,32 +696,38 @@
     let sk;
     function draw() {
       const n = 3, dk = st.dk;
-      const raw = 2 * dk;
+      /* With q and k components independent, mean 0 and variance 1, the dot
+         product has variance d_k, so its typical size is √d_k, not d_k.
+         Dividing by √d_k is what pins the scaled score at about 1 whatever
+         d_k does. Modelling raw as d_k would leave the scaled score growing
+         and contradict the point of the scaling. */
+      const raw = Math.sqrt(dk);
       const scaled = raw / Math.sqrt(dk);
       W.read(
         'Q is n × d_k = ' + n + ' × ' + dk + '\n' +
         'K is n × d_k = ' + n + ' × ' + dk + '\n\n' +
         'QKᵀ is (' + n + ' × ' + dk + ')(' + dk + ' × ' + n + ') = ' + n + ' × ' + n + '\n' +
         'the transpose makes the inner d_k match\n\n' +
-        'example dot product of two random unit-ish vectors\n' +
-        '  raw score   ≈ ' + f(raw, 2) + '\n' +
+        'typical size of one score q·k, for components\n' +
+        'drawn independently with mean 0 and variance 1\n' +
+        '  raw score   ≈ √d_k = ' + f(raw, 2) + '\n' +
         '  ÷ √d_k = ÷ √' + dk + ' = ÷ ' + f(Math.sqrt(dk), 3) + '\n' +
         '  scaled      ≈ ' + f(scaled, 2) + '\n\n' +
-        'scaling keeps scores from blowing up as d_k grows,\n' +
-        'so softmax does not saturate'
+        'the raw score grows with √d_k, the scaled one stays\n' +
+        'at about 1, so softmax does not saturate'
       );
     }
     sk = W.ui.slider('d_k', 1, 64, 1, 4, v => { st.dk = v; draw(); });
     return {
-      extra: W.ui.bar(sk.el, W.ui.note('raise d_k and watch the raw dot product grow')),
+      extra: W.ui.bar(sk.el, W.ui.note('raise d_k: the raw score grows, the scaled one holds')),
       draw: draw,
       reset: function () { st.dk = 4; sk.set(4); draw(); },
       steps: function () {
         return [
           'Q and K each have shape n × d_k, so their inner dimensions match only when K is transposed.',
           'QKᵀ = (n×d_k)(d_k×n) = n×n, one score for every query-key pair.',
-          'A dot product sums d_k terms, so its typical size grows with d_k.',
-          'Dividing by √d_k keeps the variance roughly constant.',
+          'A dot product sums d_k independent terms, so its variance is d_k and its typical size grows with √d_k.',
+          'Dividing by √d_k brings that variance back to about 1, whatever d_k is.',
           'That keeps the softmax inputs in a sensible range instead of saturating into all-or-nothing weights.'
         ];
       }
@@ -724,7 +750,10 @@
       const raw = st.z.map(z => Math.exp(z));
       const plain = raw.every(v => isFinite(v)) && isFinite(raw.reduce((a, b) => a + b, 0));
       const shown = plain ? raw : e;
-      const shownSum = shown.reduce((a, b) => a + b, 0);
+      /* Add up the terms as they are printed, to 4 places. Rounding the exact
+         sum instead lands on 11.2125 while the three lines above it read
+         7.3891 + 2.7183 + 1.1052 = 11.2126, and the column stops adding up. */
+      const shownSum = shown.reduce((a, b) => a + +f(b, 4), 0);
       W.read(
         'scores  z = [' + st.z.map(v => f(v, 2)).join(', ') + ']\n\n' +
         (plain ? 'e^zᵢ:\n' : 'e^(zᵢ − max), shifted, the raw form overflows:\n') +
