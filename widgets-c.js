@@ -23,6 +23,30 @@
   }
   function rank2(A) { return Math.abs(det2(A[0], A[1], A[2], A[3])) < EPS ? (A.some(v => v) ? 1 : 0) : 2; }
 
+  /* Full 2×2 SVD. Returns singular values plus the left/right singular vectors
+     so the geometry widget can draw the true ellipse axes (A v_i = σ_i u_i). */
+  function svd2(A) {
+    const a = A[0], b = A[1], c = A[2], d = A[3];
+    const p = a * a + c * c, q = a * b + c * d, r = b * b + d * d;
+    const tr = p + r, det = p * r - q * q;
+    const disc = Math.sqrt(Math.max(0, tr * tr - 4 * det));
+    const l1 = (tr + disc) / 2, l2 = (tr - disc) / 2;
+    const s1 = Math.sqrt(l1), s2 = Math.sqrt(l2);
+    let v1x, v1y;
+    if (Math.abs(q) < EPS) {
+      if (p >= r) { v1x = 1; v1y = 0; } else { v1x = 0; v1y = 1; }
+    } else {
+      v1x = q; v1y = l1 - p;
+      const n1 = Math.hypot(v1x, v1y) || 1;
+      v1x /= n1; v1y /= n1;
+    }
+    const v2x = -v1y, v2y = v1x;
+    let u1x = 1, u1y = 0, u2x = 0, u2y = 1;
+    if (s1 > EPS) { u1x = (a * v1x + b * v1y) / s1; u1y = (c * v1x + d * v1y) / s1; }
+    if (s2 > EPS) { u2x = (a * v2x + b * v2y) / s2; u2y = (c * v2x + d * v2y) / s2; }
+    return { s1: s1, s2: s2, u1: { x: u1x, y: u1y }, u2: { x: u2x, y: u2y }, v1: { x: v1x, y: v1y }, v2: { x: v2x, y: v2y } };
+  }
+
   /* ============ RK — rank ============ */
   W.register('rank', function () {
     const A = [1, 2, 3, 4]; let uiA;
@@ -103,40 +127,49 @@
   W.register('lora', function () {
     const st = { W: [1, 2, 3, 4], r: 1, B: [1, 2], A: [3, 1] };
     let uiW, sr, uiB, uiA;
-    function delta() { return [st.B[0] * st.A[0], st.B[0] * st.A[1], st.B[1] * st.A[0], st.B[1] * st.A[1]]; }
+    /* B is 2×r, A is r×2, both stored row-major flat. */
+    function delta() {
+      const B = st.B, A = st.A, r = st.r;
+      return [
+        B[0] * A[0] + (r === 2 ? B[1] * A[2] : 0),
+        B[0] * A[1] + (r === 2 ? B[1] * A[3] : 0),
+        B[r] * A[0] + (r === 2 ? B[r + 1] * A[2] : 0),
+        B[r] * A[1] + (r === 2 ? B[r + 1] * A[3] : 0)
+      ];
+    }
     function draw() {
       const D = delta();
       const Wnew = st.W.map((v, i) => v + D[i]);
       const full = st.r === 1
-        ? 'ΔW = [' + st.B.join(', ') + ']ᵀ · [' + st.A.join(', ') + ']  (rank 1)'
-        : 'ΔW = full 2×2 update (rank up to 2)';
+        ? 'ΔW = B·A  (rank 1)'
+        : 'ΔW = B·A  (rank up to 2)';
       W.read(
         W.sideBySide([['W ='], blockOf(st.W, 2, 2), ['   ΔW ='], blockOf(D, 2, 2), ['   W+ΔW ='], blockOf(Wnew, 2, 2)], 2) + '\n\n' +
         'LoRA keeps W frozen and learns ΔW = BA.\n' +
         '  B is 2 × r, A is r × 2\n\n' +
         'r = ' + st.r + '   →   ' + full + '\n\n' +
         'parameters learned:\n' +
-        '  full fine-tune   2×2 = ' + (st.W.length) + '\n' +
+        '  full fine-tune   2×2 = ' + st.W.length + '\n' +
         '  LoRA r=' + st.r + '          2×' + st.r + ' + ' + st.r + '×2 = ' + (4 * st.r) + '\n\n' +
         (st.r === 1 ? 'r is the budget of new information — a rank-1 update can only move along one direction.'
           : 'r = 2 means no saving: ΔW can express any 2×2 change.')
       );
     }
     uiW = W.ui.mat(2, 2, st.W, draw, 40);
-    uiB = W.ui.mat(2, st.r, st.B, draw, 40);
-    uiA = W.ui.mat(st.r, 2, st.A, draw, 40);
-    sr = W.ui.slider('r', 1, 2, 1, 1, v => { st.r = v; rebuild(); });
     function rebuild() {
-      st.B = [1, 2]; st.A = [3, 1];
+      st.B = st.r === 1 ? [1, 2] : [1, 0, 0, 1];
+      st.A = st.r === 1 ? [3, 1] : [2, 0, 0, 3];
       uiB = W.ui.mat(2, st.r, st.B, draw, 40);
       uiA = W.ui.mat(st.r, 2, st.A, draw, 40);
       draw();
     }
+    sr = W.ui.slider('r', 1, 2, 1, 1, v => { st.r = v; rebuild(); });
+    rebuild();
     return {
       extra: W.ui.bar(W.ui.label('W ='), uiW.el, W.ui.label('B ='), uiB.el, W.ui.label('A ='), uiA.el, sr.el,
         W.ui.note('drag r to 2 and the saving disappears')),
       draw: draw,
-      reset: function () { st.W.splice(0, 4, 1, 2, 3, 4); st.r = 1; st.B = [1, 2]; st.A = [3, 1]; uiW.sync(); rebuild(); },
+      reset: function () { st.W.splice(0, 4, 1, 2, 3, 4); st.r = 1; uiW.sync(); rebuild(); },
       steps: function () {
         const D = delta();
         return [
@@ -424,24 +457,23 @@
   W.register('svd', function () {
     const A = [3, 0, 0, 1]; let uiA;
     function draw() {
-      const s1 = Math.sqrt(A[0] * A[0] + A[2] * A[2]);
-      const s2 = Math.sqrt(A[1] * A[1] + A[3] * A[3]);
+      const S = svd2(A);
       W.read(
         W.sideBySide([['A ='], blockOf(A, 2, 2)], 2) + '\n\n' +
         'A = U Σ Vᵀ\n\n' +
         '  U   = orthogonal change of output basis\n' +
         '  Σ   = diagonal scaling  [[σ₁, 0], [0, σ₂]]\n' +
         '  Vᵀ  = orthogonal change of input basis\n\n' +
-        'singular values for this diagonal A:\n' +
-        '  σ₁ = ' + f(s1, 4) + '\n' +
-        '  σ₂ = ' + f(s2, 4) + '\n\n' +
+        'singular values (from AᵀA):\n' +
+        '  σ₁ = ' + f(S.s1, 4) + '\n' +
+        '  σ₂ = ' + f(S.s2, 4) + '\n\n' +
         'every matrix — square, rectangular, singular or not —\n' +
         'has an SVD'
       );
     }
     uiA = W.ui.mat(2, 2, A, draw, 44);
     return {
-      extra: W.ui.bar(W.ui.label('A ='), uiA.el, W.ui.note('for a diagonal matrix the singular values are the entries')),
+      extra: W.ui.bar(W.ui.label('A ='), uiA.el, W.ui.note('singular values come from the eigenvalues of AᵀA')),
       draw: draw,
       reset: function () { A.splice(0, 4, 3, 0, 0, 1); uiA.sync(); draw(); },
       steps: function () {
@@ -465,16 +497,17 @@
       pl.shape([[0, 0], [1, 0], [1, 1], [0, 1]], 'rgba(20,20,15,.10)', 'rgba(20,20,15,.45)');
       const p10 = { x: A[0], y: A[2] }, p01 = { x: A[1], y: A[3] };
       pl.shape([[0, 0], [p10.x, p10.y], [p10.x + p01.x, p10.y + p01.y], [p01.x, p01.y]], 'rgba(140,58,30,.16)', OX);
-      pl.vec(p10.x, p10.y, INK, 'Ae₁', { width: 3 });
-      pl.vec(p01.x, p01.y, OX, 'Ae₂', { width: 3 });
+      const S = svd2(A);
+      const a1 = { x: S.s1 * S.u1.x, y: S.s1 * S.u1.y };
+      const a2 = { x: S.s2 * S.u2.x, y: S.s2 * S.u2.y };
+      pl.vec(a1.x, a1.y, INK, 'σ₁u₁', { width: 3, labOff: [10, -6] });
+      pl.vec(a2.x, a2.y, OX, 'σ₂u₂', { width: 3, labOff: [10, -6] });
       W.read(
-        'A maps the unit square to a parallelogram.\n' +
-        'The singular vectors are the axes of the ellipse\n' +
-        'inside that parallelogram.\n\n' +
-        'Ae₁ = [' + f(p10.x, 2) + ', ' + f(p10.y, 2) + ']\n' +
-        'Ae₂ = [' + f(p01.x, 2) + ', ' + f(p01.y, 2) + ']\n\n' +
-        'σ₁ = ' + f(Math.hypot(p10.x, p10.y), 3) + '  (long axis)\n' +
-        'σ₂ = ' + f(Math.hypot(p01.x, p01.y), 3) + '  (short axis)\n\n' +
+        'A maps the unit circle to an ellipse.\n' +
+        'Its axes are the true singular vectors u₁ and u₂.\n\n' +
+        'A = [[ ' + A[0] + ', ' + A[1] + ' ], [ ' + A[2] + ', ' + A[3] + ' ]]\n\n' +
+        'σ₁ = ' + f(S.s1, 4) + '   (long axis, direction [' + f(S.u1.x, 3) + ', ' + f(S.u1.y, 3) + '])\n' +
+        'σ₂ = ' + f(S.s2, 4) + '   (short axis, direction [' + f(S.u2.x, 3) + ', ' + f(S.u2.y, 3) + '])\n\n' +
         'Vᵀ rotates the input so those axes line up,\n' +
         'Σ stretches along them, and U rotates the result.'
       );

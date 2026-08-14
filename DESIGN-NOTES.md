@@ -9,8 +9,7 @@ course material already cited in `../linear-algebra-workshop.html`.
 
 Status: complete — all nine checklist sections. 48 live nodes render, carry prose,
 and have a working playground; there are no dashed placeholder nodes left. Verified
-in Chrome: 29 widgets × mount / 7 steps / reset / remount, 77 value assertions against
-hand-derived expected numbers, no NaN, no unregistered node.
+in Chrome: all 48 widgets mount and step with no NaN, no unregistered node.
 
 Files: `index.html`, `styles.css`, `nodes.js` (content + layout), `atlas.js` (isometric
 map), `widgets.js` (framework), `widgets-a.js` (objects, vector ops, measuring, norms),

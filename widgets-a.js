@@ -79,7 +79,7 @@
         '‖v‖ = √(' + st.x + '² + ' + st.y + '²) = √' + (st.x * st.x + st.y * st.y) + ' = ' + f(mag)
       );
     }
-    W.attachDrag(pl, () => [st], (i, x, y) => { if (x || y) { st.x = x; st.y = y; draw(); } });
+    W.attachDrag(pl, () => [st], (i, x, y) => { st.x = x; st.y = y; draw(); });
     return {
       cv: pl.cv, draw: draw,
       reset: function () { st.x = 3; st.y = 4; draw(); },
@@ -360,7 +360,7 @@
         'direction: ' + (st.k > 0 ? 'unchanged' : st.k < 0 ? 'reversed' : 'none — kv is the zero vector')
       );
     }
-    W.attachDrag(pl, () => [st], (i, x, y) => { if (x || y) { st.x = x; st.y = y; draw(); } });
+    W.attachDrag(pl, () => [st], (i, x, y) => { st.x = x; st.y = y; draw(); });
     sl = W.ui.slider('k', -3, 3, 0.5, 2, v => { st.k = v; draw(); });
     const bar = W.ui.bar(sl.el, W.ui.note('drag v · slide k past zero to flip it'));
     return {
@@ -636,7 +636,7 @@
       );
     }
     W.attachDrag(pl, () => [a, b], function (i, x, y) {
-      const t = i === 0 ? a : b; if (x || y) { t.x = x; t.y = y; draw(); }
+      const t = i === 0 ? a : b; t.x = x; t.y = y; draw();
     });
     return {
       cv: pl.cv, draw: draw,
@@ -683,7 +683,7 @@
       );
     }
     W.attachDrag(pl, () => [a, b], function (i, x, y) {
-      const t = i === 0 ? a : b; if (x || y) { t.x = x; t.y = y; draw(); }
+      const t = i === 0 ? a : b; t.x = x; t.y = y; draw();
     });
     return {
       cv: pl.cv, draw: draw,
@@ -738,7 +738,7 @@
       );
     }
     W.attachDrag(pl, () => [a, b], function (i, x, y) {
-      const t = i === 0 ? a : b; if (x || y) { t.x = x; t.y = y; draw(); }
+      const t = i === 0 ? a : b; t.x = x; t.y = y; draw();
     }, { bx: 5, by: 3 });
     sl = W.ui.slider('t', 0.25, 3, 0.25, 1, v => { st.t = v; draw(); });
     const bar = W.ui.bar(sl.el, W.ui.note('stretch b and watch cos θ refuse to move'));

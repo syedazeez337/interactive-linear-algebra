@@ -356,7 +356,7 @@
         const row = [];
         for (let c = 0; c < st.ac; c++) {
           const i = r * st.ac + c;
-          row.push(st.A[i] + (st.op === '+' ? '+' : '−') + Math.abs(st.B[i]) * (st.B[i] < 0 && st.op === '+' ? -1 : 1));
+          row.push(st.A[i] + (st.op === '+' ? '+' : '−') + (st.B[i] < 0 ? '(' + st.B[i] + ')' : st.B[i]));
         }
         workBlock.push('[' + row.map(s => W.pad(s, 5)).join(' ') + ']');
       }

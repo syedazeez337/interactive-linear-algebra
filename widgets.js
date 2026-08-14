@@ -309,6 +309,7 @@ var Widgets = (function () {
   /* ---------- registry + mounting ---------- */
   const MAKERS = {};
   let live = null, wrapEl = null, readEl = null, stepsEl = null, stepIdx = 0;
+  let runTimer = null;
 
   /* A hyphen immediately before a digit is always a negative sign in this app,
      never punctuation. Normalise it to the typographic minus at the render
@@ -325,6 +326,14 @@ var Widgets = (function () {
       d.textContent = (i + 1) + '. ' + minus(t);
       stepsEl.appendChild(d);
     });
+    if (stepIdx > 0) {
+      const cur = stepsEl.querySelector('.cur') || stepsEl.querySelector('.sl.on');
+      if (cur) cur.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function stopRun() {
+    if (runTimer) { clearInterval(runTimer); runTimer = null; }
   }
 
   return {
@@ -354,13 +363,27 @@ var Widgets = (function () {
       if (live.extra) wrap.appendChild(live.extra);
       live.draw();
     },
-    unmount: function () { live = null; if (wrapEl) wrapEl.innerHTML = ''; },
+    unmount: function () { live = null; stopRun(); if (wrapEl) wrapEl.innerHTML = ''; },
     step: function () {
       if (!live) return;
       const n = live.steps().length;
       stepIdx = stepIdx >= n ? 0 : stepIdx + 1;
       renderSteps();
     },
+    run: function (onDone) {
+      if (!live) return;
+      stopRun();
+      if (stepIdx >= live.steps().length) stepIdx = 0;
+      runTimer = setInterval(function () {
+        if (!live) { stopRun(); if (onDone) onDone(); return; }
+        if (stepIdx >= live.steps().length) { stopRun(); if (onDone) onDone(); return; }
+        stepIdx++;
+        renderSteps();
+        if (stepIdx >= live.steps().length) { stopRun(); if (onDone) onDone(); }
+      }, 900);
+    },
+    pause: function () { stopRun(); },
+    isRunning: function () { return runTimer !== null; },
     reset: function () { if (live) { stepIdx = 0; live.reset(); } }
   };
 })();

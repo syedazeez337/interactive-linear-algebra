@@ -51,6 +51,9 @@
      then pick the zoom and pan that centre it with a margin. */
   function resetView() {
     fitTo(NODES, { padX: 54, padTop: 26, padBot: 46, minZoom: 0.3, maxZoom: 1.5 });
+    document.querySelectorAll('#sidebar .grp').forEach(function (h) {
+      h.setAttribute('aria-current', 'false');
+    });
     render();
   }
 
@@ -83,16 +86,9 @@
   function focusGroup(groupId) {
     const members = NODES.filter(function (n) { return n.group === groupId && n.form !== 'locked'; });
     if (members.length) { fitTo(members, GROUP_FOCUS); render(); }
-  }
-
-  /* Pan only when the node has drifted outside a comfortable margin. */
-  function ensureVisible(n) {
-    const r = stage.getBoundingClientRect();
-    const c = centreTop(n), m = 90;
-    let dx = 0, dy = 0;
-    if (c.x < m) dx = m - c.x; else if (c.x > r.width - m) dx = r.width - m - c.x;
-    if (c.y < m) dy = m - c.y; else if (c.y > r.height - m) dy = r.height - m - c.y;
-    if (dx || dy) { panX += dx; panY += dy; render(); }
+    document.querySelectorAll('#sidebar .grp').forEach(function (h) {
+      h.setAttribute('aria-current', h.dataset.group === groupId ? 'true' : 'false');
+    });
   }
 
   /* ---------------- drawing helpers ---------------- */
@@ -307,6 +303,7 @@
       if (!list.length) return;
       const h = document.createElement('div');
       h.className = 'grp'; h.textContent = g.label;
+      h.dataset.group = g.id;
       h.title = 'focus this section on the map';
       if (list.some(n => n.form !== 'locked')) h.addEventListener('click', () => focusGroup(g.id));
       el.appendChild(h);
@@ -318,7 +315,7 @@
         row.querySelector('.rk').textContent = n.key;
         row.querySelector('.rn').textContent = n.name;
         row.querySelector('.rc').textContent = n.items ? String(n.items).split(',').length : '';
-        if (n.form !== 'locked') row.addEventListener('click', () => select(n.id, true));
+        if (n.form !== 'locked') row.addEventListener('click', () => toggleNode(n.id));
         row.title = n.form === 'locked' ? 'not switched on' : (n.items || '');
         el.appendChild(row);
       });
@@ -378,12 +375,29 @@
     Widgets.mount(n.widget, document.getElementById('widget-wrap'),
       document.getElementById('readout'), document.getElementById('steps'));
     document.getElementById('btn-flow').textContent = '▶ RUN THE STEPS';
+    document.getElementById('btn-flow').setAttribute('aria-pressed', 'false');
   }
   function exit() {
     inside = false;
     document.getElementById('inside').classList.remove('on');
     Widgets.unmount();
     document.getElementById('btn-flow').textContent = '▶ RESUME THE FLOW';
+    document.getElementById('btn-flow').setAttribute('aria-pressed', 'false');
+  }
+
+  /* Open a node's playground. Selecting + entering together keeps one obvious
+     action for the user. */
+  function openNode(id) {
+    if (!byId[id] || byId[id].form === 'locked') return;
+    select(id, true);
+    enter();
+  }
+
+  /* Same action both ways: click a topic to open it, click the open topic
+     again to come back out. Clicking a different topic switches straight over. */
+  function toggleNode(id) {
+    if (inside && current === id) { exit(); return; }
+    openNode(id);
   }
 
   function move(dir) {
@@ -425,7 +439,12 @@
     const n = hitTest({ x: e.clientX - r.left, y: e.clientY - r.top });
     if (n && n.form !== 'locked') select(n.id, false);
   });
-  CV.addEventListener('dblclick', function () { if (!inside) enter(); });
+  CV.addEventListener('dblclick', function (e) {
+    if (inside) return;
+    const r = CV.getBoundingClientRect();
+    const n = hitTest({ x: e.clientX - r.left, y: e.clientY - r.top });
+    if (n && n.form !== 'locked') openNode(n.id);
+  });
   CV.addEventListener('wheel', function (e) {
     e.preventDefault();
     const r = CV.getBoundingClientRect();
@@ -452,7 +471,21 @@
 
   /* controls */
   document.getElementById('btn-flow').addEventListener('click', function () {
-    if (inside) { Widgets.step(); return; }
+    if (inside) {
+      if (Widgets.isRunning()) {
+        Widgets.pause();
+        this.textContent = '▶ RESUME THE STEPS';
+        this.setAttribute('aria-pressed', 'false');
+      } else {
+        Widgets.run(function () {
+          document.getElementById('btn-flow').textContent = '▶ RUN THE STEPS';
+          document.getElementById('btn-flow').setAttribute('aria-pressed', 'false');
+        });
+        this.textContent = '■ PAUSE THE STEPS';
+        this.setAttribute('aria-pressed', 'true');
+      }
+      return;
+    }
     flow.playing = !flow.playing;
     this.setAttribute('aria-pressed', flow.playing ? 'true' : 'false');
     this.textContent = flow.playing ? '■ PAUSE THE FLOW' : '▶ RESUME THE FLOW';
@@ -460,11 +493,11 @@
     else render();
   });
   document.getElementById('btn-step').addEventListener('click', function () {
-    if (inside) { Widgets.step(); return; }
+    if (inside) { Widgets.pause(); Widgets.step(); return; }
     move(1);
   });
   document.getElementById('btn-reset').addEventListener('click', function () {
-    if (inside) { Widgets.reset(); return; }
+    if (inside) { Widgets.pause(); Widgets.reset(); document.getElementById('btn-flow').textContent = '▶ RUN THE STEPS'; return; }
     resetView();
   });
 

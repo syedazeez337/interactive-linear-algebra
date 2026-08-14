@@ -50,6 +50,7 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 #sidebar::-webkit-scrollbar-thumb{background:var(--hair-2)}
 .grp{font-size:9.5px;letter-spacing:.13em;color:var(--mute);padding:14px 4px 6px;cursor:pointer}
 .grp:hover{color:var(--ink)}
+.grp[aria-current="true"]{color:var(--ink);font-weight:bold}
 .row{display:flex;gap:7px;align-items:flex-start;border:1px solid var(--ink);
   padding:6px 7px;margin-bottom:-1px;cursor:pointer;background:transparent}
 .row:hover{background:var(--ground-2)}
