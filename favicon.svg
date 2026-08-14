@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- One hatched isometric solid: the unit the whole map is built from. -->
+  <rect width="32" height="32" fill="#CEC69B"/>
+  <defs>
+    <pattern id="h" width="3" height="3" patternUnits="userSpaceOnUse">
+      <path d="M0 0V3" stroke="#14140F" stroke-width="0.7" opacity="0.55"/>
+    </pattern>
+  </defs>
+  <!-- top face -->
+  <path d="M16 5 L27 11 L16 17 L5 11 Z" fill="#CEC69B" stroke="#14140F" stroke-width="1.6"
+        stroke-linejoin="round"/>
+  <!-- left face -->
+  <path d="M5 11 L16 17 L16 27 L5 21 Z" fill="url(#h)" stroke="#14140F" stroke-width="1.6"
+        stroke-linejoin="round"/>
+  <!-- right face -->
+  <path d="M27 11 L27 21 L16 27 L16 17 Z" fill="url(#h)" stroke="#14140F" stroke-width="1.6"
+        stroke-linejoin="round"/>
+</svg>

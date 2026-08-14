@@ -22,6 +22,9 @@
 
   let zoom = 1, panX = 0, panY = 0;
   let hover = null, current = 'Z', inside = false;
+  /* While a section is focused the rest of the map is drawn back, so 48 nodes
+     stay legible. Cleared as soon as attention moves to a single node. */
+  let focusedGroup = null;
   let flow = { playing: false, seg: 0, t: 0 };
   let dragging = false, dragMoved = false, lastX = 0, lastY = 0;
 
@@ -50,6 +53,7 @@
   /* Fit the whole atlas into the stage: measure the projected bounds at zoom 1,
      then pick the zoom and pan that centre it with a margin. */
   function resetView() {
+    focusedGroup = null;
     fitTo(NODES, { padX: 54, padTop: 26, padBot: 46, minZoom: 0.3, maxZoom: 1.5 });
     document.querySelectorAll('#sidebar .grp').forEach(function (h) {
       h.setAttribute('aria-current', 'false');
@@ -85,9 +89,13 @@
 
   function focusGroup(groupId) {
     const members = NODES.filter(function (n) { return n.group === groupId && n.form !== 'locked'; });
-    if (members.length) { fitTo(members, GROUP_FOCUS); render(); }
+    if (!members.length) return;
+    focusedGroup = (focusedGroup === groupId) ? null : groupId;
+    if (focusedGroup) fitTo(members, GROUP_FOCUS);
+    else fitTo(NODES, { padX: 54, padTop: 26, padBot: 46, minZoom: 0.3, maxZoom: 1.5 });
+    render();
     document.querySelectorAll('#sidebar .grp').forEach(function (h) {
-      h.setAttribute('aria-current', h.dataset.group === groupId ? 'true' : 'false');
+      h.setAttribute('aria-current', h.dataset.group === focusedGroup ? 'true' : 'false');
     });
   }
 
@@ -150,6 +158,9 @@
   function drawNode(n) {
     const sel = n.id === current, hov = n.id === hover;
     const bold = sel || hov;
+    const dim = focusedGroup && n.group !== focusedGroup;
+    ctx.save();
+    if (dim) ctx.globalAlpha = 0.22;
 
     if (n.form === 'locked') {
       solid(n.gx, n.gy, 0, n.w, n.d, n.h, { dashed: true });
@@ -198,6 +209,7 @@
       ctx.lineTo(d.x, d.y + 6); ctx.lineTo(d.x - 6, d.y);
       ctx.closePath(); ctx.fill();
     }
+    ctx.restore();
   }
 
   function drawGrid() {
@@ -219,25 +231,52 @@
     return [a, { x: mid.x, y: a.y }, { x: mid.x, y: b.y }, b];
   }
 
+  function stroke(p) {
+    ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y);
+    for (let i = 1; i < p.length; i++) ctx.lineTo(p[i].x, p[i].y);
+    ctx.stroke();
+  }
+  /* An edge is dimmed unless it belongs to the focused section. */
+  function edgeAlpha(A, B) {
+    if (!focusedGroup) return 1;
+    return (A.group === focusedGroup || B.group === focusedGroup) ? 1 : 0.15;
+  }
+
   function drawEdges() {
-    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(20,20,15,.34)';
+    /* relationship edges */
     LINKS.forEach(function (l) {
       const A = byId[l[0]], B = byId[l[1]];
       if (!A || !B) return;
-      const p = elbow(centreTop(A), centreTop(B));
-      ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y);
-      for (let i = 1; i < p.length; i++) ctx.lineTo(p[i].x, p[i].y);
-      if (B.form === 'locked') { ctx.save(); ctx.setLineDash([4, 4]); ctx.stroke(); ctx.restore(); }
-      else ctx.stroke();
+      ctx.save();
+      ctx.globalAlpha = edgeAlpha(A, B);
+      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(20,20,15,.34)';
+      if (B.form === 'locked') ctx.setLineDash([4, 4]);
+      stroke(elbow(centreTop(A), centreTop(B)));
+      ctx.restore();
     });
 
-    ctx.lineWidth = 2.2; ctx.strokeStyle = INK;
+    /* the learning path */
     for (let i = 0; i < PATH.length - 1; i++) {
       const A = byId[PATH[i]], B = byId[PATH[i + 1]];
-      const p = elbow(centreTop(A), centreTop(B));
-      ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y);
-      for (let k = 1; k < p.length; k++) ctx.lineTo(p[k].x, p[k].y);
-      ctx.stroke();
+      ctx.save();
+      ctx.globalAlpha = edgeAlpha(A, B);
+      ctx.lineWidth = 2.2; ctx.strokeStyle = INK;
+      stroke(elbow(centreTop(A), centreTop(B)));
+      ctx.restore();
+    }
+
+    /* everything the current node connects to, so "where am I" is answerable
+       without tracing lines by eye across 48 nodes */
+    const cur = byId[current];
+    if (cur) {
+      ctx.save();
+      ctx.lineWidth = 2.6; ctx.strokeStyle = OXIDE;
+      LINKS.concat(PATH.slice(0, -1).map((id, i) => [id, PATH[i + 1]])).forEach(function (l) {
+        if (l[0] !== current && l[1] !== current) return;
+        const A = byId[l[0]], B = byId[l[1]];
+        if (A && B) stroke(elbow(centreTop(A), centreTop(B)));
+      });
+      ctx.restore();
     }
   }
 
