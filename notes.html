@@ -1,0 +1,1820 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linear Algebra Workshop &mdash; Complete Checklist</title>
+<style>
+:root{
+  --paper:#FCFBF9; --raise:#FFFFFF; --ink:#17171A; --ink-2:#3A3B40;
+  --mute:#6E7076; --line:#E2E0DC; --line-2:#D2CFC9;
+  --blue:#1B4DB1; --blue-soft:#EEF2FB; --red:#A8321F; --red-soft:#FAF0ED;
+  --serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Segoe UI Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#131315; --raise:#1B1B1E; --ink:#EAE8E4; --ink-2:#C6C4C0;
+    --mute:#94969C; --line:#2C2C31; --line-2:#3A3A40;
+    --blue:#8FB1F0; --blue-soft:#1B2233; --red:#E39177; --red-soft:#2E1F1B;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#131315; --raise:#1B1B1E; --ink:#EAE8E4; --ink-2:#C6C4C0;
+  --mute:#94969C; --line:#2C2C31; --line-2:#3A3A40;
+  --blue:#8FB1F0; --blue-soft:#1B2233; --red:#E39177; --red-soft:#2E1F1B;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--serif);
+  font-size:17px; line-height:1.6; margin:0;
+  padding:clamp(1.5rem,4vw,3.5rem) clamp(1rem,4vw,2rem);
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:52rem;margin:0 auto;display:flex;flex-direction:column;gap:2.75rem}
+
+.mast{display:flex;flex-direction:column;gap:.85rem;border-bottom:2px solid var(--ink);padding-bottom:1.4rem}
+.eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600}
+h1{font-size:clamp(1.9rem,5vw,2.7rem);line-height:1.1;margin:0;font-weight:600;letter-spacing:-.02em;text-wrap:balance}
+.dek{color:var(--mute);max-width:42rem;margin:0;font-size:1rem}
+.meta{display:flex;flex-wrap:wrap;gap:.4rem 1.3rem;font-family:var(--mono);font-size:.72rem;color:var(--mute)}
+
+/* contents */
+.toc{border:1px solid var(--line);border-radius:3px;background:var(--raise);padding:1.2rem 1.4rem;
+  display:flex;flex-direction:column;gap:.7rem}
+.toc h2{margin:0;font-size:.7rem;font-family:var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.toc ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.35rem 1.5rem}
+.toc a{color:var(--ink);text-decoration:none;font-size:.93rem;display:flex;gap:.6rem;padding:.15rem 0}
+.toc a:hover{color:var(--blue)}
+.toc .sn{font-family:var(--mono);color:var(--blue);font-weight:600;font-size:.82rem;min-width:1.1rem}
+
+/* section */
+.sec{display:flex;flex-direction:column;gap:1.5rem}
+.sec-head{display:flex;flex-direction:column;gap:.4rem;border-left:3px solid var(--blue);padding-left:1rem;scroll-margin-top:1rem}
+.sec-head .num{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600}
+.sec-head h2{margin:0;font-size:1.55rem;font-weight:600;letter-spacing:-.01em}
+.sec-head p{margin:0;color:var(--mute);font-size:.95rem;max-width:40rem}
+
+/* item */
+.item{background:var(--raise);border:1px solid var(--line);border-radius:3px;
+  display:grid;grid-template-columns:3.6rem 1fr;overflow:hidden}
+@media (max-width:620px){.item{grid-template-columns:1fr}}
+.tag{border-right:1px solid var(--line);background:var(--paper);padding:1.1rem .4rem;
+  display:flex;align-items:flex-start;justify-content:center}
+@media (max-width:620px){.tag{border-right:0;border-bottom:1px solid var(--line);justify-content:flex-start;padding:.5rem 1.1rem}}
+.tag span{font-family:var(--mono);font-size:.82rem;font-weight:600;color:var(--blue);font-variant-numeric:tabular-nums}
+.body{padding:1.15rem clamp(1rem,3vw,1.6rem);display:flex;flex-direction:column;gap:.85rem;min-width:0}
+.item h3{margin:0;font-size:1.1rem;font-weight:600;letter-spacing:-.005em}
+.item p{margin:0}
+.item>.body>p{max-width:40rem}
+
+/* math */
+.math{font-family:var(--mono);font-size:.9rem;line-height:2.05;overflow-x:auto;padding:.15rem 0}
+.math.block{background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:.8rem 1rem;line-height:2.25}
+code{font-family:var(--mono);font-size:.9em;background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:.05em .32em}
+.item>.body>p code{white-space:nowrap}
+.m{display:inline-grid;grid-auto-rows:auto;position:relative;padding:.3em .6em;margin:0 .18em;
+  vertical-align:middle;grid-template-columns:repeat(var(--c,1),auto);line-height:1.42}
+.m::before,.m::after{content:"";position:absolute;top:0;bottom:0;width:.3em;border:1.5px solid currentColor}
+.m::before{left:0;border-right:0}
+.m::after{right:0;border-left:0}
+.m>span{padding:.04em .4em;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* rule box */
+.rule{border:2px solid var(--ink);border-radius:2px;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.45rem}
+.rule .lab{font-family:var(--mono);font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.rule .stmt{font-family:var(--mono);font-size:.92rem;line-height:1.8}
+.rule p{font-size:.92rem}
+
+/* callouts */
+.flag,.link{border-left:3px solid;padding:.65rem .95rem;display:flex;flex-direction:column;gap:.25rem;font-size:.92rem;border-radius:0 2px 2px 0}
+.flag{border-color:var(--red);background:var(--red-soft)}
+.link{border-color:var(--blue);background:var(--blue-soft)}
+.flag .h,.link .h{font-family:var(--mono);font-size:.61rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.flag .h{color:var(--red)} .link .h{color:var(--blue)}
+.flag p,.link p{margin:0}
+
+.src{font-family:var(--mono);font-size:.68rem;color:var(--mute);border-top:1px solid var(--line);padding-top:.6rem}
+
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:2px}
+table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:30rem}
+th,td{text-align:left;padding:.55rem .75rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:600;background:var(--paper)}
+tr:last-child td{border-bottom:0}
+td.mn{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:.84rem}
+.yes{color:var(--blue);font-weight:600} .no{color:var(--red);font-weight:600}
+
+ul{margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:.35rem}
+li{padding-left:.1rem}
+strong{font-weight:600}
+a{color:var(--blue)}
+.srclist{display:flex;flex-direction:column;gap:.7rem;font-size:.88rem}
+.srclist div{display:flex;flex-direction:column;gap:.12rem}
+.srclist .who{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);font-weight:600}
+.srclist a{word-break:break-all;font-size:.78rem;font-family:var(--mono)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">Complete reference &middot; checklist order</div>
+  <h1>Linear Algebra Workshop</h1>
+  <p class="dek">All nine sections of the checklist, every item, in the order the checklist
+  lists them. Sections 1, 3 and part of 4 recap what your handwritten notes already cover;
+  everything else is new. Worked examples throughout, arithmetic checked.</p>
+  <div class="meta">
+    <span>9 sections</span><span>83 items</span>
+    <span>MIT &middot; Stanford &middot; CMU &middot; Berkeley &middot; Cornell &middot; Princeton</span>
+  </div>
+  <p class="dek" style="margin-top:.2rem">Every item here also has a live playground in
+  <a href="index.html">the interactive atlas</a> &mdash; drag the vectors, edit the
+  matrices, and watch the arithmetic update.</p>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#s1"><span class="sn">1</span> Scalars, Vectors, Matrices &amp; Tensors</a></li>
+    <li><a href="#s2"><span class="sn">2</span> Matrix Operations &amp; Transformations</a></li>
+    <li><a href="#s3"><span class="sn">3</span> Dot Product, Angle &amp; Similarity</a></li>
+    <li><a href="#s4"><span class="sn">4</span> Norms, Distance &amp; Normalisation</a></li>
+    <li><a href="#s5"><span class="sn">5</span> Rank, Span &amp; Information</a></li>
+    <li><a href="#s6"><span class="sn">6</span> Orthogonality and Projection</a></li>
+    <li><a href="#s7"><span class="sn">7</span> Eigenvalues and Eigenvectors</a></li>
+    <li><a href="#s8"><span class="sn">8</span> SVD &amp; Low-Rank Approximation</a></li>
+    <li><a href="#s9"><span class="sn">9</span> Attention</a></li>
+    <li><a href="#sources"><span class="sn">&mdash;</span> Sources</a></li>
+  </ol>
+</nav>
+
+<!-- ================= SECTION 1 ================= -->
+<section class="sec">
+  <div class="sec-head" id="s1">
+    <div class="num">Section 1</div>
+    <h2>Scalars, Vectors, Matrices &amp; Tensors</h2>
+    <p>The full ladder. Items 1.1&ndash;1.14 recap your existing notes; 1.15&ndash;1.22 are new.</p>
+  </div>
+
+  <article class="item"><div class="tag"><span>1.1</span></div><div class="body">
+    <h3>Scalar</h3>
+    <p>A scalar is a single number. Not a list, not a grid.</p>
+    <div class="math block">5 &nbsp;&nbsp; &minus;2 &nbsp;&nbsp; 0.75 &nbsp;&nbsp; &pi;</div>
+    <p>Scalars are what you multiply vectors by. They are the simplest rung of the ladder
+    that ends at tensors in 1.22.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.2</span></div><div class="body">
+    <h3>Vector and components</h3>
+    <p>A vector is an ordered list of numbers. Each number is a <strong>component</strong>.</p>
+    <div class="math block">
+      v =<span class="m" style="--c:1"><span>3</span><span>4</span></span>
+      &nbsp;&nbsp; v&#8321; = 3 &nbsp;&nbsp; v&#8322; = 4 &nbsp;&nbsp; v &isin; R&sup2;
+    </div>
+    <div class="math block">
+      x =<span class="m" style="--c:1"><span>2</span><span>&minus;1</span><span>5</span></span>
+      &nbsp;&nbsp; x&#8321; = 2 &nbsp; x&#8322; = &minus;1 &nbsp; x&#8323; = 5 &nbsp;&nbsp; x &isin; R&sup3;
+    </div>
+    <p>Order matters. <code>[3,4]</code> and <code>[4,3]</code> are different vectors.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.3</span></div><div class="body">
+    <h3>Vector dimension</h3>
+    <p>The dimension of a vector is how many components it has.</p>
+    <div class="math block">
+      <span class="m" style="--c:1"><span>5</span></span> &rarr; 1D &nbsp;&nbsp; R&sup1;<br>
+      <span class="m" style="--c:1"><span>5</span><span>2</span></span> &rarr; 2D &nbsp;&nbsp; R&sup2;<br>
+      <span class="m" style="--c:1"><span>5</span><span>2</span><span>7</span></span> &rarr; 3D &nbsp;&nbsp; R&sup3;<br>
+      <span class="m" style="--c:1"><span>5</span><span>2</span><span>7</span><span>1</span></span> &rarr; 4D &nbsp;&nbsp; R&#8308;
+    </div>
+    <p>There is no limit. Word embeddings live in <code>R&#8311;&#8310;&#8312;</code> or
+    higher &mdash; you cannot draw them, but every rule on this page still applies.</p>
+    <div class="flag"><span class="h">Careful</span>
+      <p>This is the dimension of a <strong>vector</strong>. Item 1.17 defines the
+      dimension of a <strong>space</strong>, which is a different count. Do not merge them.</p></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.4</span></div><div class="body">
+    <h3>Vector addition</h3>
+    <p>Add component by component.</p>
+    <div class="math block">
+      <span class="m" style="--c:1"><span>2</span><span>3</span></span>
+      +<span class="m" style="--c:1"><span>4</span><span>5</span></span>
+      =<span class="m" style="--c:1"><span>2+4</span><span>3+5</span></span>
+      =<span class="m" style="--c:1"><span>6</span><span>8</span></span>
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">Dimensions must match.</div>
+      <p><code>[2,3] + [4,5,6]</code> is undefined. A 2D and a 3D vector cannot be added.</p></div>
+    <p>Geometrically: place the tail of the second vector at the head of the first. The sum
+    runs from the original start to the final end.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.5</span></div><div class="body">
+    <h3>Vector subtraction</h3>
+    <p>Same rule, component by component.</p>
+    <div class="math block">
+      <span class="m" style="--c:1"><span>8</span><span>3</span><span>&minus;2</span></span>
+      &minus;<span class="m" style="--c:1"><span>5</span><span>1</span><span>4</span></span>
+      =<span class="m" style="--c:1"><span>3</span><span>2</span><span>&minus;6</span></span>
+    </div>
+    <p>Subtraction is addition of the negative: <code>a &minus; b = a + (&minus;b)</code>.
+    The vector <code>b &minus; a</code> points from a to b, which is why item 4.2 uses it
+    for distance.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.6</span></div><div class="body">
+    <h3>Scalar multiplication</h3>
+    <p>Multiply every component by the scalar.</p>
+    <div class="math block">
+      3<span class="m" style="--c:1"><span>2</span><span>3</span></span>
+      =<span class="m" style="--c:1"><span>6</span><span>9</span></span>
+      &nbsp;&nbsp;&nbsp; &minus;2<span class="m" style="--c:1"><span>3</span><span>4</span></span>
+      =<span class="m" style="--c:1"><span>&minus;6</span><span>&minus;8</span></span>
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">kv = [kv&#8321;, kv&#8322;, &hellip;, kv&#8345;]</div></div>
+    <p>A positive scalar changes length only. A <strong>negative</strong> scalar also
+    reverses direction.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.7</span></div><div class="body">
+    <h3>Magnitude / length</h3>
+    <p>Pythagoras, extended to any number of components.</p>
+    <div class="math block">
+      v =<span class="m" style="--c:1"><span>3</span><span>4</span></span>
+      &nbsp;&nbsp; &#8214;v&#8214; = &radic;(3&sup2; + 4&sup2;) = &radic;25 = 5
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">&#8214;v&#8214; = &radic;(v&#8321;&sup2; + v&#8322;&sup2; + &hellip; + v&#8345;&sup2;)</div></div>
+    <p>Also called the <strong>L2 norm</strong>. Item 4.4 and 4.5 give two other ways to
+    measure length.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.8</span></div><div class="body">
+    <h3>Normalisation</h3>
+    <p>Divide a vector by its own length to get a <strong>unit vector</strong> &mdash; same
+    direction, length exactly 1.</p>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">v&#770; = v / &#8214;v&#8214;</div></div>
+    <div class="math block">
+      v =<span class="m" style="--c:1"><span>1</span><span>2</span><span>2</span></span>
+      &nbsp; &#8214;v&#8214; = &radic;(1+4+4) = 3<br><br>
+      v&#770; = &#8531;<span class="m" style="--c:1"><span>1</span><span>2</span><span>2</span></span>
+      =<span class="m" style="--c:1"><span>1/3</span><span>2/3</span><span>2/3</span></span><br><br>
+      check: &#8214;v&#770;&#8214; = &radic;(1/9 + 4/9 + 4/9) = &radic;(9/9) = 1 &nbsp;&#10003;
+    </div>
+    <p>Every non-zero vector normalises to length 1. Normalisation strips away magnitude
+    and keeps only direction, which is exactly what cosine similarity needs (item 3.4).</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.9</span></div><div class="body">
+    <h3>Dot product</h3>
+    <p>Multiply matching components, then add. The result is a <strong>scalar</strong>, not
+    a vector.</p>
+    <div class="math block">
+      <span class="m" style="--c:1"><span>2</span><span>3</span></span>
+      &middot;<span class="m" style="--c:1"><span>4</span><span>5</span></span>
+      = (2&times;4) + (3&times;5) = 8 + 15 = <strong>23</strong>
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">a &middot; b = a&#8321;b&#8321; + a&#8322;b&#8322; + &hellip; + a&#8345;b&#8345;</div></div>
+    <p>This one operation is the engine of nearly everything later: angles, projection,
+    matrix multiplication, and attention scores all reduce to dot products.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.10</span></div><div class="body">
+    <h3>Relationship between dot product and angle</h3>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">a &middot; b = &#8214;a&#8214; &#8214;b&#8214; cos&theta;<br><br>
+      so &nbsp; cos&theta; = (a &middot; b) / (&#8214;a&#8214; &#8214;b&#8214;)</div></div>
+    <div class="math block">
+      a =<span class="m" style="--c:1"><span>3</span><span>4</span></span>
+      &nbsp; b =<span class="m" style="--c:1"><span>4</span><span>3</span></span><br><br>
+      a &middot; b = 12 + 12 = 24<br>
+      &#8214;a&#8214; = 5 &nbsp;&nbsp; &#8214;b&#8214; = 5<br><br>
+      cos&theta; = 24 / 25 = 0.96
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Sign of a &middot; b</th><th>Angle</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td class="mn">&gt; 0</td><td class="mn">&theta; &lt; 90&deg;</td><td>pointing broadly the same way</td></tr>
+        <tr><td class="mn">= 0</td><td class="mn">&theta; = 90&deg;</td><td>perpendicular</td></tr>
+        <tr><td class="mn">&lt; 0</td><td class="mn">&theta; &gt; 90&deg;</td><td>pointing broadly opposite</td></tr>
+      </tbody></table></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.11</span></div><div class="body">
+    <h3>Orthogonal vectors</h3>
+    <p>Orthogonal means perpendicular. The test is a single number.</p>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">a &perp; b &nbsp;&hArr;&nbsp; a &middot; b = 0</div></div>
+    <div class="math block">
+      a =<span class="m" style="--c:1"><span>1</span><span>2</span></span>
+      &nbsp; b =<span class="m" style="--c:1"><span>2</span><span>&minus;1</span></span><br><br>
+      a &middot; b = (1&times;2) + (2&times;&minus;1) = 2 &minus; 2 = 0 &nbsp;&rarr;&nbsp; a &perp; b
+    </div>
+    <p>No trigonometry needed. If the dot product vanishes, the angle is 90&deg;, because
+    <code>cos 90&deg; = 0</code> in the formula above.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.12</span></div><div class="body">
+    <h3>Cosine similarity</h3>
+    <p>Use <code>cos&theta;</code> itself as a similarity score between two vectors.</p>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">&minus;1 &le; cos&theta; &le; 1<br><br>
+      &nbsp;&nbsp;1 &rarr; same direction<br>
+      &nbsp;&nbsp;0 &rarr; perpendicular, unrelated<br>
+      &minus;1 &rarr; opposite direction</div></div>
+    <p>Because the formula divides by both lengths, cosine similarity measures
+    <strong>direction only</strong> and ignores magnitude. Two vectors pointing the same
+    way score 1 whether they are short or long.</p>
+    <div class="link"><span class="h">Why this is the standard in ML</span>
+      <p>Embedding vectors encode meaning in their direction. A long vector is not "more"
+      of a word, so magnitude is noise. Cosine similarity throws it away.</p></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.13</span></div><div class="body">
+    <h3>Distance between vectors</h3>
+    <p>Subtract, then take the length of the difference.</p>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">d(a, b) = &#8214;b &minus; a&#8214;</div></div>
+    <div class="math block">
+      a =<span class="m" style="--c:1"><span>1</span><span>2</span></span>
+      &nbsp; b =<span class="m" style="--c:1"><span>4</span><span>6</span></span><br><br>
+      b &minus; a =<span class="m" style="--c:1"><span>3</span><span>4</span></span><br>
+      &#8214;b &minus; a&#8214; = &radic;(9 + 16) = 5
+    </div>
+    <p>Note <code>d(a,b) = d(b,a)</code>: reversing the subtraction flips the sign of every
+    component, which squaring undoes.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.14</span></div><div class="body">
+    <h3>Linear combinations</h3>
+    <p>Scale some vectors, then add them.</p>
+    <div class="math block">
+      a =<span class="m" style="--c:1"><span>1</span><span>2</span></span>
+      &nbsp; b =<span class="m" style="--c:1"><span>3</span><span>1</span></span><br><br>
+      2a =<span class="m" style="--c:1"><span>2</span><span>4</span></span>
+      &nbsp;&nbsp; 3b =<span class="m" style="--c:1"><span>9</span><span>3</span></span><br><br>
+      2a + 3b =<span class="m" style="--c:1"><span>11</span><span>7</span></span>
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">c&#8321;a + c&#8322;b + &hellip; + c&#8345;v&#8345;</div></div>
+    <p>This is the single most reused idea in the whole workshop. Span (5.1) is the set of
+    all linear combinations. Matrix &times; vector (2.7) <em>is</em> a linear combination.
+    Attention's output (9.10) is a linear combination.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.15</span></div><div class="body">
+    <h3>What a vector space is</h3>
+    <p>A set of objects with two operations defined on it, where results always stay inside
+    the set: addition, and multiplication by a scalar.</p>
+    <div class="math block">
+      <strong>Addition</strong><br>
+      1. v + w = w + v<br>
+      2. (u + v) + w = u + (v + w)<br>
+      3. there is a zero vector 0, with v + 0 = v<br>
+      4. every v has an inverse &minus;v, with v + (&minus;v) = 0<br><br>
+      <strong>Multiplication</strong><br>
+      5. 1v = v<br>
+      6. (&alpha;&beta;)v = &alpha;(&beta;v)<br><br>
+      <strong>Distributive</strong><br>
+      7. &alpha;(u + v) = &alpha;u + &alpha;v<br>
+      8. (&alpha; + &beta;)v = &alpha;v + &beta;v
+    </div>
+    <div class="rule"><span class="lab">The useful summary</span>
+      <div class="stmt">You can add two vectors.<br>You can multiply a vector by a number.<br>
+      You cannot multiply two vectors.<br>You cannot add a number to a vector.</div></div>
+    <p>Other things that satisfy all 8 rules, and so are vector spaces: all
+    <code>m&times;n</code> matrices, all polynomials of degree at most n, the real numbers
+    themselves.</p>
+    <div class="src">Linear Algebra Done Wrong &mdash; PDF p11&ndash;15 (&sect;1.1)</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.16</span></div><div class="body">
+    <h3>R&#8319;</h3>
+    <p>The specific vector space you have been working in all along: all columns of n real
+    numbers.</p>
+    <div class="math block">
+      R&sup2; = all<span class="m" style="--c:1"><span>v&#8321;</span><span>v&#8322;</span></span>
+      &nbsp;&nbsp; R&sup3; = all<span class="m" style="--c:1"><span>v&#8321;</span><span>v&#8322;</span><span>v&#8323;</span></span>
+      &nbsp;&nbsp; R&#8319; = all n-component columns
+    </div>
+    <p>Addition and scalar multiplication work entry by entry, exactly as in 1.4 and 1.6.
+    Checking the 8 axioms against those definitions is straightforward, which is why
+    R&#8319; is the standard example of a vector space.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.17</span></div><div class="body">
+    <h3>Dimension of a vector space</h3>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">dim V = the number of vectors in a basis of V</div>
+      <p>Every basis of the same space has the same number of vectors, which is what makes
+      this a well-defined count.</p></div>
+    <div class="flag"><span class="h">Not the same as 1.3</span>
+      <p>A vector's dimension is its component count. A space's dimension is its basis
+      size. They often differ.</p></div>
+    <div class="math block">
+      L = span&#123;<span class="m" style="--c:1"><span>1</span><span>2</span></span>&#125;
+      &nbsp;&mdash; a line through the origin in R&sup2;<br><br>
+      basis of L has <strong>1</strong> vector &rarr; dim L = 1<br>
+      but every vector on L has <strong>2</strong> components
+    </div>
+    <div class="rule"><span class="lab">The picture</span>
+      <div class="stmt">A 1-dimensional space<br>made of 2-component vectors.</div></div>
+    <div class="src">Interactive Linear Algebra &mdash; PDF p111&ndash;112 (&sect;2.7)</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.18</span></div><div class="body">
+    <h3>Basis</h3>
+    <p>A minimal set of vectors that can build the whole space.</p>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">A basis is a set that<br>1. spans the space, and<br>2. is linearly independent.</div></div>
+    <div class="math block">
+      <strong>Standard basis of R&sup2;</strong><br>
+      e&#8321; =<span class="m" style="--c:1"><span>1</span><span>0</span></span>
+      &nbsp; e&#8322; =<span class="m" style="--c:1"><span>0</span><span>1</span></span><br><br>
+      3e&#8321; + 5e&#8322; =<span class="m" style="--c:1"><span>3</span><span>5</span></span>
+      &nbsp; any vector, uniquely
+    </div>
+    <div class="math block">
+      <strong>Standard basis of R&sup3;</strong><br>
+      e&#8321; =<span class="m" style="--c:1"><span>1</span><span>0</span><span>0</span></span>
+      e&#8322; =<span class="m" style="--c:1"><span>0</span><span>1</span><span>0</span></span>
+      e&#8323; =<span class="m" style="--c:1"><span>0</span><span>0</span><span>1</span></span><br><br>
+      4e&#8321; + 7e&#8322; + 2e&#8323; =<span class="m" style="--c:1"><span>4</span><span>7</span><span>2</span></span>
+    </div>
+    <p>A basis is a coordinate system. The coefficients are the coordinates.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.19</span></div><div class="body">
+    <h3>Linear independence</h3>
+    <p>No vector in the set can be built from the others. Nothing is redundant.</p>
+    <div class="math block">
+      <strong>Independent</strong><br>
+      a =<span class="m" style="--c:1"><span>1</span><span>0</span></span>
+      b =<span class="m" style="--c:1"><span>0</span><span>1</span></span>
+      &nbsp; no scalar c gives ca = b<br><br>
+      <strong>Dependent</strong><br>
+      a =<span class="m" style="--c:1"><span>1</span><span>2</span></span>
+      b =<span class="m" style="--c:1"><span>2</span><span>4</span></span>
+      &nbsp; b = 2a
+    </div>
+    <div class="rule"><span class="lab">Consequence</span>
+      <div class="stmt">2 independent vectors in R&sup2; &rarr; span the whole plane<br>
+      2 dependent vectors in R&sup2; &rarr; span only a line</div></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.20</span></div><div class="body">
+    <h3>Relationship between basis, span, independence, and dimension</h3>
+    <p>All four are one idea seen from different angles. Worked in R&sup2;, dimension 2:</p>
+    <div class="tw"><table>
+      <thead><tr><th>Vectors</th><th>Independent</th><th>Spans</th><th>dim of span</th><th>Basis of R&sup2;</th></tr></thead>
+      <tbody>
+        <tr><td class="mn">[1,2]</td><td class="yes">yes</td><td>a line</td><td class="mn">1</td><td class="no">no &mdash; too few</td></tr>
+        <tr><td class="mn">[1,0] [0,1]</td><td class="yes">yes</td><td>all of R&sup2;</td><td class="mn">2</td><td class="yes">yes</td></tr>
+        <tr><td class="mn">[1,2] [2,4]</td><td class="no">no</td><td>a line</td><td class="mn">1</td><td class="no">no &mdash; dependent</td></tr>
+        <tr><td class="mn">[1,0] [0,1] [1,1]</td><td class="no">no</td><td>all of R&sup2;</td><td class="mn">2</td><td class="no">no &mdash; too many</td></tr>
+      </tbody></table></div>
+    <div class="rule"><span class="lab">Counting in R&#8319;</span>
+      <div class="stmt">fewer than n vectors &rarr; can never span<br>
+      more than n vectors &rarr; must be dependent<br>
+      exactly n vectors &rarr; independent &hArr; spans &hArr; basis</div></div>
+    <div class="rule"><span class="lab">Basis theorem</span>
+      <div class="stmt">In a space of dimension m:<br>any m independent vectors form a basis<br>
+      any m vectors that span form a basis</div>
+      <p>So once you know the dimension, you check only <strong>one</strong> condition.</p></div>
+    <div class="src">Interactive Linear Algebra &mdash; PDF p118 (basis theorem)</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.21</span></div><div class="body">
+    <h3>Matrices</h3>
+    <p>The next rung: a rectangular grid of numbers, m rows by n columns. Section 2 covers
+    them in full; here is the placement.</p>
+    <div class="math block">
+      A =<span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></span>
+      &nbsp;&nbsp; 2 &times; 3
+    </div>
+    <p>A column vector in R&#8319; is an <code>n &times; 1</code> matrix, so everything in
+    items 1.2&ndash;1.14 was already a matrix one column wide.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>1.22</span></div><div class="body">
+    <h3>Tensors</h3>
+    <p>A tensor is a multi-dimensional array. Its <strong>order</strong> is how many indices
+    you need to reach one element.</p>
+    <div class="math block">
+      order 0 &rarr; scalar &nbsp;&nbsp;&nbsp; 5<br>
+      order 1 &rarr; vector &nbsp;&nbsp;&nbsp; v[i]<br>
+      order 2 &rarr; matrix &nbsp;&nbsp;&nbsp; A[i][j]<br>
+      order 3 &rarr; tensor &nbsp;&nbsp;&nbsp; T[i][j][k]<br>
+      order n &rarr; tensor &nbsp;&nbsp;&nbsp; n indices
+    </div>
+    <div class="math block">
+      one colour image &rarr; height &times; width &times; channels &rarr; order 3<br>
+      a batch of images &rarr; batch &times; H &times; W &times; C &rarr; order 4<br>
+      transformer input &rarr; batch &times; tokens &times; d<sub>model</sub> &rarr; order 3
+    </div>
+    <div class="flag"><span class="h">Two different meanings &mdash; do not mix them</span>
+      <p>In machine learning a tensor is an n-dimensional array, as above. In pure
+      mathematics a tensor is a multilinear function, a genuinely different and much
+      heavier idea. LADW chapter 8 teaches the second one. For this workshop you want the
+      first. Do not read that chapter for this item.</p></div>
+    <div class="src">Stanford EE270 lecture 4</div>
+  </div></article>
+</section>
+
+<!-- ================= SECTION 2 ================= -->
+<section class="sec">
+  <div class="sec-head" id="s2">
+    <div class="num">Section 2</div>
+    <h2>Matrix Operations &amp; Transformations</h2>
+    <p>One operation at a time, ending with what a matrix actually <em>does</em> to space.</p>
+  </div>
+
+  <article class="item"><div class="tag"><span>2.1</span></div><div class="body">
+    <h3>What a matrix is</h3>
+    <p>A rectangular array of numbers.</p>
+    <div class="math block">
+      A =<span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></span><br><br>
+      a<sub>j,k</sub> = entry in row j, column k<br>
+      a<sub>1,1</sub> = 1 &nbsp; a<sub>1,3</sub> = 3 &nbsp; a<sub>2,1</sub> = 4 &nbsp; a<sub>2,3</sub> = 6
+    </div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>2.2</span></div><div class="body">
+    <h3>Matrix dimensions: m &times; n</h3>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">m &times; n = rows &times; columns<br>Rows first. Always.</div></div>
+    <div class="math block">
+      <span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></span>
+      &nbsp; 2 rows, 3 columns &rarr; 2 &times; 3<br><br>
+      <span class="m" style="--c:2"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></span>
+      &nbsp; 3 rows, 2 columns &rarr; 3 &times; 2
+    </div>
+    <p>Getting this order wrong makes every size rule later fail, so fix it now.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>2.3</span></div><div class="body">
+    <h3>Matrix addition</h3>
+    <div class="math block">
+      <span class="m" style="--c:2"><span>1</span><span>2</span><span>3</span><span>4</span></span>
+      +<span class="m" style="--c:2"><span>5</span><span>6</span><span>7</span><span>8</span></span>
+      =<span class="m" style="--c:2"><span>6</span><span>8</span><span>10</span><span>12</span></span>
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">(A + B)<sub>j,k</sub> = a<sub>j,k</sub> + b<sub>j,k</sub><br><br>
+      Defined only when A and B are the <strong>same size</strong>.</div></div>
+    <p>Identical to vector addition in 1.4, including the size restriction.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>2.4</span></div><div class="body">
+    <h3>Matrix subtraction</h3>
+    <div class="math block">
+      <span class="m" style="--c:2"><span>1</span><span>2</span><span>3</span><span>4</span></span>
+      &minus;<span class="m" style="--c:2"><span>5</span><span>6</span><span>7</span><span>8</span></span>
+      =<span class="m" style="--c:2"><span>&minus;4</span><span>&minus;4</span><span>&minus;4</span><span>&minus;4</span></span>
+    </div>
+    <p>Entry by entry, same size requirement.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>2.5</span></div><div class="body">
+    <h3>Scalar &times; matrix</h3>
+    <div class="math block">
+      3<span class="m" style="--c:2"><span>1</span><span>2</span><span>3</span><span>4</span></span>
+      =<span class="m" style="--c:2"><span>3</span><span>6</span><span>9</span><span>12</span></span>
+      &nbsp;&nbsp; &minus;2<span class="m" style="--c:2"><span>1</span><span>0</span><span>2</span><span>3</span></span>
+      =<span class="m" style="--c:2"><span>&minus;2</span><span>0</span><span>&minus;4</span><span>&minus;6</span></span>
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">kA = every entry multiplied by k</div></div>
+    <div class="link"><span class="h">Closing the loop with 1.15</span>
+      <p>Addition and scalar multiplication both work entry by entry and both stay inside
+      the set of <code>m&times;n</code> matrices. That is the 8-rule test, so the set of all
+      <code>m&times;n</code> matrices <strong>is a vector space</strong>.</p></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>2.6</span></div><div class="body">
+    <h3>Matrix transpose</h3>
+    <p>Turn the rows into columns.</p>
+    <div class="math block">
+      <span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></span><sup>T</sup>
+      =<span class="m" style="--c:2"><span>1</span><span>4</span><span>2</span><span>5</span><span>3</span><span>6</span></span>
+      &nbsp;&nbsp; 2 &times; 3 &rarr; 3 &times; 2
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">(A<sup>T</sup>)<sub>j,k</sub> = A<sub>k,j</sub><br>
+      m &times; n &rarr; n &times; m<br>(A<sup>T</sup>)<sup>T</sup> = A</div></div>
+    <div class="math block">
+      <span class="m" style="--c:1"><span>1</span><span>2</span><span>3</span></span><sup>T</sup>
+      =<span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span></span>
+      &nbsp; column &rarr; row
+    </div>
+    <div class="link"><span class="h">Where this is going</span>
+      <p>Transpose is what makes <code>QK&#7488;</code> work in item 9.6. It is the whole
+      reason the shapes line up in attention.</p></div>
+    <div class="src">LADW PDF p32 (&sect;1.5.4)</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>2.7</span></div><div class="body">
+    <h3>Matrix &times; vector</h3>
+    <p>Two ways to compute it. Both give the same answer, and each shows something the
+    other hides.</p>
+    <div class="math block">
+      A =<span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span><span>3</span><span>2</span><span>1</span></span>
+      &nbsp; x =<span class="m" style="--c:1"><span>1</span><span>2</span><span>3</span></span>
+    </div>
+    <p><strong>Way 1 &mdash; row by column.</strong> Each output entry is a dot product.</p>
+    <div class="math block">
+      row 1 &middot; x = 1 + 4 + 9 = 14<br>
+      row 2 &middot; x = 3 + 4 + 3 = 10<br>
+      Ax =<span class="m" style="--c:1"><span>14</span><span>10</span></span>
+    </div>
+    <p><strong>Way 2 &mdash; column by coordinate.</strong> Scale each column, then add.</p>
+    <div class="math block">
+      Ax = 1<span class="m" style="--c:1"><span>1</span><span>3</span></span>
+      + 2<span class="m" style="--c:1"><span>2</span><span>2</span></span>
+      + 3<span class="m" style="--c:1"><span>3</span><span>1</span></span>
+      =<span class="m" style="--c:1"><span>14</span><span>10</span></span> &nbsp;same
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">Ax = x&#8321;(col 1) + x&#8322;(col 2) + &hellip; + x&#8345;(col n)<br><br>
+      <strong>Ax is always a linear combination<br>of the columns of A.</strong></div></div>
+    <div class="link"><span class="h">The bridge from section 1</span>
+      <p>Way 2 says matrix &times; vector <em>is</em> a linear combination (1.14). So the set
+      of all outputs <code>Ax</code> is exactly <strong>span of the columns of A</strong>.
+      That sentence becomes the definition of rank in 5.3.</p></div>
+    <div class="rule"><span class="lab">Size rule</span>
+      <div class="stmt">(m &times; n)(n &times; 1) = (m &times; 1)</div></div>
+    <div class="src">LADW PDF p23&ndash;24 &middot; ILA PDF p142</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>2.8</span></div><div class="body">
+    <h3>Vector &times; matrix</h3>
+    <p>A <em>row</em> vector on the left.</p>
+    <div class="math block">
+      <span class="m" style="--c:2"><span>1</span><span>2</span></span>
+      <span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></span>
+      =<span class="m" style="--c:3"><span>9</span><span>12</span><span>15</span></span><br><br>
+      col 1: 1 + 8 = 9 &nbsp; col 2: 2 + 10 = 12 &nbsp; col 3: 3 + 12 = 15<br>
+      (1 &times; 2)(2 &times; 3) = 1 &times; 3
+    </div>
+    <div class="math block">
+      Check by rows: 1<span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span></span>
+      + 2<span class="m" style="--c:3"><span>4</span><span>5</span><span>6</span></span>
+      =<span class="m" style="--c:3"><span>9</span><span>12</span><span>15</span></span>
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">column vector on the <strong>right</strong> &rarr; combines columns<br>
+      row vector on the <strong>left</strong> &rarr; combines rows</div></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>2.9</span></div><div class="body">
+    <h3>Matrix &times; matrix</h3>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">(AB)<sub>j,k</sub> = (row j of A) &middot; (column k of B)</div></div>
+    <div class="math block">
+      A =<span class="m" style="--c:2"><span>1</span><span>2</span><span>3</span><span>4</span></span>
+      B =<span class="m" style="--c:2"><span>5</span><span>6</span><span>7</span><span>8</span></span><br><br>
+      (1,1) = 5 + 14 = 19 &nbsp; (1,2) = 6 + 16 = 22<br>
+      (2,1) = 15 + 28 = 43 &nbsp; (2,2) = 18 + 32 = 50<br><br>
+      AB =<span class="m" style="--c:2"><span>19</span><span>22</span><span>43</span><span>50</span></span>
+      &nbsp; BA =<span class="m" style="--c:2"><span>23</span><span>34</span><span>31</span><span>46</span></span>
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">AB &ne; BA<br>Matrix multiplication is <strong>not commutative</strong>.</div></div>
+    <div class="math block">
+      <span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></span>
+      <span class="m" style="--c:2"><span>1</span><span>0</span><span>0</span><span>1</span><span>1</span><span>1</span></span>
+      =<span class="m" style="--c:2"><span>4</span><span>5</span><span>10</span><span>11</span></span>
+      &nbsp; (2&times;3)(3&times;2) = 2&times;2
+    </div>
+    <div class="rule"><span class="lab">Size rule</span>
+      <div class="stmt">(m &times; n)(n &times; r) = (m &times; r)<br><br>
+      inner numbers must match &rarr; they vanish<br>outer numbers survive</div></div>
+    <div class="flag"><span class="h">Counterintuitive</span>
+      <p>In <code>AB</code>, transformation <strong>B happens first</strong>, then A. Read
+      right to left. In <code>ABx</code>, the vector meets B first.</p></div>
+    <div class="src">LADW PDF p29&ndash;32 &middot; ILA PDF p171</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>2.10</span></div><div class="body">
+    <h3>What a matrix transformation means geometrically</h3>
+    <p>A matrix is a <strong>function</strong> that takes a vector in and gives a vector out.</p>
+    <div class="math block">
+      T(x) = Ax &nbsp; where A is m &times; n<br><br>
+      input from R&#8319; &nbsp; n = number of <strong>columns</strong><br>
+      output into R&#7504; &nbsp; m = number of <strong>rows</strong>
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">columns = input dimension<br>rows = output dimension</div></div>
+    <div class="math block">
+      <strong>Identity</strong> <span class="m" style="--c:2"><span>1</span><span>0</span><span>0</span><span>1</span></span>
+      <span class="m" style="--c:1"><span>3</span><span>2</span></span>
+      =<span class="m" style="--c:1"><span>3</span><span>2</span></span><br><br>
+      <strong>Reflect</strong> over y-axis <span class="m" style="--c:2"><span>&minus;1</span><span>0</span><span>0</span><span>1</span></span>
+      <span class="m" style="--c:1"><span>3</span><span>2</span></span>
+      =<span class="m" style="--c:1"><span>&minus;3</span><span>2</span></span><br><br>
+      <strong>Scale</strong> by 2 <span class="m" style="--c:2"><span>2</span><span>0</span><span>0</span><span>2</span></span>
+      <span class="m" style="--c:1"><span>3</span><span>2</span></span>
+      =<span class="m" style="--c:1"><span>6</span><span>4</span></span><br><br>
+      <strong>Rotate</strong> 90&deg; <span class="m" style="--c:2"><span>0</span><span>&minus;1</span><span>1</span><span>0</span></span>
+      <span class="m" style="--c:1"><span>1</span><span>0</span></span>
+      =<span class="m" style="--c:1"><span>0</span><span>1</span></span><br><br>
+      <strong>Project</strong> onto xy-plane
+      <span class="m" style="--c:3"><span>1</span><span>0</span><span>0</span><span>0</span><span>1</span><span>0</span><span>0</span><span>0</span><span>0</span></span>
+      <span class="m" style="--c:1"><span>x</span><span>y</span><span>z</span></span>
+      =<span class="m" style="--c:1"><span>x</span><span>y</span><span>0</span></span>
+    </div>
+    <p>Now the key observation. Feed the rotation matrix the basis vectors:</p>
+    <div class="math block">
+      A e&#8321; =<span class="m" style="--c:1"><span>0</span><span>1</span></span> = column 1 of A<br>
+      A e&#8322; =<span class="m" style="--c:1"><span>&minus;1</span><span>0</span></span> = column 2 of A
+    </div>
+    <div class="rule"><span class="lab">The big one</span>
+      <div class="stmt">The columns of A are exactly<br>where the basis vectors land.</div>
+      <p>To build any transformation, work out where e&#8321; and e&#8322; should go and
+      write those down as the columns.</p></div>
+    <div class="math block">
+      General rotation &nbsp; R<sub>&gamma;</sub> =<span class="m" style="--c:2"><span>cos&gamma;</span><span>&minus;sin&gamma;</span><span>sin&gamma;</span><span>cos&gamma;</span></span>
+    </div>
+    <div class="src">ILA PDF p133&ndash;134, p141&ndash;142 &middot; LADW PDF p31</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>2.11</span></div><div class="body">
+    <h3>Dimension reduction: 4D &rarr; 3D</h3>
+    <p>Needs 4 columns and 3 rows, so a <code>3 &times; 4</code> matrix.</p>
+    <div class="math block">
+      A =<span class="m" style="--c:4"><span>1</span><span>0</span><span>0</span><span>0</span><span>0</span><span>1</span><span>0</span><span>0</span><span>0</span><span>0</span><span>1</span><span>0</span></span><br><br>
+      A<span class="m" style="--c:1"><span>1</span><span>2</span><span>3</span><span>4</span></span>
+      =<span class="m" style="--c:1"><span>1</span><span>2</span><span>3</span></span>
+      &nbsp; the 4th component is gone
+    </div>
+    <div class="math block">
+      A mixing example:
+      <span class="m" style="--c:4"><span>1</span><span>1</span><span>0</span><span>0</span><span>0</span><span>0</span><span>1</span><span>1</span><span>1</span><span>0</span><span>0</span><span>1</span></span>
+      <span class="m" style="--c:1"><span>1</span><span>2</span><span>3</span><span>4</span></span>
+      =<span class="m" style="--c:1"><span>3</span><span>7</span><span>5</span></span>
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">Reducing dimension <strong>destroys information</strong>.<br>You cannot undo it.</div>
+      <p>Many different 4D vectors collapse onto the same 3D output, and once collapsed
+      there is no way to tell which one you started with.</p></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>2.12</span></div><div class="body">
+    <h3>Dimension increase: 4D &rarr; 6D</h3>
+    <p>Needs 4 columns and 6 rows, so a <code>6 &times; 4</code> matrix.</p>
+    <div class="math block">
+      A is 6 &times; 4 &nbsp; (identity on top, two zero rows below)<br><br>
+      A<span class="m" style="--c:1"><span>1</span><span>2</span><span>3</span><span>4</span></span>
+      =<span class="m" style="--c:1"><span>1</span><span>2</span><span>3</span><span>4</span><span>0</span><span>0</span></span>
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">The output <em>lives in</em> R&#8310;,<br>but only <em>fills</em> a 4D slice of it.<br><br>
+      Raising dimension cannot create information.</div></div>
+    <p>Why: by 2.7 every output is a linear combination of the columns. There are only 4
+    columns, so outputs span at most 4 dimensions however many rows you add.</p>
+    <div class="link"><span class="h">This is rank, arriving early</span>
+      <p>"How many dimensions do the outputs actually fill" is exactly what
+      <strong>rank</strong> answers in 5.2.</p></div>
+    <div class="link"><span class="h">The ML tie-in</span>
+      <p>A neural network layer taking a 768-dimensional embedding to a 1000-dimensional
+      one is a <code>1000 &times; 768</code> matrix. That is all a layer is.</p></div>
+    <div class="src">ILA PDF p142 (&sect;3.1.3)</div>
+  </div></article>
+</section>
+
+<!-- ================= SECTION 3 ================= -->
+<section class="sec">
+  <div class="sec-head" id="s3">
+    <div class="num">Section 3</div>
+    <h2>Dot Product, Angle &amp; Similarity</h2>
+    <p>The checklist lists these again as a consolidation. Compact recap with the formulas
+    together in one place &mdash; full treatment is at 1.9&ndash;1.12.</p>
+  </div>
+
+  <article class="item"><div class="tag"><span>3.1</span></div><div class="body">
+    <h3>Dot product</h3>
+    <div class="math block">
+      a &middot; b = a&#8321;b&#8321; + a&#8322;b&#8322; + &hellip; + a&#8345;b&#8345;<br><br>
+      <span class="m" style="--c:1"><span>2</span><span>3</span></span>
+      &middot;<span class="m" style="--c:1"><span>4</span><span>5</span></span> = 23
+    </div>
+    <p>Returns a scalar. See 1.9.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>3.2</span></div><div class="body">
+    <h3>Angle relationship</h3>
+    <div class="math block">
+      a &middot; b = &#8214;a&#8214; &#8214;b&#8214; cos&theta;<br><br>
+      cos&theta; = (a &middot; b) / (&#8214;a&#8214; &#8214;b&#8214;)
+    </div>
+    <p>See 1.10 for the worked example.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>3.3</span></div><div class="body">
+    <h3>Orthogonality</h3>
+    <div class="math block">a &perp; b &nbsp;&hArr;&nbsp; a &middot; b = 0</div>
+    <p>See 1.11. Section 6 builds projection on top of this.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>3.4</span></div><div class="body">
+    <h3>Cosine similarity</h3>
+    <div class="math block">
+      &minus;1 &le; cos&theta; &le; 1<br>
+      &nbsp;&nbsp;1 &rarr; same direction &nbsp;&nbsp; 0 &rarr; perpendicular &nbsp;&nbsp; &minus;1 &rarr; opposite
+    </div>
+    <div class="rule"><span class="lab">The consolidation worth writing</span>
+      <div class="stmt">dot product &nbsp;&rarr;&nbsp; a raw number<br>
+      cosine similarity &rarr; that number,<br>
+      &nbsp;&nbsp;normalised to ignore length</div>
+      <p>Dividing by both magnitudes is what turns an unbounded score into a bounded,
+      comparable one. That is the entire difference between the two.</p></div>
+  </div></article>
+</section>
+
+<!-- ================= SECTION 4 ================= -->
+<section class="sec">
+  <div class="sec-head" id="s4">
+    <div class="num">Section 4</div>
+    <h2>Norms, Distance &amp; Normalisation</h2>
+    <p>4.1&ndash;4.3 recap; 4.4&ndash;4.6 add the two other norms and the comparison.</p>
+  </div>
+
+  <article class="item"><div class="tag"><span>4.1</span></div><div class="body">
+    <h3>L2 norm / Euclidean magnitude</h3>
+    <div class="math block">
+      &#8214;v&#8214;&#8322; = &radic;(v&#8321;&sup2; + &hellip; + v&#8345;&sup2;)<br><br>
+      &#8214;<span class="m" style="--c:1"><span>3</span><span>4</span></span>&#8214;&#8322; = 5
+    </div>
+    <p>See 1.7. Called L2 because of the exponent 2.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>4.2</span></div><div class="body">
+    <h3>Distance between vectors</h3>
+    <div class="math block">d(a, b) = &#8214;b &minus; a&#8214;</div>
+    <p>See 1.13. Any norm gives a distance this way, so there is also an L1 distance and an
+    L&infin; distance.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>4.3</span></div><div class="body">
+    <h3>Normalisation</h3>
+    <div class="math block">v&#770; = v / &#8214;v&#8214; &nbsp;&nbsp; &#8214;v&#770;&#8214; = 1</div>
+    <p>See 1.8.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>4.4</span></div><div class="body">
+    <h3>L1 norm</h3>
+    <p>Add the absolute values. No squaring, no square root.</p>
+    <div class="math block">
+      &#8214;v&#8214;&#8321; = |v&#8321;| + |v&#8322;| + &hellip; + |v&#8345;|<br><br>
+      v =<span class="m" style="--c:1"><span>3</span><span>&minus;4</span></span>
+      &nbsp; &#8214;v&#8214;&#8321; = 3 + 4 = 7
+    </div>
+    <p>Called the <strong>taxicab</strong> or <strong>Manhattan</strong> norm: the distance
+    you walk on a street grid, never cutting diagonally.</p>
+    <div class="link"><span class="h">Why anyone cares</span>
+      <p>Minimising with L1 gives a <strong>sparse</strong> answer &mdash; mostly zero
+      components. Minimising with L2 gives many small non-zero numbers instead, because
+      squaring a small number barely penalises it. This is the basis of L1 regularisation
+      and compressed sensing.</p></div>
+    <div class="src">Cornell CS4220 &middot; MIT 18.065 lecture 7 (Strang)</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>4.5</span></div><div class="body">
+    <h3>L&infin; norm</h3>
+    <p>Just the largest absolute component. Everything else is ignored.</p>
+    <div class="math block">
+      &#8214;v&#8214;<sub>&infin;</sub> = max |v&#7522;|<br><br>
+      v =<span class="m" style="--c:1"><span>3</span><span>&minus;4</span></span>
+      &nbsp; &#8214;v&#8214;<sub>&infin;</sub> = max(3, 4) = 4
+    </div>
+    <p>All three norms are one formula, the <strong>p-norm</strong>:</p>
+    <div class="math block">
+      &#8214;v&#8214;<sub>p</sub> = ( &sum; |v&#7522;|<sup>p</sup> )<sup>1/p</sup><br><br>
+      p = 1 &rarr; L1 &nbsp;&nbsp; p = 2 &rarr; L2 &nbsp;&nbsp; p &rarr; &infin; &rarr; L&infin;
+    </div>
+    <div class="rule"><span class="lab">Every norm obeys 3 axioms</span>
+      <div class="stmt">1. &#8214;v&#8214; &ge; 0, and = 0 only if v = 0<br>
+      2. &#8214;v + w&#8214; &le; &#8214;v&#8214; + &#8214;w&#8214;<br>
+      3. &#8214;&alpha;v&#8214; = |&alpha;| &#8214;v&#8214;</div></div>
+    <div class="src">Cornell CS4220 notes 2015-02-02 (axioms quoted directly)</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>4.6</span></div><div class="body">
+    <h3>Compare L1 vs L2 vs L&infin;</h3>
+    <div class="math block">
+      v =<span class="m" style="--c:1"><span>3</span><span>&minus;4</span></span><br><br>
+      &#8214;v&#8214;&#8321; = 3 + 4 = 7<br>
+      &#8214;v&#8214;&#8322; = &radic;25 = 5<br>
+      &#8214;v&#8214;<sub>&infin;</sub> = 4
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">&#8214;v&#8214;<sub>&infin;</sub> &le; &#8214;v&#8214;&#8322; &le; &#8214;v&#8214;&#8321;<br><br>
+      4 &nbsp;&le;&nbsp; 5 &nbsp;&le;&nbsp; 7</div>
+      <p>Always true, for every vector. Larger p gives a smaller number.</p></div>
+    <p>The clearest way to see the difference is the shape of the unit ball, the set of all
+    v with <code>&#8214;v&#8214; = 1</code>. Draw all three on one set of axes:</p>
+    <div class="tw"><table>
+      <thead><tr><th>Norm</th><th>Unit ball in R&sup2;</th><th>Corners at</th></tr></thead>
+      <tbody>
+        <tr><td class="mn">L1</td><td>diamond</td><td class="mn">(&plusmn;1, 0), (0, &plusmn;1)</td></tr>
+        <tr><td class="mn">L2</td><td>circle</td><td>none &mdash; smooth</td></tr>
+        <tr><td class="mn">L&infin;</td><td>square</td><td class="mn">(&plusmn;1, &plusmn;1)</td></tr>
+      </tbody></table></div>
+    <div class="rule"><span class="lab">The picture</span>
+      <div class="stmt">diamond &sub; circle &sub; square</div>
+      <p>Same inequality as above, drawn. Smallest ball, largest norm.</p></div>
+    <div class="link"><span class="h">Why the diamond gives sparsity</span>
+      <p>The L1 diamond has its corners <em>on the axes</em>. Corners are where an optimiser
+      tends to land, and a point on an axis has zero in the other coordinate. The circle has
+      no corners, so nothing pulls the answer onto an axis. That is the geometric reason L1
+      produces sparse answers and L2 does not.</p></div>
+    <div class="src">MIT 18.065 lecture 7 &middot; Cornell CS4220</div>
+  </div></article>
+</section>
+
+<!-- ================= SECTION 5 ================= -->
+<section class="sec">
+  <div class="sec-head" id="s5">
+    <div class="num">Section 5</div>
+    <h2>Rank, Span &amp; Information</h2>
+    <p>From "what can these vectors reach" to "how much does this matrix actually know".</p>
+  </div>
+
+  <article class="item"><div class="tag"><span>5.1</span></div><div class="body">
+    <h3>Span</h3>
+    <p>Every vector you can reach by scaling and adding a given set.</p>
+    <div class="math block">
+      a =<span class="m" style="--c:1"><span>1</span><span>2</span></span><br>
+      1a =<span class="m" style="--c:1"><span>1</span><span>2</span></span>
+      2a =<span class="m" style="--c:1"><span>2</span><span>4</span></span>
+      &minus;3a =<span class="m" style="--c:1"><span>&minus;3</span><span>&minus;6</span></span>
+      0a =<span class="m" style="--c:1"><span>0</span><span>0</span></span><br><br>
+      span(a) = &#123; ca | c &isin; R &#125; &nbsp; a <strong>line</strong>
+    </div>
+    <div class="math block">
+      a =<span class="m" style="--c:1"><span>1</span><span>0</span></span>
+      &nbsp; b =<span class="m" style="--c:1"><span>0</span><span>1</span></span><br><br>
+      c&#8321;a + c&#8322;b =<span class="m" style="--c:1"><span>c&#8321;</span><span>c&#8322;</span></span>
+      &nbsp;&rarr;&nbsp; span(a, b) = R&sup2;
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">span = all reachable linear combinations</div></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>5.2</span></div><div class="body">
+    <h3>Rank</h3>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">rank A = the number of<br>linearly independent columns<br><br>
+      = the number of<br>linearly independent rows</div>
+      <p>Remarkably, these two counts are always the same number.</p></div>
+    <div class="math block">
+      <span class="m" style="--c:2"><span>1</span><span>2</span><span>2</span><span>4</span></span>
+      &nbsp; col 2 = 2 &times; col 1 &nbsp;&rarr;&nbsp; rank 1<br><br>
+      <span class="m" style="--c:2"><span>1</span><span>0</span><span>0</span><span>1</span></span>
+      &nbsp; independent &nbsp;&rarr;&nbsp; rank 2<br><br>
+      <span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></span>
+      &nbsp; rows independent &nbsp;&rarr;&nbsp; rank 2
+    </div>
+    <div class="rule"><span class="lab">Ceiling</span>
+      <div class="stmt">for an m &times; n matrix &nbsp; rank &le; min(m, n)</div>
+      <p>The 2 &times; 3 above hits its ceiling, so it is called <em>full rank</em>.</p></div>
+    <div class="src">Cornell Lec 27 &middot; ILA PDF p126 &middot; LADW PDF p69</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>5.3</span></div><div class="body">
+    <h3>Relationship between rank and span</h3>
+    <p>From 2.7: every output <code>Ax</code> is a linear combination of the columns. So the
+    set of all outputs is the span of the columns. That set has a name and a size.</p>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">column space of A = span of the columns<br><br>
+      rank A = dim(column space)</div></div>
+    <div class="math block">
+      A =<span class="m" style="--c:2"><span>1</span><span>2</span><span>2</span><span>4</span></span>
+      &nbsp; columns are dependent<br><br>
+      column space = span&#123;<span class="m" style="--c:1"><span>1</span><span>2</span></span>&#125;
+      = a <strong>line</strong> in R&sup2;<br>
+      rank = dim = 1
+    </div>
+    <p>So a 2 &times; 2 matrix of rank 1 flattens the entire plane onto a single line. That
+    is dimension reduction from 2.11, now measured.</p>
+    <div class="rule"><span class="lab">Rank-nullity theorem</span>
+      <div class="stmt">rank A + nullity A = n<br><br>
+      n = number of columns<br>nullity = dim of null space (all x with Ax = 0)</div></div>
+    <div class="math block">
+      For A above: n = 2, rank = 1 &rarr; nullity = 1<br><br>
+      Ax = 0 &rArr; x&#8321; + 2x&#8322; = 0 &rArr; x = t<span class="m" style="--c:1"><span>&minus;2</span><span>1</span></span>
+      &nbsp; a line, dim 1 &nbsp;&#10003;
+    </div>
+    <div class="rule"><span class="lab">Read it as a trade</span>
+      <div class="stmt">what survives + what gets crushed<br>= what you started with</div></div>
+    <div class="src">Cornell Lec 27 remark (2) &middot; Berkeley EE127</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>5.4</span></div><div class="body">
+    <h3>Rank as a measure of independent information</h3>
+    <p>Rank counts genuinely different directions. Repeated information does not add to it.</p>
+    <div class="math block">
+      <span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span><span>2</span><span>4</span><span>6</span><span>3</span><span>6</span><span>9</span></span>
+      &nbsp; row 2 = 2&times;row 1, row 3 = 3&times;row 1<br><br>
+      3 rows, only <strong>1</strong> independent &rarr; rank 1
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">Size is not information.<br>A 1000 &times; 1000 matrix of rank 5<br>
+      carries 5 directions of information.</div></div>
+    <p>The storage consequence, which is the entire point:</p>
+    <div class="math block">
+      a rank-1 matrix = one column &times; one row<br><br>
+      <span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span><span>2</span><span>4</span><span>6</span><span>3</span><span>6</span><span>9</span></span>
+      =<span class="m" style="--c:1"><span>1</span><span>2</span><span>3</span></span>
+      <span class="m" style="--c:3"><span>1</span><span>2</span><span>3</span></span><br><br>
+      9 numbers stored as 3 + 3 = 6
+    </div>
+    <div class="link"><span class="h">Where this goes</span>
+      <p>That last line is the seed of section 8. If a big matrix has low rank, store it as
+      a few thin pieces instead of the whole grid. Item 8.10 does this to a photograph.</p></div>
+    <div class="src">Princeton NEU560 lecture 4 &middot; MIT 18.065 lecture 7</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>5.5</span></div><div class="body">
+    <h3>LoRA as an example</h3>
+    <p>Fine-tuning a large model means changing a big weight matrix W. LoRA's bet is that
+    the <em>change</em> needed is low rank, even though W itself is not.</p>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">W = W&#8320; + &Delta;W = W&#8320; + BA<br><br>
+      W&#8320; is d &times; k &nbsp; frozen<br>
+      B is d &times; r &nbsp; trained<br>
+      A is r &times; k &nbsp; trained<br>
+      r &ll; min(d, k)</div></div>
+    <p>BA is <code>(d&times;r)(r&times;k) = d&times;k</code>, the right shape to add to
+    W&#8320; &mdash; the size rule from 2.9. And BA can have rank at most r.</p>
+    <div class="math block">
+      <strong>Parameter count</strong> &nbsp; d = k = 768, r = 8<br><br>
+      full W &nbsp;&rarr;&nbsp; 768 &times; 768 = 589,824<br>
+      B and A &rarr; 8 &times; (768 + 768) = 12,288<br><br>
+      12,288 / 589,824 = <strong>2.1%</strong> of the parameters
+    </div>
+    <div class="rule"><span class="lab">The saving</span>
+      <div class="stmt">d &times; k &nbsp;&rarr;&nbsp; r(d + k)</div></div>
+    <div class="link"><span class="h">Why it starts as a no-op</span>
+      <p>B is initialised to all zeros and A to random values, so <code>BA = 0</code> at
+      step one and the model behaves exactly as before. The update grows from nothing.</p></div>
+    <div class="src">Hu et al. 2021 &middot; described in Stanford CS224N report 256736504</div>
+  </div></article>
+</section>
+
+<!-- ================= SECTION 6 ================= -->
+<section class="sec">
+  <div class="sec-head" id="s6">
+    <div class="num">Section 6</div>
+    <h2>Orthogonality and Projection</h2>
+    <p>Given a vector and a direction, how much of the vector lies along it.</p>
+  </div>
+
+  <article class="item"><div class="tag"><span>6.1</span></div><div class="body">
+    <h3>Orthogonality</h3>
+    <div class="math block">
+      a &perp; b &nbsp;&hArr;&nbsp; a &middot; b = 0<br><br>
+      <span class="m" style="--c:1"><span>1</span><span>2</span></span>
+      &middot;<span class="m" style="--c:1"><span>2</span><span>&minus;1</span></span> = 2 &minus; 2 = 0
+    </div>
+    <p>See 1.11. Everything below is built on this one test.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>6.2</span></div><div class="body">
+    <h3>Projection</h3>
+    <p>Split a vector into two pieces: the part along a direction, and the part
+    perpendicular to it.</p>
+    <div class="math block">
+      b = p + e<br><br>
+      p = the part along a &nbsp;(the projection)<br>
+      e = b &minus; p &nbsp;(the perpendicular remainder)<br><br>
+      defining condition: &nbsp; e &middot; a = 0
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">Every vector splits uniquely into<br>a piece along a<br>plus a piece perpendicular to a.</div></div>
+    <div class="math block">
+      Simplest case &mdash; onto the x-axis<br><br>
+      a =<span class="m" style="--c:1"><span>1</span><span>0</span></span>
+      &nbsp; b =<span class="m" style="--c:1"><span>3</span><span>4</span></span>
+      &nbsp;&rarr;&nbsp; p =<span class="m" style="--c:1"><span>3</span><span>0</span></span>
+      &nbsp; e =<span class="m" style="--c:1"><span>0</span><span>4</span></span><br><br>
+      check e &middot; a = 0 &nbsp;&#10003;
+    </div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>6.3</span></div><div class="body">
+    <h3>Projection formula</h3>
+    <p>Derive it in three lines. We want <code>p = ca</code> with
+    <code>b &minus; ca</code> perpendicular to a.</p>
+    <div class="math block">
+      (b &minus; ca) &middot; a = 0<br>
+      b&middot;a &minus; c(a&middot;a) = 0<br>
+      c = (b&middot;a) / (a&middot;a)
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (b &middot; a)<br>
+      proj<sub>a</sub>(b) = &mdash;&mdash;&mdash;&mdash; a<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (a &middot; a)</div></div>
+    <div class="math block">
+      a =<span class="m" style="--c:1"><span>1</span><span>1</span></span>
+      &nbsp; b =<span class="m" style="--c:1"><span>3</span><span>1</span></span><br><br>
+      b &middot; a = 4 &nbsp;&nbsp; a &middot; a = 2 &nbsp;&nbsp; c = 2<br><br>
+      p = 2<span class="m" style="--c:1"><span>1</span><span>1</span></span>
+      =<span class="m" style="--c:1"><span>2</span><span>2</span></span>
+      &nbsp; e =<span class="m" style="--c:1"><span>1</span><span>&minus;1</span></span><br><br>
+      check e &middot; a = 1 &minus; 1 = 0 &nbsp;&#10003;
+    </div>
+    <div class="link"><span class="h">The shortcut</span>
+      <p>If a is a <strong>unit</strong> vector then <code>a&middot;a = 1</code> and the
+      formula collapses to <code>p = (b&middot;a)a</code>. This is why normalisation (1.8)
+      keeps reappearing.</p></div>
+    <div class="src">Berkeley Math 54 &sect;6.3 (derivation quoted) &middot; LADW PDF p146</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>6.4</span></div><div class="body">
+    <h3>Geometric meaning of projection</h3>
+    <p>The projection is the shadow of b cast perpendicularly onto the line through a.</p>
+    <p>Projection is a transformation, so by 2.10 it has a matrix:</p>
+    <div class="rule"><span class="lab">Projection matrix</span>
+      <div class="stmt">&nbsp;&nbsp;&nbsp;&nbsp; a a<sup>T</sup><br>P = &mdash;&mdash;&mdash;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp; a<sup>T</sup>a</div>
+      <p>Then <code>p = Pb</code> for any b.</p></div>
+    <div class="math block">
+      a =<span class="m" style="--c:1"><span>1</span><span>1</span></span>
+      &nbsp; a a<sup>T</sup> =<span class="m" style="--c:2"><span>1</span><span>1</span><span>1</span><span>1</span></span>
+      &nbsp; a<sup>T</sup>a = 2<br><br>
+      P = &frac12;<span class="m" style="--c:2"><span>1</span><span>1</span><span>1</span><span>1</span></span><br><br>
+      P<span class="m" style="--c:1"><span>3</span><span>1</span></span>
+      =<span class="m" style="--c:1"><span>2</span><span>2</span></span> &nbsp; matches 6.3 &#10003;
+    </div>
+    <div class="rule"><span class="lab">The signature property</span>
+      <div class="stmt">P&sup2; = P</div>
+      <p>Projecting twice is the same as projecting once &mdash; the shadow of a shadow is
+      the shadow.</p></div>
+    <div class="src">Berkeley Math 54 &sect;6.3 Theorem 10</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>6.5</span></div><div class="body">
+    <h3>Why projection matters</h3>
+    <div class="rule"><span class="lab">Best approximation theorem</span>
+      <div class="stmt">&#8214;b &minus; Pb&#8214; &le; &#8214;b &minus; u&#8214;<br>
+      for every u in the subspace</div>
+      <p>The projection is the <strong>closest point</strong> in the subspace to b. Nothing
+      in that subspace is nearer.</p></div>
+    <p>That single fact is why projection is everywhere:</p>
+    <ul>
+      <li><strong>Least squares.</strong> When <code>Ax = b</code> has no solution, project
+      b onto the column space and solve that instead. Best possible fit.</li>
+      <li><strong>Dimension reduction.</strong> Projecting onto a smaller subspace loses the
+      least information possible.</li>
+      <li><strong>Cosine similarity.</strong> Item 3.4 is projection with both vectors
+      normalised.</li>
+    </ul>
+    <div class="rule"><span class="lab">The trade-off, exactly</span>
+      <div class="stmt">&#8214;p&#8214;&sup2; + &#8214;e&#8214;&sup2; = &#8214;b&#8214;&sup2;</div>
+      <p>Pythagoras, since p &perp; e. Check with 6.3: 8 + 2 = 10 &#10003;. &#8214;b&#8214;
+      is fixed by the data, so <strong>maximising what you keep is the same as minimising
+      what you discard</strong>.</p></div>
+    <div class="src">Berkeley Math 54 &sect;6.3 Theorem 9</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>6.6</span></div><div class="body">
+    <h3>Introduction to PCA</h3>
+    <p>Take a cloud of data points and project them all onto one line through the origin.
+    Different lines give different pictures: some spread the points out, some squash them
+    together.</p>
+    <div class="rule"><span class="lab">The idea in one line</span>
+      <div class="stmt">PCA is the search for the line<br>that spreads the data out the most.</div></div>
+    <p>By the Pythagoras identity in 6.5, that is the same as the line that loses the least
+    when you throw away the perpendicular part. Maximum spread kept and minimum error
+    discarded are the same problem.</p>
+    <div class="link"><span class="h">What is still missing</span>
+      <p>How do you actually <em>find</em> that line? You cannot try them all. The answer
+      turns out to be an eigenvector, which is why section 7 comes next. Item 7.7 completes
+      this.</p></div>
+    <div class="src">CMU 10-701 lecture 14</div>
+  </div></article>
+</section>
+
+<!-- ================= SECTION 7 ================= -->
+<section class="sec">
+  <div class="sec-head" id="s7">
+    <div class="num">Section 7</div>
+    <h2>Eigenvalues and Eigenvectors</h2>
+    <p>The directions a matrix does not turn. Square matrices only.</p>
+  </div>
+
+  <article class="item"><div class="tag"><span>7.1</span></div><div class="body">
+    <h3>Eigenvector</h3>
+    <p>A non-zero vector whose direction is unchanged by the matrix. A normally turns a
+    vector; an eigenvector it only stretches.</p>
+    <div class="flag"><span class="h">Two conditions</span>
+      <p>Only <strong>square</strong> matrices have eigenvectors, and an eigenvector is
+      <strong>never the zero vector</strong>.</p></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>7.2</span></div><div class="body">
+    <h3>Eigenvalue</h3>
+    <p>The scalar that says how much the eigenvector was stretched. Written &lambda;.
+    Unlike eigenvectors, &lambda; <em>is</em> allowed to be zero.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>7.3</span></div><div class="body">
+    <h3>Av = &lambda;v</h3>
+    <div class="rule"><span class="lab">The defining equation</span>
+      <div class="stmt">A v = &lambda; v &nbsp;&nbsp; (v &ne; 0)</div>
+      <p>Left side: a matrix multiplication. Right side: a scalar multiplication. The whole
+      content of the equation is that these two very different operations agree.</p></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>7.4</span></div><div class="body">
+    <h3>Simple numerical example</h3>
+    <p>Checking a candidate is easy: multiply and see if you get a multiple back.</p>
+    <div class="math block">
+      A =<span class="m" style="--c:2"><span>2</span><span>2</span><span>&minus;4</span><span>8</span></span>
+      &nbsp; v =<span class="m" style="--c:1"><span>1</span><span>1</span></span>
+      &nbsp; w =<span class="m" style="--c:1"><span>2</span><span>1</span></span><br><br>
+      Av =<span class="m" style="--c:1"><span>4</span><span>4</span></span>
+      = 4v &nbsp;&rarr;&nbsp; eigenvector, &lambda; = 4 &nbsp;&#10003;<br><br>
+      Aw =<span class="m" style="--c:1"><span>6</span><span>0</span></span>
+      &nbsp; not a multiple of w &nbsp;&rarr;&nbsp; not an eigenvector
+    </div>
+    <div class="src">ILA PDF p257 (&sect;5.1, example quoted)</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>7.5</span></div><div class="body">
+    <h3>Geometric meaning</h3>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">An eigenvector is a direction<br>the matrix does not rotate.<br><br>
+      Its eigenvalue is the stretch factor.</div></div>
+    <div class="math block">
+      A =<span class="m" style="--c:2"><span>2</span><span>0</span><span>0</span><span>3</span></span><br><br>
+      A<span class="m" style="--c:1"><span>1</span><span>0</span></span>
+      = 2<span class="m" style="--c:1"><span>1</span><span>0</span></span>
+      &nbsp; x-axis stretched &times;2<br>
+      A<span class="m" style="--c:1"><span>0</span><span>1</span></span>
+      = 3<span class="m" style="--c:1"><span>0</span><span>1</span></span>
+      &nbsp; y-axis stretched &times;3
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>&lambda;</th><th>What happens to the eigenvector</th></tr></thead>
+      <tbody>
+        <tr><td class="mn">&lambda; &gt; 1</td><td>stretched, same direction</td></tr>
+        <tr><td class="mn">&lambda; = 1</td><td>unchanged</td></tr>
+        <tr><td class="mn">0 &lt; &lambda; &lt; 1</td><td>shrunk, same direction</td></tr>
+        <tr><td class="mn">&lambda; = 0</td><td>collapsed to the zero vector</td></tr>
+        <tr><td class="mn">&lambda; &lt; 0</td><td>flipped to the opposite direction</td></tr>
+      </tbody></table></div>
+    <div class="link"><span class="h">Link back to rank</span>
+      <p><code>&lambda; = 0</code> means A crushes that direction to nothing, so it lies in
+      the null space. A square matrix has a zero eigenvalue exactly when it is not full
+      rank (5.3).</p></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>7.6</span></div><div class="body">
+    <h3>Eigenvalue / eigenvector calculation</h3>
+    <div class="rule"><span class="lab">The method</span>
+      <div class="stmt">1. solve det(A &minus; &lambda;I) = 0 &rarr; the &lambda;'s<br>
+      2. for each &lambda;, solve (A &minus; &lambda;I)v = 0 &rarr; the v's</div>
+      <p>Step 1's polynomial is the <strong>characteristic polynomial</strong>.</p></div>
+    <div class="math block">
+      For 2 &times; 2 you need one determinant:<br>
+      det<span class="m" style="--c:2"><span>a</span><span>b</span><span>c</span><span>d</span></span> = ad &minus; bc
+    </div>
+    <div class="math block">
+      <strong>Worked example</strong> &nbsp; A =<span class="m" style="--c:2"><span>2</span><span>1</span><span>1</span><span>2</span></span><br><br>
+      <strong>Step 1</strong><br>
+      A &minus; &lambda;I =<span class="m" style="--c:2"><span>2&minus;&lambda;</span><span>1</span><span>1</span><span>2&minus;&lambda;</span></span><br>
+      det = (2&minus;&lambda;)&sup2; &minus; 1 = &lambda;&sup2; &minus; 4&lambda; + 3<br>
+      = (&lambda; &minus; 1)(&lambda; &minus; 3) = 0<br>
+      <strong>&lambda; = 3 and &lambda; = 1</strong><br><br>
+      <strong>Step 2a</strong> &nbsp; &lambda; = 3<br>
+      A &minus; 3I =<span class="m" style="--c:2"><span>&minus;1</span><span>1</span><span>1</span><span>&minus;1</span></span>
+      &rarr; v&#8321; = v&#8322; &rarr; v =<span class="m" style="--c:1"><span>1</span><span>1</span></span><br><br>
+      <strong>Step 2b</strong> &nbsp; &lambda; = 1<br>
+      A &minus; I =<span class="m" style="--c:2"><span>1</span><span>1</span><span>1</span><span>1</span></span>
+      &rarr; v&#8321; = &minus;v&#8322; &rarr; v =<span class="m" style="--c:1"><span>1</span><span>&minus;1</span></span>
+    </div>
+    <div class="math block">
+      <strong>Check both</strong><br>
+      A<span class="m" style="--c:1"><span>1</span><span>1</span></span>
+      =<span class="m" style="--c:1"><span>3</span><span>3</span></span>
+      = 3<span class="m" style="--c:1"><span>1</span><span>1</span></span> &#10003;<br>
+      A<span class="m" style="--c:1"><span>1</span><span>&minus;1</span></span>
+      =<span class="m" style="--c:1"><span>1</span><span>&minus;1</span></span>
+      = 1<span class="m" style="--c:1"><span>1</span><span>&minus;1</span></span> &#10003;
+    </div>
+    <div class="rule"><span class="lab">Notice</span>
+      <div class="stmt"><span class="m" style="--c:1"><span>1</span><span>1</span></span> &middot;
+      <span class="m" style="--c:1"><span>1</span><span>&minus;1</span></span> = 0</div>
+      <p>The two eigenvectors are <strong>orthogonal</strong>. Not luck: A is symmetric
+      (A<sup>T</sup> = A), and symmetric matrices always have orthogonal eigenvectors with
+      real eigenvalues. Item 7.7 depends on this.</p></div>
+    <div class="flag"><span class="h">Note on determinants</span>
+      <p>Your checklist never listed determinants as a topic, and this page teaches only
+      the 2 &times; 2 case. For the general case: LADW chapter 3 (PDF p85) or ILA chapter 4
+      (PDF p224).</p></div>
+    <div class="src">ILA PDF p271 (&sect;5.2) &middot; CMU 10-701 lecture 14</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>7.7</span></div><div class="body">
+    <h3>PCA in depth</h3>
+    <p>Item 6.6 asked for the line that spreads the data out most. Here is the answer.</p>
+    <div class="rule"><span class="lab">The algorithm</span>
+      <div class="stmt">1. centre the data &nbsp; x&#7522; &minus; x&#772;<br>
+      2. build the covariance matrix &Sigma;<br>
+      3. find the eigenvectors of &Sigma;<br>
+      4. sort by eigenvalue, largest first<br>
+      5. keep the top p, discard the rest</div></div>
+    <div class="math block">
+      &nbsp;&nbsp;&nbsp; 1<br>
+      &Sigma; = &mdash;&nbsp; &sum; (x&#7522; &minus; x&#772;)(x&#7522; &minus; x&#772;)<sup>T</sup>
+      &nbsp;&nbsp; x&#772; = mean<br>
+      &nbsp;&nbsp;&nbsp; m<br><br>
+      &Sigma; is n &times; n and symmetric
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">principal components = eigenvectors of &Sigma;<br><br>
+      eigenvalue = variance along that direction<br>larger eigenvalue = more important</div></div>
+    <p>Why eigenvectors, in one line: maximising the spread <code>u&#7488;&Sigma;u</code>
+    subject to <code>u&#7488;u = 1</code> gives, via a Lagrange multiplier, exactly
+    <code>&Sigma;u = &lambda;u</code>. The direction of maximum variance <em>is</em> an
+    eigenvector.</p>
+    <div class="link"><span class="h">Why &Sigma; being symmetric matters</span>
+      <p>From 7.6, a symmetric matrix has orthogonal eigenvectors. So the principal
+      components come out perpendicular automatically. They form a basis (1.18) &mdash; a
+      new set of axes for the data.</p></div>
+    <div class="math block">
+      n original dimensions &rarr; n eigenvectors<br>
+      keep the top p &rarr; data now p-dimensional<br><br>
+      information lost = the discarded eigenvalues<br>
+      small eigenvalues &rarr; little lost
+    </div>
+    <div class="src">CMU 10-701 lecture 14 (algorithm II, quoted) &middot; MIT 18.065 lecture 7</div>
+  </div></article>
+</section>
+
+<!-- ================= SECTION 8 ================= -->
+<section class="sec">
+  <div class="sec-head" id="s8">
+    <div class="num">Section 8</div>
+    <h2>SVD &amp; Low-Rank Approximation</h2>
+    <p>Eigenvectors need a square matrix. SVD works on any matrix at all, and it is where
+    rank, projection and eigenvalues all meet.</p>
+  </div>
+
+  <article class="item"><div class="tag"><span>8.1</span></div><div class="body">
+    <h3>What SVD is</h3>
+    <p>A factorisation that splits <em>any</em> matrix into three simple pieces: a rotation,
+    a stretch, and another rotation.</p>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">Every m &times; n matrix can be written<br>as a product of three matrices.<br><br>
+      Square or not. No exceptions.</div></div>
+    <p>Compare eigenvectors, which only exist for square matrices and can fail even then.
+    SVD always works, which is why it is the workhorse of applied linear algebra.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>8.2</span></div><div class="body">
+    <h3>A = U&Sigma;V<sup>T</sup></h3>
+    <div class="rule"><span class="lab">The equation</span>
+      <div class="stmt">A = U &Sigma; V<sup>T</sup></div></div>
+    <div class="math block">
+      A &nbsp;is m &times; n<br>
+      U &nbsp;is m &times; m &nbsp; orthogonal<br>
+      &Sigma; &nbsp;is m &times; n &nbsp; diagonal, non-negative<br>
+      V<sup>T</sup> is n &times; n &nbsp; orthogonal
+    </div>
+    <p>Check the shapes with the size rule from 2.9:</p>
+    <div class="math block">(m&times;m)(m&times;n)(n&times;n) = m&times;n &nbsp;&#10003;</div>
+    <p><strong>Orthogonal</strong> means the columns are mutually perpendicular unit
+    vectors, so <code>U&#7488;U = I</code>. Orthogonal matrices preserve lengths and angles
+    &mdash; they rotate without distorting.</p>
+    <div class="src">Princeton NEU560 lecture 4 &middot; LADW PDF p181</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>8.3</span></div><div class="body">
+    <h3>Meaning of U, &Sigma;, and V<sup>T</sup></h3>
+    <div class="rule"><span class="lab">Where the pieces come from</span>
+      <div class="stmt">columns of U = eigenvectors of AA<sup>T</sup><br>
+      columns of V = eigenvectors of A<sup>T</sup>A<br>
+      &sigma;&#7522; = &radic;&lambda;&#7522;</div></div>
+    <p>A<sup>T</sup>A and AA<sup>T</sup> are square and symmetric even when A is neither,
+    which is exactly why SVD always exists. Section 7 gave you eigenvectors of symmetric
+    matrices; this reuses that.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Piece</th><th>Holds</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td class="mn">V<sup>T</sup></td><td>input directions</td><td>rotates the input</td></tr>
+        <tr><td class="mn">&Sigma;</td><td>singular values</td><td>stretches each axis</td></tr>
+        <tr><td class="mn">U</td><td>output directions</td><td>rotates the result</td></tr>
+      </tbody></table></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>8.4</span></div><div class="body">
+    <h3>Step 1 &mdash; rotate / change basis</h3>
+    <p>Read <code>A = U&Sigma;V&#7488;</code> right to left, because by 2.9 the rightmost
+    transformation happens first.</p>
+    <div class="math block">
+      V<sup>T</sup> acts first<br><br>
+      it rotates the input into a new set of axes<br>
+      lengths and angles unchanged &mdash; nothing is distorted
+    </div>
+    <p>This is a change of basis (1.18): the same vectors, described in better-chosen
+    coordinates. The point of the new coordinates is that the stretching in step 2 becomes
+    axis-aligned and therefore simple.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>8.5</span></div><div class="body">
+    <h3>Step 2 &mdash; scale</h3>
+    <div class="math block">
+      &Sigma; acts second<br><br>
+      it multiplies axis 1 by &sigma;&#8321;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; axis 2 by &sigma;&#8322;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and so on
+    </div>
+    <div class="rule"><span class="lab">All the distortion lives here</span>
+      <div class="stmt">unit circle &nbsp;&rarr;&nbsp; ellipse<br><br>
+      with half-axes &sigma;&#8321;, &sigma;&#8322;, &hellip;</div></div>
+    <p>Because U and V<sup>T</sup> are pure rotations, &Sigma; is the <em>only</em> part of
+    A that changes shape, stretches, or flattens. Everything a matrix does to size and
+    volume is in these numbers.</p>
+    <div class="src">Princeton NEU560 lecture 4 &sect;5 &middot; LADW PDF p190&ndash;191</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>8.6</span></div><div class="body">
+    <h3>Step 3 &mdash; rotate / change basis again</h3>
+    <div class="math block">
+      U acts last<br><br>
+      it rotates the ellipse into its final position<br>
+      shape unchanged, orientation changed
+    </div>
+    <div class="rule"><span class="lab">The whole of SVD, in three words</span>
+      <div class="stmt">rotate &nbsp;&rarr;&nbsp; scale &nbsp;&rarr;&nbsp; rotate</div>
+      <p>That is <strong>every</strong> matrix, without exception.</p></div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>8.7</span></div><div class="body">
+    <h3>Singular values</h3>
+    <div class="math block">
+      &sigma;&#8321; &ge; &sigma;&#8322; &ge; &hellip; &ge; &sigma;&#7523; &gt; 0<br><br>
+      always sorted, largest first<br>always &ge; 0, unlike eigenvalues
+    </div>
+    <div class="rule"><span class="lab">Cleanest definition of rank</span>
+      <div class="stmt">rank A = the number of<br>non-zero singular values</div>
+      <p>Same number as 5.2, but now you can also see how <em>nearly</em> zero the others
+      are, which counting cannot tell you.</p></div>
+    <div class="link"><span class="h">Why this is the practical definition</span>
+      <p>Counting independent columns gives a yes/no answer. Singular values give a ranked
+      list. If &sigma;&#8324; = 0.0001 the matrix is technically rank 4 but behaves like
+      rank 3. Real data is always like this, and only the SVD reveals it.</p></div>
+    <p>SVD rewritten as a sum of rank-1 pieces &mdash; the form everything below uses:</p>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">A = &sigma;&#8321;u&#8321;v&#8321;<sup>T</sup> + &sigma;&#8322;u&#8322;v&#8322;<sup>T</sup>
+      + &hellip; + &sigma;&#7523;u&#7523;v&#7523;<sup>T</sup></div>
+      <p>Each term is a column times a row, which by 5.4 is a rank-1 matrix. So every matrix
+      is a weighted stack of rank-1 layers, heaviest first.</p></div>
+    <div class="src">Princeton NEU560 lecture 4 &sect;1 and &sect;4</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>8.8</span></div><div class="body">
+    <h3>Low-rank approximation</h3>
+    <p>Keep the first k layers of the stack, throw the rest away.</p>
+    <div class="math block">
+      A<sub>k</sub> = &sigma;&#8321;u&#8321;v&#8321;<sup>T</sup> + &hellip; + &sigma;<sub>k</sub>u<sub>k</sub>v<sub>k</sub><sup>T</sup>
+    </div>
+    <div class="rule"><span class="lab">Eckart-Young theorem</span>
+      <div class="stmt">If B has rank k, then<br><br>
+      &#8214;A &minus; B&#8214; &ge; &#8214;A &minus; A<sub>k</sub>&#8214;</div>
+      <p>No rank-k matrix anywhere is closer to A than A<sub>k</sub>. Truncating the SVD is
+      not just <em>a</em> good approximation, it is provably <strong>the best one</strong>.</p></div>
+    <div class="math block">
+      <strong>Strang's example</strong><br><br>
+      A = diag(4, 3, 2, 1) &nbsp; rank 4<br><br>
+      best rank 2 &rarr; A&#8322; = diag(4, 3, 0, 0)<br>
+      keep the two largest, zero the rest
+    </div>
+    <div class="link"><span class="h">Item 6.5 pays off here</span>
+      <p>Eckart-Young is the best-approximation theorem again, one level up. There it was
+      the closest <em>point</em> in a subspace; here the closest <em>matrix</em> of a given
+      rank. Same idea.</p></div>
+    <div class="src">MIT 18.065 lecture 7 (Strang) &middot; Princeton NEU560 &sect;4</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>8.9</span></div><div class="body">
+    <h3>Connection to compression and information</h3>
+    <div class="rule"><span class="lab">The chain</span>
+      <div class="stmt">rank &nbsp;&rarr;&nbsp; how much information<br>
+      singular values &rarr; how much each direction carries<br>
+      truncation &nbsp;&rarr;&nbsp; keep the most, store the least</div></div>
+    <p>Storing a full <code>m &times; n</code> matrix costs <code>mn</code> numbers. Storing
+    a rank-k approximation costs only the pieces it needs:</p>
+    <div class="math block">
+      k columns of U &nbsp;&rarr;&nbsp; mk<br>
+      k singular values &rarr; k<br>
+      k columns of V &nbsp;&rarr;&nbsp; nk<br>
+      &mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;<br>
+      total &nbsp;&rarr;&nbsp; k(m + n + 1)
+    </div>
+    <p>This beats <code>mn</code> whenever k is small, which is the whole game. And the
+    PCA link closes here: running PCA on centred data is the same computation as taking the
+    SVD of the data matrix. The principal components are the right singular vectors; the
+    variances are the singular values squared.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>8.10</span></div><div class="body">
+    <h3>Pixel example</h3>
+    <p>A greyscale photo is a matrix: one number per pixel.</p>
+    <div class="math block">
+      1000 &times; 1000 image &nbsp;&rarr;&nbsp; 1,000,000 numbers<br><br>
+      rank-k storage &rarr; k(1000 + 1000 + 1) = 2001k
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Rank k</th><th>Numbers stored</th><th>Of original</th><th>Look</th></tr></thead>
+      <tbody>
+        <tr><td class="mn">1000</td><td class="mn">1,000,000</td><td class="mn">100%</td><td>exact</td></tr>
+        <tr><td class="mn">100</td><td class="mn">200,100</td><td class="mn">20.0%</td><td>near-identical</td></tr>
+        <tr><td class="mn">20</td><td class="mn">40,020</td><td class="mn">4.0%</td><td>recognisable, soft</td></tr>
+      </tbody></table></div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">Real images have singular values<br>that fall off fast.<br><br>
+      A few layers carry nearly all the picture.</div></div>
+    <div class="link"><span class="h">One-sentence summary of section 8</span>
+      <p>Rank is how much independent information is present, singular values measure how
+      much each direction carries, truncating the SVD keeps the most information for the
+      least storage, and Eckart-Young proves nothing does better.</p></div>
+    <div class="src">MIT 18.065 lecture 7 &middot; Princeton NEU560 lecture 4</div>
+  </div></article>
+</section>
+
+<!-- ================= SECTION 9 ================= -->
+<section class="sec">
+  <div class="sec-head" id="s9">
+    <div class="num">Section 9</div>
+    <h2>Bringing Everything Together with Attention</h2>
+    <p>Every item so far feeds into this. Built one factor at a time, in the order the
+    equation is computed.</p>
+  </div>
+
+  <article class="item"><div class="tag"><span>9.1</span></div><div class="body">
+    <h3>Why transformers operate on vectors, matrices and tensors</h3>
+    <div class="math block">
+      a word &nbsp;&rarr;&nbsp; a vector in R<sup>d</sup> &nbsp;(an embedding)<br>
+      a sentence of n words &rarr; an n &times; d matrix X<br>
+      a batch of sentences &rarr; an order-3 tensor
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">word &rarr; vector<br>sentence &rarr; matrix<br>batch &rarr; tensor</div>
+      <p>Exactly the ladder from 1.22.</p></div>
+    <p>Two reasons this is the right representation:</p>
+    <ul>
+      <li><strong>Meaning becomes geometry.</strong> Similar words sit close together, and
+      closeness is the dot product from 1.9. Cosine similarity (3.4) is already the core
+      operation.</li>
+      <li><strong>Everything happens at once.</strong> Stacking words as rows means one
+      matrix multiplication processes the whole sentence in parallel, not word by word.</li>
+    </ul>
+    <div class="link"><span class="h">Your notes already end here</span>
+      <p>Item 1.3 finished on <code>v &isin; R&#8311;&#8310;&#8312;</code>. That is exactly a
+      word embedding. Everything since has been machinery for operating on it.</p></div>
+    <div class="src">Stanford CS224N 2024 lecture 8</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>9.2</span></div><div class="body">
+    <h3>Q, K, V</h3>
+    <p>Each word produces three different vectors by multiplying its embedding by three
+    learned weight matrices.</p>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">Q = X W<sub>Q</sub> &nbsp; queries &nbsp; what am I looking for<br>
+      K = X W<sub>K</sub> &nbsp; keys &nbsp;&nbsp;&nbsp;&nbsp; what do I offer<br>
+      V = X W<sub>V</sub> &nbsp; values &nbsp;&nbsp; what I pass on</div></div>
+    <div class="math block">
+      X is n &times; d<br>
+      W<sub>Q</sub>, W<sub>K</sub>, W<sub>V</sub> are d &times; d<sub>k</sub><br><br>
+      Q, K, V are each n &times; d<sub>k</sub>
+    </div>
+    <div class="math block">
+      <strong>The library analogy</strong><br><br>
+      query &rarr; the question you ask at the desk<br>
+      key &nbsp;&nbsp;&rarr; the label on each book's spine<br>
+      value &rarr; what is actually inside the book<br><br>
+      match your query against every key,<br>then collect the values that matched
+    </div>
+    <div class="link"><span class="h">Self-attention</span>
+      <p>Q, K and V all come from the <strong>same</strong> sentence X. Every word queries
+      every other word in its own sentence, which is why it is called <em>self</em>-attention.</p></div>
+    <div class="src">Stanford CS224N 2024 lecture 8, slide 34</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>9.3</span></div><div class="body">
+    <h3>Query matrix</h3>
+    <div class="math block">
+      Q = X W<sub>Q</sub> &nbsp;&nbsp; (n &times; d)(d &times; d<sub>k</sub>) = n &times; d<sub>k</sub><br><br>
+      row i of Q = q&#7522; = the query vector for word i
+    </div>
+    <p>Each row asks a question on behalf of one word: <em>what kind of context am I looking
+    for?</em> W<sub>Q</sub> is learned, so the model discovers what questions are worth
+    asking.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>9.4</span></div><div class="body">
+    <h3>Key matrix</h3>
+    <div class="math block">
+      K = X W<sub>K</sub> &nbsp;&nbsp; also n &times; d<sub>k</sub><br><br>
+      row j of K = k&#11002; = the key vector for word j
+    </div>
+    <p>Each row advertises what that word has to offer. A query and a key match when their
+    dot product is large, which is why Q and K must share the same width
+    <code>d<sub>k</sub></code>.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>9.5</span></div><div class="body">
+    <h3>Value matrix</h3>
+    <div class="math block">
+      V = X W<sub>V</sub> &nbsp;&nbsp; n &times; d<sub>v</sub><br><br>
+      row j of V = v&#11002; = the content word j contributes
+    </div>
+    <p>Values carry the actual payload. Q and K decide <em>how much</em> to take from each
+    word; V is <em>what</em> gets taken. This is why V can have a different width from Q
+    and K.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>9.6</span></div><div class="body">
+    <h3>QK<sup>T</sup></h3>
+    <p>We need the dot product of every query with every key. Item 1.9 handles one pair.
+    This does all pairs at once.</p>
+    <div class="math block">
+      Q K<sup>T</sup> &rarr; (n &times; d<sub>k</sub>)(d<sub>k</sub> &times; n) = n &times; n<br><br>
+      entry (i, j) = q&#7522; &middot; k&#11002;<br>
+      = how much word i should attend to word j
+    </div>
+    <div class="rule"><span class="lab">The result</span>
+      <div class="stmt">an n &times; n score matrix<br>one number for every pair of words</div></div>
+    <div class="link"><span class="h">Why this is expensive</span>
+      <p>Every word scores against every word, so cost grows with n&sup2;. That is why
+      context windows are costly and long-context models are hard.</p></div>
+    <div class="src">Stanford CS224N 2024 lecture 8, slide 49</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>9.7</span></div><div class="body">
+    <h3>Why the transpose is needed</h3>
+    <div class="rule"><span class="lab">The shape argument</span>
+      <div class="stmt">Q is n &times; d<sub>k</sub><br>K is n &times; d<sub>k</sub><br><br>
+      Q K &nbsp;&rarr; (n&times;d<sub>k</sub>)(n&times;d<sub>k</sub>) &nbsp;<strong>undefined</strong><br>
+      Q K<sup>T</sup> &rarr; (n&times;d<sub>k</sub>)(d<sub>k</sub>&times;n) = n &times; n &nbsp;&#10003;</div></div>
+    <div class="rule"><span class="lab">The answer in one sentence</span>
+      <div class="stmt">Without the transpose the inner<br>dimensions do not match and the<br>
+      multiplication does not exist.<br><br>
+      The transpose turns K's rows into<br>columns so every query can meet<br>every key.</div></div>
+    <p>This is the size rule from 2.9 and the transpose from 2.6, doing real work. Nothing
+    exotic is happening &mdash; it is bookkeeping that has to come out right.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>9.8</span></div><div class="body">
+    <h3>Scaling by &radic;d<sub>k</sub></h3>
+    <div class="rule"><span class="lab">Why divide</span>
+      <div class="stmt">As d<sub>k</sub> grows, dot products grow large.<br><br>
+      Large inputs to softmax make it<br>saturate, and the gradients<br>become tiny.<br><br>
+      Dividing by &radic;d<sub>k</sub> keeps them<br>in a usable range.</div></div>
+    <p>Each score is a sum of <code>d<sub>k</sub></code> products, so scores grow with
+    <code>d<sub>k</sub></code>. Dividing by <code>&radic;d<sub>k</sub></code> cancels that
+    growth.</p>
+    <div class="flag"><span class="h">Worth being precise about</span>
+      <p>This is a <strong>numerical fix for training</strong>, not a mathematical
+      necessity. The attention mechanism is well defined without it; it just trains badly.</p></div>
+    <div class="src">Stanford CS224N 2024 lecture 8, slide 52 &middot; Vaswani et al. 2017</div>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>9.9</span></div><div class="body">
+    <h3>Softmax</h3>
+    <p>Turns any list of numbers into a probability distribution: all positive, summing to 1.</p>
+    <div class="math block">
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; e<sup>z&#7522;</sup><br>
+      softmax(z)&#7522; = &mdash;&mdash;&mdash;&mdash;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &sum; e<sup>z&#11002;</sup>
+    </div>
+    <div class="math block">
+      <strong>Worked example</strong> &nbsp; scores = [2, 1, 0]<br><br>
+      e&sup2; = 7.389 &nbsp; e&sup1; = 2.718 &nbsp; e&#8304; = 1.000<br>
+      sum = 11.107<br><br>
+      &rarr; [0.665, 0.245, 0.090]<br>
+      &nbsp;&nbsp;&nbsp; sum = 1.000 &nbsp;&#10003;
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">Softmax is applied to <strong>each row</strong>.<br><br>
+      Each row = one word's attention,<br>spread over all words, summing to 1.</div></div>
+    <p>The exponential exaggerates differences: a slightly higher score becomes a
+    substantially higher weight. That is what makes attention selective rather than a flat
+    average.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>9.10</span></div><div class="body">
+    <h3>Multiplication by V</h3>
+    <p>The softmax gave weights. Use them to take a weighted sum of the value vectors
+    &mdash; a linear combination, item 1.14.</p>
+    <div class="math block">
+      (n &times; n weights)(n &times; d<sub>v</sub> values) = n &times; d<sub>v</sub> output<br><br>
+      output row i = &sum;&#11002; &alpha;&#7522;&#11002; v&#11002;
+    </div>
+    <div class="rule"><span class="lab">Rule</span>
+      <div class="stmt">Each output row is a blend of<br>every word's value vector,<br>
+      weighted by how much attention<br>that word received.</div></div>
+    <p>Because the weights sum to 1, the output is an average, so it stays in the same
+    scale as the inputs.</p>
+  </div></article>
+
+  <article class="item"><div class="tag"><span>9.11</span></div><div class="body">
+    <h3>Full attention equation</h3>
+    <div class="rule"><span class="lab">The whole thing</span>
+      <div class="stmt">Attention(Q, K, V) =<br><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; softmax &#40; &nbsp;Q K<sup>T</sup> &nbsp;&#41; V<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &mdash;&mdash;&mdash;&mdash;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &radic;d<sub>k</sub></div></div>
+    <p>Read it right to left, the four steps you just built:</p>
+    <div class="tw"><table>
+      <thead><tr><th>Step</th><th>Operation</th><th>Built in</th></tr></thead>
+      <tbody>
+        <tr><td class="mn">1</td><td>QK<sup>T</sup> &mdash; score every pair</td><td class="mn">2.6, 2.9, 9.6, 9.7</td></tr>
+        <tr><td class="mn">2</td><td>&divide; &radic;d<sub>k</sub> &mdash; keep it trainable</td><td class="mn">9.8</td></tr>
+        <tr><td class="mn">3</td><td>softmax &mdash; make weights</td><td class="mn">9.9</td></tr>
+        <tr><td class="mn">4</td><td>&times; V &mdash; weighted sum</td><td class="mn">1.14, 2.7, 9.10</td></tr>
+      </tbody></table></div>
+    <div class="math block">
+      <strong>Tiny numeric run</strong> &nbsp; d<sub>k</sub> = 2, two words<br><br>
+      q&#8321; =<span class="m" style="--c:2"><span>1</span><span>0</span></span>
+      &nbsp; k&#8321; =<span class="m" style="--c:2"><span>1</span><span>0</span></span>
+      &nbsp; k&#8322; =<span class="m" style="--c:2"><span>0</span><span>1</span></span><br><br>
+      scores &nbsp;&rarr;&nbsp; q&#8321;&middot;k&#8321; = 1, &nbsp; q&#8321;&middot;k&#8322; = 0<br>
+      &divide;&radic;2 &nbsp;&nbsp;&rarr;&nbsp; 0.707, &nbsp; 0<br>
+      softmax &rarr;&nbsp; 0.670, &nbsp; 0.330<br><br>
+      v&#8321; =<span class="m" style="--c:2"><span>1</span><span>0</span></span>
+      &nbsp; v&#8322; =<span class="m" style="--c:2"><span>0</span><span>1</span></span><br>
+      output = 0.670 v&#8321; + 0.330 v&#8322;
+      =<span class="m" style="--c:2"><span>0.670</span><span>0.330</span></span>
+    </div>
+    <div class="link"><span class="h">What the workshop was for</span>
+      <p>Every symbol is something you wrote by hand: vectors and dot products for the
+      scores, transpose and matrix multiplication for the shapes, linear combination for the
+      output, tensors for the batch. The equation is not new mathematics. It is your notes,
+      assembled.</p></div>
+    <div class="src">Stanford CS224N 2024 lecture 8, slides 49&ndash;52 &middot; Vaswani et al. 2017</div>
+  </div></article>
+</section>
+
+<!-- ================= SOURCES ================= -->
+<section class="sec">
+  <div class="sec-head" id="sources">
+    <div class="num">Provenance</div>
+    <h2>Sources</h2>
+    <p>Every formula here traces to one of these. University course material throughout,
+    plus the two textbooks in this folder.</p>
+  </div>
+  <article class="item"><div class="tag"><span>&mdash;</span></div><div class="body">
+    <div class="srclist">
+      <div><span class="who">MIT 18.065 &mdash; lecture 7, Gilbert Strang</span>
+        <span>Eckart-Young theorem, L1/L2/L&infin; norms, PCA framing, why L1 gives sparsity.</span>
+        <a href="https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/">ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/</a></div>
+      <div><span class="who">Stanford CS224N &mdash; 2024 lecture 8</span>
+        <span>Q/K/V, QK<sup>T</sup>, the &radic;d<sub>k</sub> rationale (slide 52), stacked attention (slide 49).</span>
+        <a href="https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1244/slides/cs224n-2024-lecture08-transformers.pdf">web.stanford.edu/class/archive/cs/cs224n/cs224n.1244/slides/cs224n-2024-lecture08-transformers.pdf</a></div>
+      <div><span class="who">CMU 10-701 &mdash; lecture 14</span>
+        <span>PCA algorithm, covariance matrix, eigenvector justification, PCA/SVD link.</span>
+        <a href="https://www.cs.cmu.edu/~mgormley/courses/10701-f16/slides/lecture14-pca.pdf">cs.cmu.edu/~mgormley/courses/10701-f16/slides/lecture14-pca.pdf</a></div>
+      <div><span class="who">Princeton NEU560 &mdash; lecture 4, Jonathan Pillow</span>
+        <span>Rank via singular values, SVD as rank-1 sum, low-rank truncation, rotate/scale/rotate.</span>
+        <a href="https://pillowlab.princeton.edu/teaching/statneuro2020/notes/notes04_SVDapplications.pdf">pillowlab.princeton.edu/teaching/statneuro2020/notes/notes04_SVDapplications.pdf</a></div>
+      <div><span class="who">Cornell CS4220 &mdash; David Bindel</span>
+        <span>The three norm axioms and the 1-, 2-, &infin;-norm definitions.</span>
+        <a href="https://www.cs.cornell.edu/~bindel/class/cs4220-s15/lec/2015-02-02-notes.pdf">cs.cornell.edu/~bindel/class/cs4220-s15/lec/2015-02-02-notes.pdf</a></div>
+      <div><span class="who">Cornell &mdash; Lec 27, rank of a matrix</span>
+        <span>Row rank = column rank, rank-nullity, computing rank by row reduction.</span>
+        <a href="https://pi.math.cornell.edu/~andreim/Lec27.pdf">pi.math.cornell.edu/~andreim/Lec27.pdf</a></div>
+      <div><span class="who">UC Berkeley Math 54 &mdash; &sect;6.3</span>
+        <span>Projection derivation, orthogonal decomposition, best approximation theorem.</span>
+        <a href="https://math.berkeley.edu/~arash/54/notes/6_3.pdf">math.berkeley.edu/~arash/54/notes/6_3.pdf</a></div>
+      <div><span class="who">UC Berkeley EE127</span>
+        <span>Rank-nullity theorem statement.</span>
+        <a href="https://inst.eecs.berkeley.edu/~ee127/sp21/livebook/thm_nullity.html">inst.eecs.berkeley.edu/~ee127/sp21/livebook/thm_nullity.html</a></div>
+      <div><span class="who">Stanford EE270 &mdash; lecture 4</span>
+        <span>Tensor order and the scalar/vector/matrix/tensor ladder.</span>
+        <a href="https://web.stanford.edu/class/ee270/scribes/lecture4.pdf">web.stanford.edu/class/ee270/scribes/lecture4.pdf</a></div>
+      <div><span class="who">Stanford CS224N &mdash; final report 256736504</span>
+        <span>LoRA in practice. The W&#8320; + BA formulation itself is Hu et al. 2021.</span>
+        <a href="https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1254/final-reports/256736504.pdf">web.stanford.edu/class/archive/cs/cs224n/cs224n.1254/final-reports/256736504.pdf</a></div>
+      <div><span class="who">Textbooks in this folder</span>
+        <span>Treil, <em>Linear Algebra Done Wrong</em> &middot; Margalit &amp; Rabinoff,
+        <em>Interactive Linear Algebra</em>. Cited by PDF page throughout.</span></div>
+    </div>
+  </div></article>
+</section>
+
+</div>
+</body>
+</html>
