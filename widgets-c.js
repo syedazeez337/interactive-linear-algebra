@@ -156,20 +156,29 @@
       );
     }
     uiW = W.ui.mat(2, 2, st.W, draw, 40);
+    sr = W.ui.slider('r', 1, 2, 1, 1, v => { st.r = v; rebuild(); });
+    const bar = W.ui.bar();
+    /* Changing r changes the shapes of B and A, so their input grids are rebuilt.
+       The bar must be repopulated with the new grids — appending them once at
+       construction leaves the old boxes on screen, detached from st.B / st.A. */
     function rebuild() {
       st.B = st.r === 1 ? [1, 2] : [1, 0, 0, 1];
       st.A = st.r === 1 ? [3, 1] : [2, 0, 0, 3];
       uiB = W.ui.mat(2, st.r, st.B, draw, 40);
       uiA = W.ui.mat(st.r, 2, st.A, draw, 40);
+      bar.innerHTML = '';
+      bar.appendChild(W.ui.label('W =')); bar.appendChild(uiW.el);
+      bar.appendChild(W.ui.label('B =')); bar.appendChild(uiB.el);
+      bar.appendChild(W.ui.label('A =')); bar.appendChild(uiA.el);
+      bar.appendChild(sr.el);
+      bar.appendChild(W.ui.note('drag r to 2 and the saving disappears'));
       draw();
     }
-    sr = W.ui.slider('r', 1, 2, 1, 1, v => { st.r = v; rebuild(); });
     rebuild();
     return {
-      extra: W.ui.bar(W.ui.label('W ='), uiW.el, W.ui.label('B ='), uiB.el, W.ui.label('A ='), uiA.el, sr.el,
-        W.ui.note('drag r to 2 and the saving disappears')),
+      extra: bar,
       draw: draw,
-      reset: function () { st.W.splice(0, 4, 1, 2, 3, 4); st.r = 1; uiW.sync(); rebuild(); },
+      reset: function () { st.W.splice(0, 4, 1, 2, 3, 4); st.r = 1; sr.set(1); uiW.sync(); rebuild(); },
       steps: function () {
         const D = delta();
         return [
@@ -412,42 +421,83 @@
 
   /* ============ PD — PCA in depth ============ */
   W.register('pca', function () {
-    const pts = [[2, 1], [3, 2], [4, 1], [5, 3], [6, 2], [7, 4]];
-    function draw() {
+    const pl = W.Plane(560, 340, 38, { ox: 130, oy: 240 });
+    const DEF = [[2, 1], [3, 2], [4, 1], [5, 3], [6, 2], [7, 4]];
+    const pts = DEF.map(p => ({ x: p[0], y: p[1] }));
+
+    /* Population covariance (divide by n), matching the standard PCA recipe,
+       then the eigenpair of that symmetric 2×2 matrix. */
+    function stats() {
       const n = pts.length;
-      const mx = pts.reduce((s, p) => s + p[0], 0) / n;
-      const my = pts.reduce((s, p) => s + p[1], 0) / n;
-      const c = pts.map(p => [p[0] - mx, p[1] - my]);
+      const mx = pts.reduce((s, p) => s + p.x, 0) / n;
+      const my = pts.reduce((s, p) => s + p.y, 0) / n;
+      const c = pts.map(p => [p.x - mx, p.y - my]);
       const xx = c.reduce((s, p) => s + p[0] * p[0], 0) / n;
       const xy = c.reduce((s, p) => s + p[0] * p[1], 0) / n;
       const yy = c.reduce((s, p) => s + p[1] * p[1], 0) / n;
-      const tr = xx + yy;
-      const det = xx * yy - xy * xy;
+      const tr = xx + yy, det = xx * yy - xy * xy;
       const disc = Math.sqrt(Math.max(0, tr * tr - 4 * det));
-      const l1 = (tr + disc) / 2, l2 = (tr - disc) / 2;
-      const e1x = xy, e1y = l1 - xx;
-      const nrm = Math.hypot(e1x, e1y) || 1;
+      const l1 = (tr + disc) / 2, l2 = Math.max(0, (tr - disc) / 2);
+      let ex, ey;
+      if (Math.abs(xy) < EPS) { if (xx >= yy) { ex = 1; ey = 0; } else { ex = 0; ey = 1; } }
+      else { ex = xy; ey = l1 - xx; const nn = Math.hypot(ex, ey) || 1; ex /= nn; ey /= nn; }
+      return { n: n, mx: mx, my: my, xx: xx, xy: xy, yy: yy, tr: tr,
+               l1: l1, l2: l2, e1: { x: ex, y: ey }, e2: { x: -ey, y: ex } };
+    }
+
+    function draw() {
+      pl.clear();
+      const S = stats();
+      const a1 = Math.sqrt(S.l1) * 2, a2 = Math.sqrt(S.l2) * 2;
+      /* axes drawn through the mean, each scaled by its own standard deviation */
+      pl.seg(S.mx - S.e2.x * a2, S.my - S.e2.y * a2, S.mx + S.e2.x * a2, S.my + S.e2.y * a2,
+        'rgba(20,20,15,.45)', null, 2);
+      pl.seg(S.mx - S.e1.x * a1, S.my - S.e1.y * a1, S.mx + S.e1.x * a1, S.my + S.e1.y * a1, OX, null, 3.5);
+      /* each point's projection onto the first PC */
+      pts.forEach(function (p) {
+        const t = (p.x - S.mx) * S.e1.x + (p.y - S.my) * S.e1.y;
+        pl.seg(p.x, p.y, S.mx + S.e1.x * t, S.my + S.e1.y * t, 'rgba(140,58,30,.35)', [3, 3]);
+      });
+      pts.forEach(p => pl.dot(p.x, p.y, INK, 5));
+      pl.dot(S.mx, S.my, OX, 7);
+      pl.text(S.mx, S.my, 'mean', OX);
+      pl.text(S.mx + S.e1.x * a1, S.my + S.e1.y * a1, 'PC1', OX);
+
+      const pct = S.tr ? S.l1 / S.tr * 100 : 0;
       W.read(
-        'data (centred) — 6 points\n' +
-        pts.map(p => '  [' + f(p[0] - mx, 2) + ', ' + f(p[1] - my, 2) + ']').join('\n') + '\n\n' +
-        'covariance = [[ ' + f(xx, 3) + ', ' + f(xy, 3) + ' ],\n' +
-        '              [ ' + f(xy, 3) + ', ' + f(yy, 3) + ' ]]\n\n' +
-        'eigenvalues  λ₁ = ' + f(l1, 4) + '  λ₂ = ' + f(l2, 4) + '\n' +
-        'first principal direction = [' + f(e1x / nrm, 3) + ', ' + f(e1y / nrm, 3) + ']\n\n' +
-        'the largest eigenvalue points along the direction\n' +
-        'of greatest variance — that is the first PC'
+        'n = ' + S.n + ' points   ·   drag any of them\n\n' +
+        'mean = [' + f(S.mx, 3) + ', ' + f(S.my, 3) + ']\n\n' +
+        'covariance of the centred data\n' +
+        '  [[ ' + f(S.xx, 3) + ', ' + f(S.xy, 3) + ' ],\n' +
+        '   [ ' + f(S.xy, 3) + ', ' + f(S.yy, 3) + ' ]]\n\n' +
+        'eigenvalues of that matrix\n' +
+        '  λ₁ = ' + f(S.l1, 4) + '   λ₂ = ' + f(S.l2, 4) + '\n' +
+        '  λ₁ + λ₂ = ' + f(S.l1 + S.l2, 4) + ' = trace ✓\n\n' +
+        'PC1 = [' + f(S.e1.x, 3) + ', ' + f(S.e1.y, 3) + ']   variance ' + f(S.l1, 3) + '\n' +
+        'PC2 = [' + f(S.e2.x, 3) + ', ' + f(S.e2.y, 3) + ']   variance ' + f(S.l2, 3) + '\n' +
+        '  PC1 · PC2 = ' + f(S.e1.x * S.e2.x + S.e1.y * S.e2.y, 3) + ' — perpendicular ✓\n\n' +
+        'variance explained by PC1 alone: ' + f(pct, 1) + '%\n' +
+        'keeping only PC1 would discard ' + f(100 - pct, 1) + '%\n\n' +
+        'the dashed lines are each point’s projection onto PC1 —\n' +
+        'that is what dimension reduction would keep'
       );
     }
+    W.attachDrag(pl, () => pts, function (i, x, y) { pts[i].x = x; pts[i].y = y; draw(); },
+      { bx: 9, by: 5 });
     return {
-      draw: draw,
-      reset: function () { draw(); },
+      cv: pl.cv, draw: draw,
+      reset: function () { DEF.forEach((p, i) => { pts[i].x = p[0]; pts[i].y = p[1]; }); draw(); },
       steps: function () {
+        const S = stats();
+        const pct = S.tr ? S.l1 / S.tr * 100 : 0;
         return [
-          'PCA finds the direction along which the data varies the most.',
-          'First centre the data, then build the covariance matrix — it records how each pair of coordinates move together.',
-          'The eigenvectors of that covariance matrix are the principal directions.',
-          'The largest eigenvalue marks the first principal component: the axis of greatest variance.',
-          'Projecting onto that axis is the same best-approximation idea as projection, now applied to a whole cloud of points.'
+          'PCA looks for the direction along which the cloud varies most. Drag a point and watch the red axis chase it.',
+          'First centre the data by subtracting the mean [' + f(S.mx, 2) + ', ' + f(S.my, 2) + '].',
+          'Build the covariance matrix. Its diagonal is the spread along x and y; the off-diagonal ' +
+            f(S.xy, 3) + ' says how much they move together.',
+          'Its eigenvectors are the principal directions. The larger eigenvalue λ₁ = ' + f(S.l1, 3) +
+            ' belongs to PC1, the red axis.',
+          'PC1 alone carries ' + f(pct, 1) + '% of the total variance. Drag the points into a line and watch that climb towards 100%.'
         ];
       }
     };
@@ -652,17 +702,29 @@
     const st = { z: [2, 1, 0.1] };
     let uiZ;
     function draw() {
+      /* The answer is computed from exp(z − max) so a huge score cannot overflow.
+         The workings shown must use the SAME quantities as the sum underneath
+         them, or the arithmetic on screen will not add up. Prefer the plain
+         exp(z) form, and fall back to the shifted one only if it overflows. */
       const mx = Math.max.apply(null, st.z);
       const e = st.z.map(z => Math.exp(z - mx));
       const s = e.reduce((a, b) => a + b, 0);
       const p = e.map(v => v / s);
+      const raw = st.z.map(z => Math.exp(z));
+      const plain = raw.every(v => isFinite(v)) && isFinite(raw.reduce((a, b) => a + b, 0));
+      const shown = plain ? raw : e;
+      const shownSum = shown.reduce((a, b) => a + b, 0);
       W.read(
         'scores  z = [' + st.z.map(v => f(v, 2)).join(', ') + ']\n\n' +
-        'e^zᵢ:\n' +
-        st.z.map((z, i) => '  e^' + f(z, 2) + ' = ' + f(Math.exp(z), 4)).join('\n') + '\n\n' +
-        'sum = ' + f(s, 4) + '\n\n' +
+        (plain ? 'e^zᵢ:\n' : 'e^(zᵢ − max)   — shifted, the raw form overflows:\n') +
+        st.z.map((z, i) => '  ' + (plain ? 'e^' + f(z, 2) : 'e^' + f(z - mx, 2)) +
+          ' = ' + f(shown[i], 4)).join('\n') + '\n\n' +
+        'sum = ' + f(shownSum, 4) + '\n\n' +
         'softmax = [' + p.map(v => f(v, 4)).join(', ') + ']\n' +
         'sum of probabilities = ' + f(p.reduce((a, b) => a + b, 0), 4) + '\n\n' +
+        'subtracting the max before exponentiating changes\n' +
+        'nothing — the shift cancels top and bottom — but it\n' +
+        'stops a large score overflowing to infinity\n\n' +
         'the largest score gets the most mass, but no one\n' +
         'gets exactly zero'
       );
@@ -690,31 +752,96 @@
 
   /* ============ AT — full attention ============ */
   W.register('attention', function () {
-    const st = { showV: false };
+    /* Two tokens, d_k = d_v = 2. Q, K, V are each 2×2, row i = token i. */
+    const DQ = [1, 0, 0, 1], DK = [1, 0, 0, 1], DV = [1, 0, 0, 1];
+    const st = { Q: DQ.slice(), K: DK.slice(), V: DV.slice() };
+    let uiQ, uiK, uiV;
+    const dk = 2, root = Math.sqrt(dk);
+
+    function pipeline() {
+      const Q = st.Q, K = st.K, V = st.V;
+      /* S = QKᵀ : S[i][j] = q_i · k_j */
+      const S = [];
+      for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++)
+        S.push(Q[i * 2] * K[j * 2] + Q[i * 2 + 1] * K[j * 2 + 1]);
+      const Sc = S.map(v => v / root);
+      /* row-wise softmax, max-shifted so a large score cannot overflow */
+      const Wt = [];
+      for (let i = 0; i < 2; i++) {
+        const row = [Sc[i * 2], Sc[i * 2 + 1]];
+        const mx = Math.max(row[0], row[1]);
+        const e = row.map(v => Math.exp(v - mx));
+        const sum = e[0] + e[1];
+        Wt.push(e[0] / sum, e[1] / sum);
+      }
+      /* O = W V : o_i = Σ_j W[i][j] · v_j  (v_j is row j of V) */
+      const O = [];
+      for (let i = 0; i < 2; i++) for (let c = 0; c < 2; c++)
+        O.push(Wt[i * 2] * V[c] + Wt[i * 2 + 1] * V[2 + c]);
+      return { S: S, Sc: Sc, Wt: Wt, O: O };
+    }
+
     function draw() {
+      const Q = st.Q, K = st.K, P = pipeline();
+      const dotTxt = (i, j) => '(' + f(Q[i * 2]) + '×' + f(K[j * 2]) + ') + (' +
+        f(Q[i * 2 + 1]) + '×' + f(K[j * 2 + 1]) + ') = ' + f(P.S[i * 2 + j], 2);
+      const rowSum = i => f(P.Wt[i * 2] + P.Wt[i * 2 + 1], 4);
       W.read(
+        'n = 2 tokens   d_k = ' + dk + '   √d_k = ' + f(root, 4) + '\n\n' +
+        W.sideBySide([['Q ='], blockOf(Q, 2, 2), ['  K ='], blockOf(K, 2, 2), ['  V ='], blockOf(st.V, 2, 2)], 2) + '\n\n' +
+        'STEP 1   S = QKᵀ   — every query against every key\n' +
+        '  S₁₁ = q₁·k₁ = ' + dotTxt(0, 0) + '\n' +
+        '  S₁₂ = q₁·k₂ = ' + dotTxt(0, 1) + '\n' +
+        '  S₂₁ = q₂·k₁ = ' + dotTxt(1, 0) + '\n' +
+        '  S₂₂ = q₂·k₂ = ' + dotTxt(1, 1) + '\n' +
+        '  transpose is what makes (2×2)(2×2) line up\n\n' +
+        'STEP 2   divide by √d_k = ' + f(root, 4) + '\n' +
+        W.sideBySide([['  '], blockOf(P.Sc.map(v => +f(v, 3)), 2, 2)], 1) + '\n\n' +
+        'STEP 3   softmax each row\n' +
+        '  row 1 → [' + f(P.Wt[0], 4) + ', ' + f(P.Wt[1], 4) + ']   sums to ' + rowSum(0) + '\n' +
+        '  row 2 → [' + f(P.Wt[2], 4) + ', ' + f(P.Wt[3], 4) + ']   sums to ' + rowSum(1) + '\n\n' +
+        'STEP 4   O = W V   — a weighted sum of the value rows\n' +
+        '  o₁ = ' + f(P.Wt[0], 4) + '·v₁ + ' + f(P.Wt[1], 4) + '·v₂ = [' + f(P.O[0], 4) + ', ' + f(P.O[1], 4) + ']\n' +
+        '  o₂ = ' + f(P.Wt[2], 4) + '·v₁ + ' + f(P.Wt[3], 4) + '·v₂ = [' + f(P.O[2], 4) + ', ' + f(P.O[3], 4) + ']\n\n' +
         'Attention(Q,K,V) = softmax(QKᵀ / √d_k) V\n\n' +
-        'step 1  scores   S = QKᵀ / √d_k     (n × n)\n' +
-        'step 2  weights  W = softmax(S)      (n × n)\n' +
-        'step 3  output   O = W V             (n × d_v)\n\n' +
-        'the weights say where to look;\n' +
-        'the values say what to gather.\n\n' +
-        'each output row is a weighted sum of values:\n' +
-        '  o_i = w_i1 v_1 + w_i2 v_2 + … + w_in v_n\n\n' +
-        'keys and queries only decide the weights —\n' +
-        'the values are what actually get mixed.'
+        'Q and K only decide where to look.\n' +
+        'V is what actually gets gathered — edit V and the\n' +
+        'weights stay put while the output moves.'
       );
     }
+
+    uiQ = W.ui.mat(2, 2, st.Q, draw, 40);
+    uiK = W.ui.mat(2, 2, st.K, draw, 40);
+    uiV = W.ui.mat(2, 2, st.V, draw, 40);
+    const bar = W.ui.bar(W.ui.label('Q ='), uiQ.el, W.ui.label('K ='), uiK.el,
+      W.ui.label('V ='), uiV.el,
+      W.ui.buttons([{
+        label: 'make token 1 stare at token 2', fn: function () {
+          st.Q.splice(0, 4, 0, 3, 0, 1); st.K.splice(0, 4, 1, 0, 0, 1);
+          uiQ.sync(); uiK.sync(); draw();
+        }
+      }]));
+
     return {
-      draw: draw,
-      reset: function () { st.showV = false; draw(); },
+      extra: bar, draw: draw,
+      reset: function () {
+        st.Q.splice(0, 4); DQ.forEach(v => st.Q.push(v));
+        st.K.splice(0, 4); DK.forEach(v => st.K.push(v));
+        st.V.splice(0, 4); DV.forEach(v => st.V.push(v));
+        uiQ.sync(); uiK.sync(); uiV.sync(); draw();
+      },
       steps: function () {
+        const P = pipeline();
         return [
-          'Attention has three steps: score, weight, gather.',
-          'Scores S = QKᵀ/√d_k compare every query against every key.',
-          'Softmax turns each row of scores into weights that sum to one.',
-          'Multiplying those weights by V gathers a weighted sum of values.',
-          'The result is a new representation for each token that has looked at the whole sequence through those weights.'
+          'Score. S = QKᵀ takes every query against every key, giving one number per pair — here S₁₁ = ' +
+            f(P.S[0], 2) + ' and S₁₂ = ' + f(P.S[1], 2) + '.',
+          'The transpose is not decoration: without it the inner dimensions do not match and the product does not exist.',
+          'Scale. Divide by √d_k = ' + f(root, 4) +
+            ' so the scores do not grow with dimension and push softmax into saturation.',
+          'Weight. Softmax each row: token 1 gives [' + f(P.Wt[0], 4) + ', ' + f(P.Wt[1], 4) +
+            '], which sums to ' + f(P.Wt[0] + P.Wt[1], 4) + '.',
+          'Gather. o₁ = ' + f(P.Wt[0], 4) + '·v₁ + ' + f(P.Wt[1], 4) + '·v₂ = [' +
+            f(P.O[0], 4) + ', ' + f(P.O[1], 4) + '] — a linear combination of the value rows, exactly item 1.14.'
         ];
       }
     };
