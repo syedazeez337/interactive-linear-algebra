@@ -54,7 +54,7 @@
     return out;
   }
 
-  /* ============ W — vector space ============ */
+  /* ============ W - vector space ============ */
   W.register('space', function () {
     const pl = W.Plane(560, 380, 44);
     const u = { x: 2, y: 1 }, v = { x: 1, y: 3 }, st = { al: 2, be: -1 };
@@ -74,14 +74,14 @@
       const R2 = [A * v.x + B * v.x, A * v.y + B * v.y];
       W.read(
         'α = ' + f(A) + '     β = ' + f(B) + '\n\n' +
-        'AXIOM 1 — commutativity\n' +
+        'AXIOM 1, commutativity\n' +
         '  u+v = [' + (u.x + v.x) + ', ' + (u.y + v.y) + ']\n' +
         '  v+u = [' + (v.x + u.x) + ', ' + (v.y + u.y) + ']        ✓ equal\n\n' +
-        'AXIOM 7 — α(u+v) = αu + αv\n' +
+        'AXIOM 7, α(u+v) = αu + αv\n' +
         '  left  = ' + f(A) + '·[' + (u.x + v.x) + ', ' + (u.y + v.y) + '] = [' + f(L1[0]) + ', ' + f(L1[1]) + ']\n' +
         '  right = [' + f(A * u.x) + ', ' + f(A * u.y) + '] + [' + f(A * v.x) + ', ' + f(A * v.y) + '] = [' + f(R1[0]) + ', ' + f(R1[1]) + ']' +
         (Math.abs(L1[0] - R1[0]) < EPS && Math.abs(L1[1] - R1[1]) < EPS ? '   ✓' : '   ✗') + '\n\n' +
-        'AXIOM 8 — (α+β)v = αv + βv\n' +
+        'AXIOM 8, (α+β)v = αv + βv\n' +
         '  left  = ' + f(A + B) + '·[' + v.x + ', ' + v.y + '] = [' + f(L2[0]) + ', ' + f(L2[1]) + ']\n' +
         '  right = [' + f(A * v.x) + ', ' + f(A * v.y) + '] + [' + f(B * v.x) + ', ' + f(B * v.y) + '] = [' + f(R2[0]) + ', ' + f(R2[1]) + ']' +
         (Math.abs(L2[0] - R2[0]) < EPS && Math.abs(L2[1] - R2[1]) < EPS ? '   ✓' : '   ✗') + '\n\n' +
@@ -89,7 +89,7 @@
         '  S = vectors in R² with first component ≥ 0\n' +
         '  u = [' + u.x + ', ' + u.y + ']  is in S\n' +
         '  (−1)u = [' + (-u.x) + ', ' + (-u.y) + ']  ' +
-        (-u.x >= 0 ? 'is in S — try dragging u right of the axis' : 'is NOT in S  ✗ axiom 4 fails') + '\n' +
+        (-u.x >= 0 ? 'is in S, try dragging u right of the axis' : 'is NOT in S  ✗ axiom 4 fails') + '\n' +
         '  so S is not a vector space'
       );
     }
@@ -101,7 +101,7 @@
       draw: draw,
       reset: function () { u.x = 2; u.y = 1; v.x = 1; v.y = 3; st.al = 2; st.be = -1; sa.set(2); sb.set(-1); draw(); },
       steps: () => [
-        'A vector space is a set with two operations — add, and scale — whose results never leave the set.',
+        'A vector space is a set with two operations, add, and scale, whose results never leave the set.',
         'Eight axioms make that precise. Four govern addition, two multiplication, two tie them together.',
         'Axiom 1 says u+v = v+u. Both sides are computed above from your dragged vectors, and they agree.',
         'Axioms 7 and 8 are the distributive laws. Move the α and β sliders: both sides track each other exactly.',
@@ -110,7 +110,7 @@
     };
   });
 
-  /* ============ E — dimension ============ */
+  /* ============ E - dimension ============ */
   W.register('dimension', function () {
     const pl = W.Plane(560, 380, 44);
     const a = { x: 2, y: 1 }, b = { x: -1, y: 2 }, st = { n: 2 };
@@ -138,7 +138,7 @@
         'dim V              = ' + r + '     ← size of a basis\n' +
         'components each    = 2     ← length of the column\n\n' +
         (r === 2 ? 'here they happen to match'
-          : 'these two numbers are different — that is the whole point.\n' +
+          : 'these two numbers are different. That is the whole point.\n' +
             'the vectors still have 2 components, but the space\nthey span is only ' + r + '-dimensional')
       );
     }
@@ -153,7 +153,7 @@
       steps: function () {
         const r = rk();
         return [
-          'Dimension of a space means the number of vectors in a basis for it — not the length of the columns.',
+          'Dimension of a space means the number of vectors in a basis for it, not the length of the columns.',
           'Right now the span is ' + (r === 2 ? 'the whole plane' : r === 1 ? 'a line' : 'a single point') + ', so dim V = ' + r + '.',
           'Every vector on show still has 2 components. That number has not changed.',
           'Set the count to 1, or drag the two vectors parallel, and watch dim drop to 1 while the components stay at 2.',
@@ -163,7 +163,7 @@
     };
   });
 
-  /* ============ B — basis ============ */
+  /* ============ B - basis ============ */
   W.register('basis', function () {
     const pl = W.Plane(560, 380, 40);
     const b1 = { x: 2, y: 1 }, b2 = { x: -1, y: 2 }, t = { x: 3, y: 4 };
@@ -195,7 +195,7 @@
           '  c₂ = ' + f(c2, 4) + '\n\n' +
           'check   ' + f(c1, 3) + '·[' + b1.x + ', ' + b1.y + '] + ' + f(c2, 3) + '·[' + b2.x + ', ' + b2.y + ']\n' +
           '      = [' + f(rx, 3) + ', ' + f(ry, 3) + ']   ✓ that is t\n\n' +
-          'the faint lattice is every integer combination\nof b₁ and b₂ — the coordinate grid this basis builds';
+          'the faint lattice is every integer combination\nof b₁ and b₂, the coordinate grid this basis builds';
       }
       W.read('b₁ = [' + b1.x + ', ' + b1.y + ']   b₂ = [' + b2.x + ', ' + b2.y + ']   t = [' + t.x + ', ' + t.y + ']\n\n' + body);
     }
@@ -226,7 +226,7 @@
     };
   });
 
-  /* ============ I — independence ============ */
+  /* ============ I - independence ============ */
   W.register('independence', function () {
     const pl = W.Plane(560, 380, 44);
     const a = { x: 2, y: 1 }, b = { x: -1, y: 2 };
@@ -241,7 +241,7 @@
       let extra = '';
       if (Math.abs(det) < EPS && (a.x || a.y)) {
         const k = a.x ? b.x / a.x : b.y / a.y;
-        extra = '\nb = ' + f(k, 3) + '·a   — b is redundant, it adds nothing new\n';
+        extra = '\nb = ' + f(k, 3) + '·a, b is redundant, it adds nothing new\n';
       }
       W.read(
         'a = [' + a.x + ', ' + a.y + ']     b = [' + b.x + ', ' + b.y + ']\n\n' +
@@ -261,19 +261,19 @@
       steps: function () {
         const det = a.x * b.y - b.x * a.y;
         return [
-          'Independent means no vector in the set can be built from the others — nothing is redundant.',
+          'Independent means no vector in the set can be built from the others. Nothing is redundant.',
           'For two vectors in R² the test is one determinant: ad − bc = ' + det + '.',
           Math.abs(det) > EPS
             ? 'It is not zero, so a and b are independent and their span is the whole shaded plane.'
             : 'It is zero, so they are dependent. One is a multiple of the other and the span has collapsed to the red line.',
           'Drag b onto the line through a and watch the determinant fall to zero.',
-          'More than n vectors in Rⁿ are always dependent — there simply is not room for a third independent direction in a plane.'
+          'More than n vectors in Rⁿ are always dependent, there simply is not room for a third independent direction in a plane.'
         ];
       }
     };
   });
 
-  /* ============ R — the relationship ============ */
+  /* ============ R - the relationship ============ */
   W.register('relationship', function () {
     const pl = W.Plane(560, 380, 44);
     const vs = [{ x: 2, y: 1 }, { x: -1, y: 2 }, { x: 1, y: 3 }];
@@ -298,10 +298,10 @@
       W.read(
         'vectors in the set : ' + st.n + '\n' +
         'rank of the set    : ' + r + '   (independent directions)\n\n' +
-        'independent ?   ' + (indep ? 'YES' : 'NO — ' + (st.n > 2 ? 'more than 2 vectors in R² never can be' : 'they are parallel')) + '\n' +
-        'spans R² ?      ' + (spans ? 'YES' : 'NO — the span is ' + (r === 1 ? 'a line' : 'a point')) + '\n' +
+        'independent ?   ' + (indep ? 'YES' : 'NO, ' + (st.n > 2 ? 'more than 2 vectors in R² never can be' : 'they are parallel')) + '\n' +
+        'spans R² ?      ' + (spans ? 'YES' : 'NO, the span is ' + (r === 1 ? 'a line' : 'a point')) + '\n' +
         'dim of span     ' + r + '\n' +
-        'basis of R² ?   ' + (basis ? 'YES' : 'NO — ' + (!spans ? 'too few directions' : 'redundant, too many vectors')) + '\n\n' +
+        'basis of R² ?   ' + (basis ? 'YES' : 'NO, ' + (!spans ? 'too few directions' : 'redundant, too many vectors')) + '\n\n' +
         'COUNTING IN Rⁿ  (n = 2 here)\n' +
         '  fewer than n vectors  → can never span\n' +
         '  more than n vectors   → must be dependent\n' +
@@ -318,19 +318,19 @@
         const r = setRank();
         return [
           'Span, independence, basis and dimension are one idea from four angles. Change the count and watch all four move together.',
-          'You have ' + st.n + ' vector' + (st.n > 1 ? 's' : '') + ' with rank ' + r + ' — that is how many genuinely different directions they carry.',
+          'You have ' + st.n + ' vector' + (st.n > 1 ? 's' : '') + ' with rank ' + r + '. That is how many genuinely different directions they carry.',
           st.n < 2 ? 'One vector can never span R². Too few directions, so it cannot be a basis however you drag it.'
             : st.n > 2 ? 'Three vectors in R² are always dependent. There is no room for a third independent direction in a plane.'
               : r === 2 ? 'Two independent vectors in R²: they span, so they are a basis. Exactly the dimension, exactly right.'
                 : 'Two parallel vectors: rank 1. They span only a line, so they are not a basis.',
-          'A basis has to hit the dimension exactly — too few cannot span, too many cannot stay independent.',
+          'A basis has to hit the dimension exactly, too few cannot span, too many cannot stay independent.',
           'That is the basis theorem: in a space of dimension m, any m independent vectors are automatically a basis, and so are any m that span.'
         ];
       }
     };
   });
 
-  /* ============ MA — matrix add / subtract ============ */
+  /* ============ MA - matrix add / subtract ============ */
   W.register('matadd', function () {
     const st = { ar: 2, ac: 2, br: 2, bc: 2, op: '+', A: [1, 2, 3, 4], B: [5, 6, 7, 8] };
     let uiA, uiB, bar = W.ui.bar();
@@ -345,7 +345,7 @@
           'Entry-by-entry addition needs an entry in B\n' +
           'sitting opposite every entry in A. Different\n' +
           'shapes leave entries with no partner.\n\n' +
-          'Exactly the rule from vector addition — you\n' +
+          'Exactly the rule from vector addition, you\n' +
           'cannot add a 2D and a 3D vector either.'
         );
         return;
@@ -364,7 +364,7 @@
         'A is ' + st.ar + ' × ' + st.ac + '     B is ' + st.br + ' × ' + st.bc + '     sizes match ✓\n\n' +
         W.sideBySide([blockOf(st.A, st.ar, st.ac), [st.op], blockOf(st.B, st.br, st.bc), ['=']], 2) + '\n\n' +
         W.sideBySide([workBlock, ['='], blockOf(R, st.ar, st.ac)], 2) + '\n\n' +
-        '(A ' + st.op + ' B)ⱼ,ₖ = aⱼ,ₖ ' + st.op + ' bⱼ,ₖ   — position by position'
+        '(A ' + st.op + ' B)ⱼ,ₖ = aⱼ,ₖ ' + st.op + ' bⱼ,ₖ, position by position'
       );
     }
     function rebuild() {
@@ -389,7 +389,7 @@
       steps: function () {
         const ok = st.ar === st.br && st.ac === st.bc;
         return [
-          'Matrix addition works entry by entry — the same rule you already wrote for vectors.',
+          'Matrix addition works entry by entry, the same rule you already wrote for vectors.',
           ok ? 'A and B are both ' + st.ar + ' × ' + st.ac + ', so every entry has a partner.'
             : 'A is ' + st.ar + ' × ' + st.ac + ' and B is ' + st.br + ' × ' + st.bc + '. No partner for most entries, so the sum does not exist.',
           '(A ' + st.op + ' B)ⱼ,ₖ = aⱼ,ₖ ' + st.op + ' bⱼ,ₖ. Nothing is mixed across positions.',
@@ -400,7 +400,7 @@
     };
   });
 
-  /* ============ MK — scalar x matrix ============ */
+  /* ============ MK - scalar x matrix ============ */
   W.register('matscale', function () {
     const st = { k: 3, A: [1, 2, 3, 4, 5, 6] };
     let sl, uiA;
@@ -417,7 +417,7 @@
         W.sideBySide([[f(st.k)], blockOf(st.A, 2, 3), ['='], work, ['='], blockOf(R, 2, 3)], 2) + '\n\n' +
         'kA multiplies every entry by k. Size is unchanged:\n' +
         'a 2 × 3 matrix stays 2 × 3 whatever k is.\n\n' +
-        (st.k === 0 ? 'k = 0 gives the zero matrix — the additive identity.'
+        (st.k === 0 ? 'k = 0 gives the zero matrix, the additive identity.'
           : st.k < 0 ? 'k is negative, so every entry flips sign.'
             : 'Unlike matrix multiplication, there is no size rule to satisfy here.')
       );
@@ -430,14 +430,14 @@
       steps: () => [
         'Multiply every entry by k = ' + f(st.k) + '. No entry is treated differently.',
         'The middle block shows each multiplication before it is worked out.',
-        'The size never changes — a 2 × 3 matrix scales to a 2 × 3 matrix.',
+        'The size never changes, a 2 × 3 matrix scales to a 2 × 3 matrix.',
         'Compare with scalar × vector: it is the identical rule applied to a grid instead of a column.',
         'Addition and scaling both behaving entry-wise is exactly what makes the set of m × n matrices a vector space.'
       ]
     };
   });
 
-  /* ============ TR — transpose ============ */
+  /* ============ TR - transpose ============ */
   W.register('transpose', function () {
     const pl = W.Plane(560, 300, 40, { ox: 30, oy: 30 });
     const st = { r: 2, c: 3, v: [1, 2, 3, 4, 5, 6], sr: 0, sc: 2 };
@@ -475,12 +475,12 @@
     function paint() {
       W.read(
         W.sideBySide([blockOf(st.v, st.r, st.c), ['ᵀ  ='], blockOf(transposed(), st.c, st.r)], 2) + '\n\n' +
-        '(Aᵀ)ⱼ,ₖ = Aₖ,ⱼ   — the indices swap\n\n' +
+        '(Aᵀ)ⱼ,ₖ = Aₖ,ⱼ, the indices swap\n\n' +
         'selected  a(' + (st.sr + 1) + ',' + (st.sc + 1) + ') = ' + st.v[st.sr * st.c + st.sc] + '\n' +
         'lands at  aᵀ(' + (st.sc + 1) + ',' + (st.sr + 1) + ') = ' + st.v[st.sr * st.c + st.sc] + '\n\n' +
         'size  ' + st.r + ' × ' + st.c + '  →  ' + st.c + ' × ' + st.r + '\n' +
         (st.r === st.c ? 'square, so the size is unchanged' : 'not square, so the size changes') + '\n' +
-        '(Aᵀ)ᵀ = A — transposing twice returns the original'
+        '(Aᵀ)ᵀ = A, transposing twice returns the original'
       );
     }
     function transposed() {
@@ -517,12 +517,12 @@
         'The selected entry a(' + (st.sr + 1) + ',' + (st.sc + 1) + ') travels along the dashed curve to position (' + (st.sc + 1) + ',' + (st.sr + 1) + ').',
         'The rule is just an index swap: (Aᵀ)ⱼ,ₖ = Aₖ,ⱼ.',
         'The size flips too: ' + st.r + ' × ' + st.c + ' becomes ' + st.c + ' × ' + st.r + '.',
-        'This is the operation that makes QKᵀ work in attention — without it the inner dimensions never line up.'
+        'This is the operation that makes QKᵀ work in attention, without it the inner dimensions never line up.'
       ]
     };
   });
 
-  /* ============ MV — matrix x vector ============ */
+  /* ============ MV - matrix x vector ============ */
   W.register('matvec', function () {
     const pl = W.Plane(560, 380, 44);
     const A = [2, 1, 1, 2], x = { x: 2, y: 1 };
@@ -544,10 +544,10 @@
       const det2 = A[0] * A[3] - A[1] * A[2];
       W.read(
         W.sideBySide([['A ='], blockOf(A, 2, 2), ['   x ='], W.colBlock([x.x, x.y])], 2) + '\n\n' +
-        'ROW VIEW — each entry is one dot product\n' +
+        'ROW VIEW, each entry is one dot product\n' +
         '  row1·x = (' + A[0] + '×' + x.x + ') + (' + A[1] + '×' + x.y + ') = ' + o.x + '\n' +
         '  row2·x = (' + A[2] + '×' + x.x + ') + (' + A[3] + '×' + x.y + ') = ' + o.y + '\n\n' +
-        'COLUMN VIEW — a linear combination of the columns\n' +
+        'COLUMN VIEW, a linear combination of the columns\n' +
         W.sideBySide([['  ' + x.x], W.colBlock([A[0], A[2]]), ['+ ' + x.y], W.colBlock([A[1], A[3]]),
           ['='], W.colBlock([o.x, o.y])], 1) + '\n\n' +
         'Ax = [' + o.x + ', ' + o.y + ']\n' +
@@ -573,13 +573,13 @@
           'The other reading: ' + x.x + ' lots of column 1 plus ' + x.y + ' lots of column 2. Ax is a linear combination of the columns.',
           Math.abs(det) < EPS
             ? 'det A = 0. The columns are dependent, so every possible output lies on the shaded line. That is rank 1.'
-            : 'det A = ' + det + '. The columns are independent, so outputs fill the plane — rank 2. Press "flatten it" to collapse them.'
+            : 'det A = ' + det + '. The columns are independent, so outputs fill the plane, rank 2. Press "flatten it" to collapse them.'
         ];
       }
     };
   });
 
-  /* ============ VM — vector x matrix ============ */
+  /* ============ VM - vector x matrix ============ */
   W.register('vecmat', function () {
     const st = { x: [1, 2], A: [1, 2, 3, 4, 5, 6] };
     let uiX, uiA;
@@ -590,11 +590,11 @@
         W.sideBySide([['x ='], ['[' + st.x.map(v => W.pad(v, 2)).join(' ') + ']'], ['   A ='], blockOf(st.A, 2, 3)], 2) + '\n\n' +
         'SIZES   (1 × 2)(2 × 3) = 1 × 3\n' +
         '         inner 2s match and vanish\n\n' +
-        'ENTRY VIEW — x dotted with each column\n' +
+        'ENTRY VIEW, x dotted with each column\n' +
         '  col1: (' + st.x[0] + '×' + st.A[0] + ') + (' + st.x[1] + '×' + st.A[3] + ') = ' + out[0] + '\n' +
         '  col2: (' + st.x[0] + '×' + st.A[1] + ') + (' + st.x[1] + '×' + st.A[4] + ') = ' + out[1] + '\n' +
         '  col3: (' + st.x[0] + '×' + st.A[2] + ') + (' + st.x[1] + '×' + st.A[5] + ') = ' + out[2] + '\n\n' +
-        'ROW VIEW — a combination of A’s rows\n' +
+        'ROW VIEW, a combination of A’s rows\n' +
         '  ' + st.x[0] + '·[' + st.A.slice(0, 3).join(' ') + '] + ' + st.x[1] + '·[' + st.A.slice(3, 6).join(' ') + ']\n' +
         '  = [' + out.join(' ') + ']\n\n' +
         'xA = [' + out.join(' ') + ']\n\n' +
@@ -621,7 +621,7 @@
     };
   });
 
-  /* ============ MM — matrix x matrix ============ */
+  /* ============ MM - matrix x matrix ============ */
   W.register('matmat', function () {
     const st = { A: [1, 2, 3, 4], B: [5, 6, 7, 8], sr: 0, sc: 0 };
     let uiA, uiB;
@@ -644,8 +644,8 @@
         '  = (' + st.A[r * 2] + '×' + st.B[c] + ') + (' + st.A[r * 2 + 1] + '×' + st.B[2 + c] + ')' +
         ' = ' + AB[r * 2 + c] + '\n\n' +
         W.sideBySide([['AB ='], blockOf(AB, 2, 2), ['   BA ='], blockOf(BA, 2, 2)], 2) + '\n\n' +
-        (same ? 'AB = BA here — you found a commuting pair, which is rare'
-          : 'AB ≠ BA   — matrix multiplication is not commutative') + '\n\n' +
+        (same ? 'AB = BA here, you found a commuting pair, which is rare'
+          : 'AB ≠ BA, matrix multiplication is not commutative') + '\n\n' +
         'SIZE RULE  (m × n)(n × r) = (m × r)\n' +
         '  inner numbers must match, then vanish\n' +
         '  outer numbers survive\n' +
@@ -667,14 +667,14 @@
           'For entry (' + (r + 1) + ',' + (c + 1) + '): (' + st.A[r * 2] + '×' + st.B[c] + ') + (' + st.A[r * 2 + 1] + '×' + st.B[2 + c] + ') = ' + AB[r * 2 + c] + '.',
           'Do that four times and you have AB = [' + AB.join(', ') + '].',
           'Now compare BA = [' + BA.join(', ') + ']. ' +
-            (AB.every((v, i) => Math.abs(v - BA[i]) < EPS) ? 'These happen to agree — unusual.' : 'Different. AB ≠ BA.'),
+            (AB.every((v, i) => Math.abs(v - BA[i]) < EPS) ? 'These happen to agree, unusual.' : 'Different. AB ≠ BA.'),
           'Order encodes time: in AB the transformation B happens first and A second. Read the product right to left.'
         ];
       }
     };
   });
 
-  /* ============ X — geometric meaning ============ */
+  /* ============ X - geometric meaning ============ */
   W.register('transform', function () {
     const pl = W.Plane(560, 380, 64);
     const A = [1, 1, 0, 1];
@@ -726,14 +726,14 @@
           'So the columns of A are literally where the basis vectors land. Everything else follows by linearity.',
           'The grey unit square maps to the red parallelogram, and its area is |det A| = ' + f(Math.abs(det)) + '.',
           Math.abs(det) < EPS
-            ? 'det is zero here — the square has been crushed flat onto a line, and that collapse cannot be undone.'
+            ? 'det is zero here, the square has been crushed flat onto a line, and that collapse cannot be undone.'
             : 'Press "collapse" to set det to zero and watch the whole square flatten onto a line.'
         ];
       }
     };
   });
 
-  /* ============ DR — 4D to 3D ============ */
+  /* ============ DR - 4D to 3D ============ */
   W.register('reduce', function () {
     const st = { A: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0], x: [1, 2, 3, 4] };
     let uiA, uiX, msg = '';
@@ -758,7 +758,7 @@
         rows.push('  row' + (r + 1) + '·x = ' + parts.join(' + ') + ' = ' + f(y[r]));
       }
       W.read(
-        'A is 3 × 4   —   4 columns in, 3 rows out\n' +
+        'A is 3 × 4   . 4 columns in, 3 rows out\n' +
         'so A maps R⁴ → R³\n\n' +
         W.sideBySide([['A ='], blockOf(st.A, 3, 4), ['   x ='], W.colBlock(st.x.map(v => f(v)))], 2) + '\n\n' +
         rows.join('\n') + '\n\n' +
@@ -773,9 +773,9 @@
       W.ui.buttons([{
         label: 'jump to the twin', fn: function () {
           const nv = nullVector(st.A.slice(), 3, 4);
-          if (!nv) { msg = 'no twin exists — this A happens to have no null direction'; draw(); return; }
+          if (!nv) { msg = 'no twin exists, this A happens to have no null direction'; draw(); return; }
           st.x.forEach((v, i) => st.x[i] = v + nv[i]);
-          uiX.sync(); msg = 'moved x by a null direction — the output did not budge'; draw();
+          uiX.sync(); msg = 'moved x by a null direction, the output did not budge'; draw();
         }
       }]));
     return {
@@ -787,17 +787,17 @@
       steps: function () {
         const y = matVec(st.A, 3, 4, st.x), rk = rank(st.A.slice(), 3, 4);
         return [
-          'To go from R⁴ to R³ you need 4 columns and 3 rows — a 3 × 4 matrix.',
+          'To go from R⁴ to R³ you need 4 columns and 3 rows, a 3 × 4 matrix.',
           'Each of the 3 output entries is one row of A dotted with the whole 4-component input.',
           'Ax = [' + y.map(v => f(v)).join(', ') + ']. Four numbers went in, three came out.',
           'rank A = ' + rk + ', so nullity = ' + (4 - rk) + '. At least one whole direction gets crushed to zero.',
-          'Press "jump to the twin": x changes but Ax does not. Two different inputs, one output — that is what irreversible means.'
+          'Press "jump to the twin": x changes but Ax does not. Two different inputs, one output. That is what irreversible means.'
         ];
       }
     };
   });
 
-  /* ============ DI — 4D to 6D ============ */
+  /* ============ DI - 4D to 6D ============ */
   W.register('increase', function () {
     const st = {
       A: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -814,7 +814,7 @@
         rows.push('  row' + (r + 1) + ' = ' + parts.join(' + ') + ' = ' + f(y[r]));
       }
       W.read(
-        'A is 6 × 4   —   4 columns in, 6 rows out\n' +
+        'A is 6 × 4   . 4 columns in, 6 rows out\n' +
         'so A maps R⁴ → R⁶\n\n' +
         W.sideBySide([['A ='], blockOf(st.A, 6, 4), ['  x ='], W.colBlock(st.x.map(v => f(v)))], 2) + '\n\n' +
         rows.join('\n') + '\n\n' +
@@ -832,7 +832,7 @@
     uiA = W.ui.mat(6, 4, st.A, draw, 38);
     uiX = W.ui.mat(4, 1, st.x, draw, 40);
     const bar = W.ui.bar(W.ui.label('A ='), uiA.el, W.ui.label('x ='), uiX.el,
-      W.ui.note('the last two rows are zero — those directions are unreachable'));
+      W.ui.note('the last two rows are zero, those directions are unreachable'));
     return {
       extra: bar, draw: draw,
       reset: function () {
@@ -842,11 +842,11 @@
       steps: function () {
         const y = matVec(st.A, 6, 4, st.x), rk = rank(st.A.slice(), 6, 4);
         return [
-          'To go from R⁴ to R⁶ you need 4 columns and 6 rows — a 6 × 4 matrix.',
+          'To go from R⁴ to R⁶ you need 4 columns and 6 rows, a 6 × 4 matrix.',
           'Ax = [' + y.map(v => f(v)).join(', ') + ']. Six numbers came out of four.',
           'But no information was created. Every output is a linear combination of just 4 columns.',
           'rank A = ' + rk + ', so the outputs only ever fill a ' + rk + '-dimensional slice of R⁶.',
-          'Edit the bottom rows and you can change which slice — but never how big it is. The ceiling is the column count.'
+          'Edit the bottom rows and you can change which slice, but never how big it is. The ceiling is the column count.'
         ];
       }
     };

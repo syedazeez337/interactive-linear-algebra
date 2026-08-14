@@ -1,5 +1,5 @@
 /* Playgrounds: rank, projection, eigenvalues, SVD, attention.
-   Every number shown is computed from state — nothing is hardcoded. */
+   Every number shown is computed from state. Nothing is hardcoded. */
 (function (W) {
   'use strict';
   const INK = W.INK, OX = W.OXIDE, MUTE = W.MUTE, FAINT = W.FAINT;
@@ -47,7 +47,7 @@
     return { s1: s1, s2: s2, u1: { x: u1x, y: u1y }, u2: { x: u2x, y: u2y }, v1: { x: v1x, y: v1y }, v2: { x: v2x, y: v2y } };
   }
 
-  /* ============ RK — rank ============ */
+  /* ============ RK - rank ============ */
   W.register('rank', function () {
     const A = [1, 2, 3, 4]; let uiA;
     function draw() {
@@ -75,8 +75,8 @@
           'Rank counts independent directions, not entries. Here the two columns are [' + A[0] + ', ' + A[2] + '] and [' + A[1] + ', ' + A[3] + '].',
           'Their determinant is ' + det + '.',
           r === 2
-            ? 'det ≠ 0, so the columns are independent and rank A = 2 — full rank.'
-            : 'det = 0, so the columns are dependent and rank A = 1 — the columns all lie on one line.',
+            ? 'det ≠ 0, so the columns are independent and rank A = 2, full rank.'
+            : 'det = 0, so the columns are dependent and rank A = 1. The columns all lie on one line.',
           'That rank is exactly the dimension of the column span: 2 means the plane, 1 means a line.',
           'A 2×2 matrix can never have rank 3, because there are only two columns to work with.'
         ];
@@ -84,7 +84,7 @@
     };
   });
 
-  /* ============ RS — rank & span ============ */
+  /* ============ RS - rank & span ============ */
   W.register('rankspan', function () {
     const A = [1, 0, 0, 1]; let uiA;
     function draw() {
@@ -94,7 +94,7 @@
         W.sideBySide([['A ='], blockOf(A, 2, 2)], 2) + '\n\n' +
         'columns   [' + col1.join(', ') + ']   [' + col2.join(', ') + ']\n\n' +
         (r === 2
-          ? 'span(columns) = R²   →  rank = 2\n  every output is reachable, the matrix is full rank'
+          ? 'span(columns) = R²   →  rank = 2\n  every output is reachable; the matrix is full rank'
           : 'span(columns) = a line →  rank = 1\n  only one direction is reachable') + '\n\n' +
         'rank = dim span(columns) = ' + r + '\n' +
         'two different matrices can share this rank\n' +
@@ -114,8 +114,8 @@
           'The column span is the set of every output the matrix can produce.',
           'Its dimension is the rank. Right now rank = ' + r + '.',
           r === 2
-            ? 'With two independent columns the span is the whole plane — every output is reachable.'
-            : 'With dependent columns the span is only a line — most of R² is unreachable.',
+            ? 'With two independent columns the span is the whole plane, every output is reachable.'
+            : 'With dependent columns the span is only a line, most of R² is unreachable.',
           'Rank is the true size of the reachable space, not the number of entries.',
           'Try the button: the matrix changes, but its rank and span stay at 1. Same geometry, different numbers.'
         ];
@@ -123,7 +123,7 @@
     };
   });
 
-  /* ============ LO — LoRA ============ */
+  /* ============ LO - LoRA ============ */
   W.register('lora', function () {
     const st = { W: [1, 2, 3, 4], r: 1, B: [1, 2], A: [3, 1] };
     let uiW, sr, uiB, uiA;
@@ -151,7 +151,7 @@
         'parameters learned:\n' +
         '  full fine-tune   2×2 = ' + st.W.length + '\n' +
         '  LoRA r=' + st.r + '          2×' + st.r + ' + ' + st.r + '×2 = ' + (4 * st.r) + '\n\n' +
-        (st.r === 1 ? 'r is the budget of new information — a rank-1 update can only move along one direction.'
+        (st.r === 1 ? 'r is the budget of new information, a rank-1 update can only move along one direction.'
           : 'r = 2 means no saving: ΔW can express any 2×2 change.')
       );
     }
@@ -159,7 +159,7 @@
     sr = W.ui.slider('r', 1, 2, 1, 1, v => { st.r = v; rebuild(); });
     const bar = W.ui.bar();
     /* Changing r changes the shapes of B and A, so their input grids are rebuilt.
-       The bar must be repopulated with the new grids — appending them once at
+       The bar must be repopulated with the new grids, appending them once at
        construction leaves the old boxes on screen, detached from st.B / st.A. */
     function rebuild() {
       st.B = st.r === 1 ? [1, 2] : [1, 0, 0, 1];
@@ -186,7 +186,7 @@
           'B is 2×' + st.r + ' and A is ' + st.r + '×2, so ΔW has rank at most ' + st.r + '.',
           'Here ΔW = BA = [' + D.join(', ') + ']. W stays frozen while only B and A are trained.',
           st.r === 1
-            ? 'With r = 1 the update must live on a single line — a budget of one independent direction.'
+            ? 'With r = 1 the update must live on a single line, a budget of one independent direction.'
             : 'With r = 2 the update can be any 2×2 matrix, so the saving is gone.',
           'That is the trade-off: small r is cheap but cannot represent every possible change.'
         ];
@@ -194,7 +194,7 @@
     };
   });
 
-  /* ============ PR — projection ============ */
+  /* ============ PR - projection ============ */
   W.register('projection', function () {
     const pl = W.Plane(560, 380, 44);
     const u = { x: 3, y: 1 }, v = { x: 2, y: 4 };
@@ -238,7 +238,7 @@
     };
   });
 
-  /* ============ PF — projection formula ============ */
+  /* ============ PF - projection formula ============ */
   W.register('projformula', function () {
     const pl = W.Plane(560, 380, 44);
     const u = { x: 1, y: 0 }, v = { x: 3, y: 2 };
@@ -260,7 +260,7 @@
         '           = (' + (v.x * uhat.x + v.y * uhat.y) + ') û\n' +
         '           = [' + f(p.x, 4) + ', ' + f(p.y, 4) + ']\n\n' +
         'the dot product v·û is how far v reaches\n' +
-        'in the û direction — the coordinate of the shadow'
+        'in the û direction, the coordinate of the shadow'
       );
     }
     W.attachDrag(pl, () => [v], (i, x, y) => { v.x = x; v.y = y; draw(); }, { bx: 6, by: 5 });
@@ -276,13 +276,13 @@
           'The dot product v·û = ' + f(d, 4) + ' measures how far v reaches along that ruler.',
           'Stretch û by that amount: proj = ' + f(d, 4) + ' × û = [' + f(d * uhat.x, 4) + ', ' + f(d * uhat.y, 4) + '].',
           'Because û has length 1, the formula has no denominator to remember.',
-          'The shadow is always a multiple of û, and the leftover is perpendicular — those two facts are the entire formula.'
+          'The shadow is always a multiple of û, and the leftover is perpendicular, those two facts are the entire formula.'
         ];
       }
     };
   });
 
-  /* ============ PI — why projection matters ============ */
+  /* ============ PI - why projection matters ============ */
   W.register('whyproj', function () {
     const pl = W.Plane(560, 380, 44);
     const u = { x: 3, y: 1 }, v = { x: 1, y: 4 };
@@ -329,9 +329,9 @@
     };
   });
 
-  /* ============ EV — eigenvector ============ */
+  /* ============ EV - eigenvector ============ */
   W.register('eigen', function () {
-    const pl = W.Plane(560, 380, 64);
+    const pl = W.Plane(560, 380, 46);
     const A = [2, 0, 0, 3], v = { x: 1, y: 1 };
     let uiA;
     function av() { return { x: A[0] * v.x + A[1] * v.y, y: A[2] * v.x + A[3] * v.y }; }
@@ -348,12 +348,23 @@
         (sameLine
           ? 'v and Av lie on the same line → v is an eigenvector\n  λ = ' + f((o.x / v.x || o.y / v.y), 4) + ' (stretch only, no turn)'
           : 'v and Av do not lie on the same line → v is NOT an eigenvector\n  the matrix turns it, not just stretches it') + '\n\n' +
-        'eigenvector rule: Av = λv — output is a scalar\n' +
+        'eigenvector rule: Av = λv, output is a scalar\n' +
         'multiple of the input, so the direction is preserved'
       );
     }
     uiA = W.ui.mat(2, 2, A, draw, 44);
-    W.attachDrag(pl, () => [v], (i, x, y) => { v.x = x; v.y = y; draw(); }, { bx: 3, by: 3 });
+    /* Av can be several times longer than v, so bound the drag by where the
+       OUTPUT lands rather than the input. Otherwise the red arrow leaves the
+       canvas as soon as you drag v near the edge. */
+    W.attachDrag(pl, () => [v], function (i, x, y) {
+      const ox = A[0] * x + A[1] * y, oy = A[2] * x + A[3] * y;
+      const x0 = -pl.ox / pl.unit, x1 = (pl.w - pl.ox) / pl.unit;
+      const y0 = -(pl.h - pl.oy) / pl.unit, y1 = pl.oy / pl.unit;
+      const pad = 0.45;
+      const inside = n => n.x > x0 + pad && n.x < x1 - pad && n.y > y0 + pad && n.y < y1 - pad;
+      if (!inside({ x: x, y: y }) || !inside({ x: ox, y: oy })) return;
+      v.x = x; v.y = y; draw();
+    }, { bx: 5, by: 4 });
     return {
       cv: pl.cv, extra: W.ui.bar(W.ui.label('A ='), uiA.el, W.ui.note('drag v onto an axis to find an eigenvector')),
       draw: draw,
@@ -367,14 +378,14 @@
           same
             ? 'They lie on the same line, so v is an eigenvector. A only stretches it.'
             : 'They point in different directions, so v is not an eigenvector. A turns it.',
-          'Most vectors get turned. Only special directions — here the axes — are preserved.',
+          'Most vectors get turned. Only special directions, here the axes, are preserved.',
           'Drag v onto [1,0] or [0,1] and it snaps into an eigenvector of this diagonal matrix.'
         ];
       }
     };
   });
 
-  /* ============ EC — eigenvalue & calculation ============ */
+  /* ============ EC - eigenvalue & calculation ============ */
   W.register('eigencalc', function () {
     const A = [2, 1, 1, 2]; let uiA;
     function eigenvalues() {
@@ -395,7 +406,7 @@
         (L
           ? '  λ² − ' + f(A[0] + A[3]) + 'λ + ' + f(det2(A[0], A[1], A[2], A[3])) + ' = 0\n' +
             '  λ₁ = ' + f(L[0], 4) + ',  λ₂ = ' + f(L[1], 4)
-          : '  no real eigenvalues — the discriminant is negative') + '\n\n' +
+          : '  no real eigenvalues: the discriminant is negative') + '\n\n' +
         'each λ is a stretch factor: Av = λv'
       );
     }
@@ -411,7 +422,7 @@
           'Subtract λ from the diagonal, take the determinant, and you get a quadratic in λ.',
           L
             ? 'Its roots are the eigenvalues: ' + f(L[0], 4) + ' and ' + f(L[1], 4) + '.'
-            : 'This matrix has no real roots — its eigenvalues live in the complex numbers.',
+            : 'This matrix has no real roots, its eigenvalues live in the complex numbers.',
           'Each eigenvalue λ is the stretch factor for some eigenvector direction.',
           'To finish the job you would solve (A − λI)v = 0 for each λ to find that direction.'
         ];
@@ -419,7 +430,7 @@
     };
   });
 
-  /* ============ PD — PCA in depth ============ */
+  /* ============ PD - PCA in depth ============ */
   W.register('pca', function () {
     const pl = W.Plane(560, 340, 38, { ox: 130, oy: 240 });
     const DEF = [[2, 1], [3, 2], [4, 1], [5, 3], [6, 2], [7, 4]];
@@ -475,10 +486,10 @@
         '  λ₁ + λ₂ = ' + f(S.l1 + S.l2, 4) + ' = trace ✓\n\n' +
         'PC1 = [' + f(S.e1.x, 3) + ', ' + f(S.e1.y, 3) + ']   variance ' + f(S.l1, 3) + '\n' +
         'PC2 = [' + f(S.e2.x, 3) + ', ' + f(S.e2.y, 3) + ']   variance ' + f(S.l2, 3) + '\n' +
-        '  PC1 · PC2 = ' + f(S.e1.x * S.e2.x + S.e1.y * S.e2.y, 3) + ' — perpendicular ✓\n\n' +
+        '  PC1 · PC2 = ' + f(S.e1.x * S.e2.x + S.e1.y * S.e2.y, 3) + ', perpendicular ✓\n\n' +
         'variance explained by PC1 alone: ' + f(pct, 1) + '%\n' +
         'keeping only PC1 would discard ' + f(100 - pct, 1) + '%\n\n' +
-        'the dashed lines are each point’s projection onto PC1 —\n' +
+        'the dashed lines are each point’s projection onto PC1, \n' +
         'that is what dimension reduction would keep'
       );
     }
@@ -503,7 +514,7 @@
     };
   });
 
-  /* ============ SV — SVD ============ */
+  /* ============ SV - SVD ============ */
   W.register('svd', function () {
     const A = [3, 0, 0, 1]; let uiA;
     function draw() {
@@ -517,7 +528,7 @@
         'singular values (from AᵀA):\n' +
         '  σ₁ = ' + f(S.s1, 4) + '\n' +
         '  σ₂ = ' + f(S.s2, 4) + '\n\n' +
-        'every matrix — square, rectangular, singular or not —\n' +
+        'every matrix, square, rectangular, singular or not, \n' +
         'has an SVD'
       );
     }
@@ -529,7 +540,7 @@
       steps: function () {
         return [
           'The SVD writes any matrix as A = UΣVᵀ.',
-          'Σ is a diagonal matrix of singular values — the stretch factors.',
+          'Σ is a diagonal matrix of singular values, the stretch factors.',
           'U and Vᵀ are orthogonal: they rotate but never stretch.',
           'So every linear map is rotate → scale → rotate, in that exact order.',
           'Unlike eigenvalues, singular values are always real and non-negative, and the SVD exists for every matrix.'
@@ -538,7 +549,7 @@
     };
   });
 
-  /* ============ SG — SVD geometry ============ */
+  /* ============ SG - SVD geometry ============ */
   W.register('svdgeom', function () {
     const pl = W.Plane(560, 380, 52);
     const A = [2, 1, 0, 1]; let uiA;
@@ -578,7 +589,7 @@
     };
   });
 
-  /* ============ SP — low-rank & pixels ============ */
+  /* ============ SP - low-rank & pixels ============ */
   W.register('svdpixels', function () {
     const st = { k: 1, s1: 40, s2: 20, s3: 8 };
     let sk;
@@ -601,7 +612,7 @@
           ? 'keeping one singular value captures most of the image\n  but throws away the fine detail'
           : st.k === 2 ? 'two singular values recover much of the remaining detail'
             : 'keeping all three is lossless but stores everything') + '\n\n' +
-        'A ≈ U_k Σ_k V_kᵀ  — this is how JPEG-like ideas and\n' +
+        'A ≈ U_k Σ_k V_kᵀ. That is how JPEG-like ideas and\n' +
         'low-rank compression trade size against fidelity'
       );
     }
@@ -617,14 +628,14 @@
           'An image is just a matrix, and the SVD splits it into layers ranked by importance.',
           'The singular values are the sizes of those layers. Here σ₁ = ' + st.s1 + ' dominates.',
           'Keeping only the top k = ' + st.k + ' values keeps ' + f(kept / full * 100, 1) + '% of the energy.',
-          'Storage is roughly k×(rows+columns+1) instead of rows×columns — a huge saving for small k.',
+          'Storage is roughly k×(rows+columns+1) instead of rows×columns, a huge saving for small k.',
           'Low rank is lossy: the dropped singular values are fine detail you chose to discard.'
         ];
       }
     };
   });
 
-  /* ============ QK — Q, K, V ============ */
+  /* ============ QK - Q, K, V ============ */
   W.register('qkv', function () {
     const st = { n: 3, d: 2 };
     let pick;
@@ -644,14 +655,14 @@
     }
     pick = W.ui.pick('tokens n', [1, 2, 3].map(v => ({ v, t: String(v) })), 3, v => { st.n = +v; draw(); });
     return {
-      extra: W.ui.bar(pick.el, W.ui.note('Q, K, V all have n rows — one per token')),
+      extra: W.ui.bar(pick.el, W.ui.note('Q, K, V all have n rows, one per token')),
       draw: draw,
       reset: function () { st.n = 3; pick.set(3); draw(); },
       steps: function () {
         return [
           'Attention works on a sequence of n token vectors, each of dimension d.',
           'Three learned matrices W_Q, W_K, W_V project those tokens into three different spaces.',
-          'The result is Q, K, and V, each with n rows — one row per token.',
+          'The result is Q, K, and V, each with n rows, one row per token.',
           'Q is “what am I looking for”, K is “what do I contain”, V is “what would I hand over”.',
           'Q and K share the same dimension d_k because they must be dotted together; V can have a different dimension d_v.'
         ];
@@ -659,7 +670,7 @@
     };
   });
 
-  /* ============ QT — QKᵀ & scaling ============ */
+  /* ============ QT - QKᵀ & scaling ============ */
   W.register('qkt', function () {
     const st = { dk: 4 };
     let sk;
@@ -688,7 +699,7 @@
       steps: function () {
         return [
           'Q and K each have shape n × d_k, so their inner dimensions match only when K is transposed.',
-          'QKᵀ = (n×d_k)(d_k×n) = n×n — one score for every query-key pair.',
+          'QKᵀ = (n×d_k)(d_k×n) = n×n, one score for every query-key pair.',
           'A dot product sums d_k terms, so its typical size grows with d_k.',
           'Dividing by √d_k keeps the variance roughly constant.',
           'That keeps the softmax inputs in a sensible range instead of saturating into all-or-nothing weights.'
@@ -697,7 +708,7 @@
     };
   });
 
-  /* ============ SM — softmax ============ */
+  /* ============ SM - softmax ============ */
   W.register('softmax', function () {
     const st = { z: [2, 1, 0.1] };
     let uiZ;
@@ -716,14 +727,14 @@
       const shownSum = shown.reduce((a, b) => a + b, 0);
       W.read(
         'scores  z = [' + st.z.map(v => f(v, 2)).join(', ') + ']\n\n' +
-        (plain ? 'e^zᵢ:\n' : 'e^(zᵢ − max)   — shifted, the raw form overflows:\n') +
+        (plain ? 'e^zᵢ:\n' : 'e^(zᵢ − max), shifted, the raw form overflows:\n') +
         st.z.map((z, i) => '  ' + (plain ? 'e^' + f(z, 2) : 'e^' + f(z - mx, 2)) +
           ' = ' + f(shown[i], 4)).join('\n') + '\n\n' +
         'sum = ' + f(shownSum, 4) + '\n\n' +
         'softmax = [' + p.map(v => f(v, 4)).join(', ') + ']\n' +
         'sum of probabilities = ' + f(p.reduce((a, b) => a + b, 0), 4) + '\n\n' +
         'subtracting the max before exponentiating changes\n' +
-        'nothing — the shift cancels top and bottom — but it\n' +
+        'nothing, the shift cancels top and bottom, but it\n' +
         'stops a large score overflowing to infinity\n\n' +
         'the largest score gets the most mass, but no one\n' +
         'gets exactly zero'
@@ -743,14 +754,14 @@
           'Softmax turns a row of arbitrary scores into a probability distribution.',
           'Exponentiate each score, then divide by the total. Subtracting the max first only avoids overflow.',
           'Here the largest score ' + f(Math.max.apply(null, st.z), 2) + ' gets ' + f(Math.max.apply(null, p) * 100, 1) + '% of the mass.',
-          'The smallest score still keeps a non-zero share — softmax never fully excludes anyone.',
+          'The smallest score still keeps a non-zero share, softmax never fully excludes anyone.',
           'That is the difference from a hard max: softmax is differentiable and always assigns weights that sum to one.'
         ];
       }
     };
   });
 
-  /* ============ AT — full attention ============ */
+  /* ============ AT - full attention ============ */
   W.register('attention', function () {
     /* Two tokens, d_k = d_v = 2. Q, K, V are each 2×2, row i = token i. */
     const DQ = [1, 0, 0, 1], DK = [1, 0, 0, 1], DV = [1, 0, 0, 1];
@@ -789,7 +800,7 @@
       W.read(
         'n = 2 tokens   d_k = ' + dk + '   √d_k = ' + f(root, 4) + '\n\n' +
         W.sideBySide([['Q ='], blockOf(Q, 2, 2), ['  K ='], blockOf(K, 2, 2), ['  V ='], blockOf(st.V, 2, 2)], 2) + '\n\n' +
-        'STEP 1   S = QKᵀ   — every query against every key\n' +
+        'STEP 1   S = QKᵀ, every query against every key\n' +
         '  S₁₁ = q₁·k₁ = ' + dotTxt(0, 0) + '\n' +
         '  S₁₂ = q₁·k₂ = ' + dotTxt(0, 1) + '\n' +
         '  S₂₁ = q₂·k₁ = ' + dotTxt(1, 0) + '\n' +
@@ -800,12 +811,12 @@
         'STEP 3   softmax each row\n' +
         '  row 1 → [' + f(P.Wt[0], 4) + ', ' + f(P.Wt[1], 4) + ']   sums to ' + rowSum(0) + '\n' +
         '  row 2 → [' + f(P.Wt[2], 4) + ', ' + f(P.Wt[3], 4) + ']   sums to ' + rowSum(1) + '\n\n' +
-        'STEP 4   O = W V   — a weighted sum of the value rows\n' +
+        'STEP 4   O = W V, a weighted sum of the value rows\n' +
         '  o₁ = ' + f(P.Wt[0], 4) + '·v₁ + ' + f(P.Wt[1], 4) + '·v₂ = [' + f(P.O[0], 4) + ', ' + f(P.O[1], 4) + ']\n' +
         '  o₂ = ' + f(P.Wt[2], 4) + '·v₁ + ' + f(P.Wt[3], 4) + '·v₂ = [' + f(P.O[2], 4) + ', ' + f(P.O[3], 4) + ']\n\n' +
         'Attention(Q,K,V) = softmax(QKᵀ / √d_k) V\n\n' +
         'Q and K only decide where to look.\n' +
-        'V is what actually gets gathered — edit V and the\n' +
+        'V is what actually gets gathered, edit V and the\n' +
         'weights stay put while the output moves.'
       );
     }
@@ -833,7 +844,7 @@
       steps: function () {
         const P = pipeline();
         return [
-          'Score. S = QKᵀ takes every query against every key, giving one number per pair — here S₁₁ = ' +
+          'Score. S = QKᵀ takes every query against every key, giving one number per pair, here S₁₁ = ' +
             f(P.S[0], 2) + ' and S₁₂ = ' + f(P.S[1], 2) + '.',
           'The transpose is not decoration: without it the inner dimensions do not match and the product does not exist.',
           'Scale. Divide by √d_k = ' + f(root, 4) +
@@ -841,7 +852,7 @@
           'Weight. Softmax each row: token 1 gives [' + f(P.Wt[0], 4) + ', ' + f(P.Wt[1], 4) +
             '], which sums to ' + f(P.Wt[0] + P.Wt[1], 4) + '.',
           'Gather. o₁ = ' + f(P.Wt[0], 4) + '·v₁ + ' + f(P.Wt[1], 4) + '·v₂ = [' +
-            f(P.O[0], 4) + ', ' + f(P.O[1], 4) + '] — a linear combination of the value rows, exactly item 1.14.'
+            f(P.O[0], 4) + ', ' + f(P.O[1], 4) + '], a linear combination of the value rows, exactly item 1.14.'
         ];
       }
     };

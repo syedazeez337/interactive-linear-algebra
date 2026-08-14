@@ -1,5 +1,5 @@
 /* Palette read off reference/evolution-harness.jpg.
-   Single visual world, no dark mode — every colour painted explicitly so the
+   Single visual world, no dark mode. Every colour painted explicitly so the
    page holds on any host background. */
 :root{
   --ground:#CEC69B;

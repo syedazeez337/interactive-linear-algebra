@@ -100,7 +100,7 @@ const NODES = [
     id:'D', key:'D', name:'DISTANCE', group:'meas', items:'1.13',
     gx:18, gy:7.6, w:1.8, d:1.8, h:4, form:'measure',
     means:'Length applied to a difference. Subtraction already gives the arrow from one point to the other, so distance needs no new machinery. Swapping the two points flips every sign and squaring undoes that, which is why d(a,b) and d(b,a) agree.',
-    compute:'d(a,b) = ‖b − a‖. With a = [1,2] and b = [4,6], b − a = [3,4] and the distance is 5.',
+    compute:'d(a,b) = ‖b − a‖. With a = [−1,−1] and b = [2,3], b − a = [3,4] and the distance is 5.',
     watch:'d(a,b) = d(b,a). Reversing the subtraction flips every sign, which squaring undoes.'
   },
   {

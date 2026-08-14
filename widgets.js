@@ -17,7 +17,7 @@ var Widgets = (function () {
   /* Display formatting. Uses the typographic minus (U+2212) so numbers line up
      with the minus signs written in the surrounding prose. */
   function f(n, dp) {
-    if (!isFinite(n)) return '—';
+    if (!isFinite(n)) return ', ';
     const s = (Math.abs(n - Math.round(n)) < 1e-9)
       ? String(Math.round(n))
       : n.toFixed(dp === undefined ? 2 : dp);
@@ -107,7 +107,8 @@ var Widgets = (function () {
         if (lab) {
           c.font = 'bold 12px ' + MONO; c.textAlign = 'left'; c.textBaseline = 'bottom';
           const off = opts.labOff || [9, -5];
-          c.fillText(lab, b.x + off[0], b.y + off[1]);
+          const q = P.fit(b.x + off[0], b.y + off[1], c.measureText(lab).width, 12, 'bottom');
+          c.fillText(lab, q.x, q.y);
         }
         c.restore();
         return P;
@@ -126,11 +127,27 @@ var Widgets = (function () {
         return P;
       },
 
+      /* Keep a label box inside the canvas. Points near the top of the visible
+         range put their label above the edge, where it gets cut in half. */
+      fit: function (x, y, wid, hgt, baseline) {
+        const pad = 3;
+        const top = baseline === 'bottom' ? y - hgt : y - hgt / 2;
+        let ny = y;
+        if (top < pad) ny += pad - top;
+        const bot = baseline === 'bottom' ? ny : ny + hgt / 2;
+        if (bot > h - pad) ny -= bot - (h - pad);
+        let nx = Math.max(pad, Math.min(x, w - wid - pad));
+        return { x: nx, y: ny };
+      },
+
       text: function (x, y, str, col, align) {
         const p = P.S(x, y);
         c.fillStyle = col || INK; c.font = '11px ' + MONO;
         c.textAlign = align || 'left'; c.textBaseline = 'middle';
-        c.fillText(str, p.x + 7, p.y - 8);
+        const q = (align && align !== 'left')
+          ? { x: p.x + 7, y: p.y - 8 }
+          : P.fit(p.x + 7, p.y - 8, c.measureText(str).width, 11, 'middle');
+        c.fillText(str, q.x, q.y);
         return P;
       },
 

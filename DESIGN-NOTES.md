@@ -1,4 +1,4 @@
-# Interactive Linear Algebra — design notes
+# Interactive Linear Algebra: design notes
 
 Working notes for an interactive learning environment for linear algebra basics,
 modelled on the visual and interaction language of `reference/evolution-harness.jpg`.
@@ -7,7 +7,7 @@ Sources for all mathematical content: the two textbooks in the parent folder
 (`Linear Algebra Done Wrong`, `Interactive Linear Algebra`) plus the university
 course material already cited in `../linear-algebra-workshop.html`.
 
-Status: complete — all nine checklist sections. 48 live nodes render, carry prose,
+Status: complete, all nine checklist sections. 48 live nodes render, carry prose,
 and have a working playground; there are no dashed placeholder nodes left. Verified
 in Chrome: all 48 widgets mount and step with no NaN, no unregistered node.
 
@@ -16,7 +16,7 @@ map), `widgets.js` (framework), `widgets-a.js` (objects, vector ops, measuring, 
 `widgets-b.js` (space, matrices, multiplication, transformation),
 `widgets-c.js` (rank, projection, eigenvalues, SVD, attention).
 
-To run: double-click `index.html` — the scripts are classic tags, not ES modules,
+To run: double-click `index.html`. The scripts are classic tags, not ES modules,
 so they load from `file://` without a server. If you prefer one:
 `python -m http.server 8731` from this folder, then open `http://127.0.0.1:8731/`.
 
@@ -24,7 +24,7 @@ so they load from `file://` without a server. If you prefer one:
 
 ## 1. What the reference actually is
 
-"The Evolution Harness" — an explorer for a codebase (a 4X game plus a system that
+"The Evolution Harness" is an explorer for a codebase (a 4X game plus a system that
 breeds strategy programs to play it). Four regions:
 
 **Top stat bar.** Key/value pairs in monospace. Small grey uppercase label above a
@@ -45,7 +45,7 @@ keys as the sidebar.
 
 **Right panel.** Two tabs, `WHAT IT DOES` and `HOW IT'S BUILT`. Prose with
 small-caps section headers over hairlines. Key terms are highlighted as inverse
-text — black background, paper-coloured type.
+text on a black background in paper-coloured type.
 
 **Bottom hint bar.** `→ GO INSIDE · ← COME BACK OUT · ↓ ↑ MOVE · HOVER TO READ ·
 DRAG TO PAN · SCROLL TO ZOOM`.
@@ -97,7 +97,7 @@ is a real teaching device, not a flourish.
 
 **The flow animation becomes a computation.** The reference's diamond markers travel
 an edge. Ours can be an actual vector travelling into a matrix and emerging with a
-different shape — dimension change made watchable.
+different shape, so a dimension change becomes watchable.
 
 ---
 
@@ -106,8 +106,7 @@ different shape — dimension change made watchable.
 **Model.** Hybrid. The isometric canvas is a concept atlas used for navigation;
 pressing `→` on a node descends into a live playground for that one idea.
 
-**Inside a node.** A manipulable widget — drag the vectors, every number updates —
-plus a step track, so `TRACE ONE STEP` walks the arithmetic one line at a time.
+**Inside a node.** A manipulable widget. Drag the vectors and every number updates. A step track means so `TRACE ONE STEP` walks the arithmetic one line at a time.
 Intuition and procedure in the same view.
 
 **Scope.** All nine checklist sections. Sixty-three items, grouped into
@@ -137,10 +136,10 @@ Stated on the page, the way the reference states its own.
 
 | Form | Means |
 |---|---|
-| Drawn at literal true shape | an **object** — scalar is one cell, a vector in R^n is a column of n cells, an m×n matrix is a grid m tall and n wide, a tensor is a stack of grids |
-| Cube | an **operation** — something that does work |
-| **Tall** cube | a **measurement** — something that turns objects into a number |
-| Wide flat plate | **structure** — a claim about the space itself |
+| Drawn at literal true shape | an **object** - scalar is one cell, a vector in R^n is a column of n cells, an m×n matrix is a grid m tall and n wide, a tensor is a stack of grids |
+| Cube | an **operation** - something that does work |
+| **Tall** cube | a **measurement** - something that turns objects into a number |
+| Wide flat plate | **structure** - a claim about the space itself |
 | Solid black edge | the learning path |
 | Thin edge | related, not on the path |
 | Dashed outline | present but not switched on (reserved for future material) |
@@ -164,7 +163,7 @@ learning path; `TRACE ONE STEP` advances one node; `RESET VIEW` recentres.
 **Right panel.** Two tabs, renamed for this subject:
 `WHAT IT MEANS` (geometric, follows *Interactive Linear Algebra*) and
 `HOW TO COMPUTE IT` (algebraic, follows *Linear Algebra Done Wrong*). The
-reference's `Condition` field becomes `WATCH OUT` — the mistakes that item
+reference's `Condition` field becomes `WATCH OUT`, the mistakes that item
 invites, such as dimension mismatch or assuming `AB = BA`.
 
 **Hint bar.** Unchanged from the reference; the verbs already fit.
@@ -172,7 +171,7 @@ invites, such as dimension mismatch or assuming `AB = BA`.
 ### Build order
 
 A vertical slice first: the full four-region shell with isometric rendering and
-keyboard navigation, plus three nodes fully working — `V` vector, `P` dot product,
+keyboard navigation, plus three nodes fully working, `V` vector, `P` dot product,
 `MV` matrix×vector. One object, one measurement, one operation, which is enough to
 prove all three widget archetypes before the remaining forty-five are filled in.
 
@@ -186,7 +185,7 @@ nodes.js        content: the 48 nodes, their prose, their widget config
 widgets.js      the interactive canvases
 ```
 
-Canvas 2D for both the atlas and the widgets — the hatching and the isometric
+Canvas 2D for both the atlas and the widgets, the hatching and the isometric
 projection are generated, not hand-authored.
 
 ---
@@ -196,7 +195,7 @@ projection are generated, not hand-authored.
 - Ground: olive / khaki, approximately `#CFC79F`
 - Ink: near-black, approximately `#14140F`
 - Hatching: same ink at low weight, parallel lines, direction varying by face
-- Highlight: inverse — ink background, ground-coloured type
+- Highlight: inverse, ink background, ground-coloured type
 - Type: monospace throughout, uppercase small-caps for labels with wide tracking
 
 The reference commits to a single visual world with no dark mode. Worth deciding

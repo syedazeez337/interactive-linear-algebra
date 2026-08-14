@@ -402,7 +402,7 @@
     if (n.form === 'locked') {
       body.innerHTML = '<p class="ptext">Section ' + n.key + ' of the checklist. Drawn dashed ' +
         'because it exists in the syllabus but is not part of this build. The atlas covers ' +
-        'all nine sections — vectors through attention.</p>';
+        'all nine sections, vectors through attention.</p>';
       return;
     }
     const txt = tab === 'means' ? n.means : n.compute;

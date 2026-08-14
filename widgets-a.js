@@ -1,12 +1,12 @@
 /* Playgrounds: the objects, building with vectors, measuring.
-   Every number shown is computed from state — nothing is hardcoded. */
+   Every number shown is computed from state. Nothing is hardcoded. */
 (function (W) {
   'use strict';
   const INK = W.INK, OX = W.OXIDE, MUTE = W.MUTE, FAINT = W.FAINT, GROUND = W.GROUND;
   const f = W.f;
   const grp = n => n.toLocaleString('en-US');
 
-  /* ============ Z — scalar ============ */
+  /* ============ Z - scalar ============ */
   W.register('scalar', function () {
     const pl = W.Plane(560, 200, 40, { oy: 108 });
     const st = { k: 3 };
@@ -38,7 +38,7 @@
         'k = ' + f(k) + '\n\n' +
         '|k|  = ' + f(Math.abs(k)) + '\n' +
         'sign = ' + (k > 0 ? 'positive' : k < 0 ? 'negative' : 'zero') + '\n' +
-        'shape: 1 × 1 — one number, no direction\n\n' +
+        'shape: 1 × 1, one number, no direction\n\n' +
         'THE LADDER\n' +
         '  order 0   scalar    1 number         0 indices\n' +
         '  order 1   vector    n numbers        1 index\n' +
@@ -55,13 +55,13 @@
         'It has size |k| = ' + f(Math.abs(st.k)) + ', shown by the bar, but it does not point anywhere.',
         st.k < 0 ? 'k is negative. That sign matters: multiplying a vector by it reverses the direction.'
           : 'The sign matters: a negative scalar reverses whatever vector you multiply.',
-        'Shape 1 × 1. You need zero indices to reach it — there is nothing to index.',
+        'Shape 1 × 1. You need zero indices to reach it. There is nothing to index.',
         'This is the bottom rung. Add one index and you have a vector, two and you have a matrix.'
       ]
     };
   });
 
-  /* ============ V — vector ============ */
+  /* ============ V - vector ============ */
   W.register('vector', function () {
     const pl = W.Plane(560, 380, 44);
     const st = { x: 3, y: 4 };
@@ -85,15 +85,15 @@
       reset: function () { st.x = 3; st.y = 4; draw(); },
       steps: () => [
         'The arrow starts at the origin and ends where you drag the handle.',
-        'v₁ = ' + st.x + ' — how far it runs along x.',
-        'v₂ = ' + st.y + ' — how far it runs along y.',
+        'v₁ = ' + st.x + ', how far it runs along x.',
+        'v₂ = ' + st.y + ', how far it runs along y.',
         'Stack them in a column: v = [' + st.x + ', ' + st.y + '].',
         'Two components, so v ∈ R². Its length is ' + f(Math.hypot(st.x, st.y)) + '.'
       ]
     };
   });
 
-  /* ============ M — matrix ============ */
+  /* ============ M - matrix ============ */
   W.register('matrix', function () {
     const pl = W.Plane(560, 330, 44, { ox: 40, oy: 40 });
     const st = { rows: 2, cols: 3, v: [1, 2, 3, 4, 5, 6], sr: 1, sc: 2 };
@@ -141,7 +141,7 @@
         lines.push('[' + row.join(' ') + ' ]');
       }
       W.read(
-        'A is ' + st.rows + ' × ' + st.cols + '   —   ' + st.rows + ' rows, ' + st.cols + ' columns\n' +
+        'A is ' + st.rows + ' × ' + st.cols + ', ' + st.rows + ' rows, ' + st.cols + ' columns\n' +
         'entries: m × n = ' + st.rows + ' × ' + st.cols + ' = ' + (st.rows * st.cols) + '\n\n' +
         lines.join('\n') + '\n\n' +
         'selected   a(' + (st.sr + 1) + ',' + (st.sc + 1) + ') = ' + st.v[idx] + '\n' +
@@ -183,14 +183,14 @@
         'Size is always quoted rows first. This one is ' + st.rows + ' × ' + st.cols + '.',
         'aⱼ,ₖ means the entry in row j, column k. Click any cell to select it.',
         'The selected cell is a(' + (st.sr + 1) + ',' + (st.sc + 1) + ') = ' + st.v[st.sr * st.cols + st.sc] +
-          ' — row ' + (st.sr + 1) + ', column ' + (st.sc + 1) + '.',
+          ', row ' + (st.sr + 1) + ', column ' + (st.sc + 1) + '.',
         'Total entries = m × n = ' + (st.rows * st.cols) + '.',
         'Set cols to 1 and you have a column vector. Everything you did with vectors was already a matrix one column wide.'
       ]
     };
   });
 
-  /* ============ T — tensor ============ */
+  /* ============ T - tensor ============ */
   W.register('tensor', function () {
     const pl = W.Plane(560, 300, 40, { ox: 40, oy: 40 });
     const st = { dims: [32, 128, 768], name: 'batch of sentences' };
@@ -235,7 +235,7 @@
         '  order 1   vector    v[i]\n' +
         '  order 2   matrix    A[i][j]\n' +
         '  order 3   tensor    T[i][j][k]\n\n' +
-        'In ML a tensor is an n-dimensional array — this.\n' +
+        'In ML a tensor is an n-dimensional array, this.\n' +
         'In pure maths it means a multilinear function, which\n' +
         'is a different and much heavier idea.'
       );
@@ -244,13 +244,13 @@
       { label: 'scalar', fn: () => { st.dims = []; st.name = 'a single number'; draw(); } },
       { label: 'embedding R⁷⁶⁸', fn: () => { st.dims = [768]; st.name = 'one word embedding'; draw(); } },
       { label: 'weight 1000×768', fn: () => { st.dims = [1000, 768]; st.name = 'one layer’s weight matrix'; draw(); } },
-      { label: 'RGB image', fn: () => { st.dims = [224, 224, 3]; st.name = 'one colour image — H × W × channels'; draw(); } },
-      { label: 'batch', fn: () => { st.dims = [32, 128, 768]; st.name = 'batch of sentences — batch × tokens × d'; draw(); } },
-      { label: 'video batch', fn: () => { st.dims = [8, 16, 224, 224]; st.name = 'batch of video clips — order 4'; draw(); } }
+      { label: 'RGB image', fn: () => { st.dims = [224, 224, 3]; st.name = 'one colour image . H × W × channels'; draw(); } },
+      { label: 'batch', fn: () => { st.dims = [32, 128, 768]; st.name = 'batch of sentences, batch × tokens × d'; draw(); } },
+      { label: 'video batch', fn: () => { st.dims = [8, 16, 224, 224]; st.name = 'batch of video clips, order 4'; draw(); } }
     ]));
     return {
       cv: pl.cv, extra: bar, draw: draw,
-      reset: function () { st.dims = [32, 128, 768]; st.name = 'batch of sentences — batch × tokens × d'; draw(); },
+      reset: function () { st.dims = [32, 128, 768]; st.name = 'batch of sentences, batch × tokens × d'; draw(); },
       steps: function () {
         const ord = st.dims.length;
         return [
@@ -258,13 +258,13 @@
           'Its shape is ' + (ord ? st.dims.map(grp).join(' × ') : '1 × 1') + '.',
           'Multiply the shape out and you get ' + grp(count()) + ' individual numbers.',
           'Order 0 is a scalar, 1 a vector, 2 a matrix. Everything above 2 is just called a tensor.',
-          'Try the buttons. A batch of sentences is order 3 — that is the shape a transformer actually eats.'
+          'Try the buttons. A batch of sentences is order 3. That is the shape a transformer actually eats.'
         ];
       }
     };
   });
 
-  /* ============ A — addition ============ */
+  /* ============ A - addition ============ */
   W.register('add', function () {
     const pl = W.Plane(560, 380, 44);
     const a = { x: 3, y: 1 }, b = { x: 1, y: 2 };
@@ -281,7 +281,7 @@
         W.sideBySide([['a ='], W.colBlock([a.x, a.y]), ['+'], ['b ='], W.colBlock([b.x, b.y])], 1) + '\n\n' +
         W.sideBySide([['a+b ='], W.colBlock([a.x + ' + ' + b.x, a.y + ' + ' + b.y]), ['='],
           W.colBlock([a.x + b.x, a.y + b.y])], 1) + '\n\n' +
-        'b+a = [' + (b.x + a.x) + ', ' + (b.y + a.y) + ']   — same point, order does not matter'
+        'b+a = [' + (b.x + a.x) + ', ' + (b.y + a.y) + '], same point, order does not matter'
       );
     }
     W.attachDrag(pl, () => [a, b], function (i, x, y) {
@@ -295,12 +295,12 @@
         'Add the second components: ' + a.y + ' + ' + b.y + ' = ' + (a.y + b.y) + '.',
         'a + b = [' + (a.x + b.x) + ', ' + (a.y + b.y) + '].',
         'The dashed arrow is b slid so its tail sits on a’s head. The sum runs from the origin to where it finishes.',
-        'b + a lands in the same place — the shaded parallelogram is why. Addition is commutative.'
+        'b + a lands in the same place, the shaded parallelogram is why. Addition is commutative.'
       ]
     };
   });
 
-  /* ============ S — subtraction ============ */
+  /* ============ S - subtraction ============ */
   W.register('sub', function () {
     const pl = W.Plane(560, 380, 44);
     const a = { x: 1, y: 1 }, b = { x: 4, y: 3 };
@@ -316,7 +316,7 @@
         W.sideBySide([['a ='], W.colBlock([a.x, a.y]), ['   b ='], W.colBlock([b.x, b.y])], 1) + '\n\n' +
         W.sideBySide([['b−a ='], W.colBlock([b.x + ' − ' + a.x, b.y + ' − ' + a.y]), ['='],
           W.colBlock([b.x - a.x, b.y - a.y])], 1) + '\n\n' +
-        'a−b = [' + (a.x - b.x) + ', ' + (a.y - b.y) + ']   — same length, opposite way\n\n' +
+        'a−b = [' + (a.x - b.x) + ', ' + (a.y - b.y) + '], same length, opposite way\n\n' +
         '‖b−a‖ = √(' + (b.x - a.x) + '² + ' + (b.y - a.y) + '²) = ' + f(Math.hypot(d.x, d.y)) +
         '   ← the distance from a to b'
       );
@@ -331,13 +331,13 @@
         'Subtract the first components: ' + b.x + ' − ' + a.x + ' = ' + (b.x - a.x) + '.',
         'Subtract the second: ' + b.y + ' − ' + a.y + ' = ' + (b.y - a.y) + '.',
         'b − a = [' + (b.x - a.x) + ', ' + (b.y - a.y) + '].',
-        'The solid red arrow is drawn from a’s head to b’s head — b−a is the trip that takes you from a to b.',
+        'The solid red arrow is drawn from a’s head to b’s head, b−a is the trip that takes you from a to b.',
         'Its length, ' + f(Math.hypot(b.x - a.x, b.y - a.y)) + ', is the distance between the two points.'
       ]
     };
   });
 
-  /* ============ K — scalar multiple ============ */
+  /* ============ K - scalar multiple ============ */
   W.register('scale', function () {
     const pl = W.Plane(560, 380, 44);
     const st = { x: 2, y: 1, k: 2 };
@@ -357,7 +357,7 @@
         '‖v‖  = ' + f(nv) + '\n' +
         '‖kv‖ = ' + f(nk) + '\n' +
         '|k|·‖v‖ = ' + f(Math.abs(st.k)) + ' × ' + f(nv) + ' = ' + f(Math.abs(st.k) * nv) + '   ✓ matches\n\n' +
-        'direction: ' + (st.k > 0 ? 'unchanged' : st.k < 0 ? 'reversed' : 'none — kv is the zero vector')
+        'direction: ' + (st.k > 0 ? 'unchanged' : st.k < 0 ? 'reversed' : 'none, kv is the zero vector')
       );
     }
     W.attachDrag(pl, () => [st], (i, x, y) => { st.x = x; st.y = y; draw(); });
@@ -373,14 +373,14 @@
           'The arrow stays on the same faint line through the origin, however you set k.',
           'Length scales by |k|, not by k: ‖kv‖ = |k|·‖v‖ = ' + f(Math.abs(st.k)) + ' × ' + f(nv) + ' = ' + f(Math.abs(st.k) * nv) + '.',
           st.k < 0 ? 'k is negative, so kv points the opposite way. The length is still positive.'
-            : 'Push k below zero and kv flips to the opposite direction — the length stays positive.',
+            : 'Push k below zero and kv flips to the opposite direction. The length stays positive.',
           'k = 0 collapses kv to the zero vector, which has no direction at all.'
         ];
       }
     };
   });
 
-  /* ============ C — linear combination ============ */
+  /* ============ C - linear combination ============ */
   W.register('lincomb', function () {
     const pl = W.Plane(560, 380, 44);
     const a = { x: 2, y: 1 }, b = { x: 1, y: 2 }, st = { c1: 1, c2: 1 };
@@ -422,8 +422,8 @@
       steps: function () {
         const det = a.x * b.y - b.x * a.y;
         return [
-          'Scale a by c₁ = ' + f(st.c1) + ' — that is the first dashed arrow.',
-          'Scale b by c₂ = ' + f(st.c2) + ' — the second dashed arrow, laid head to tail.',
+          'Scale a by c₁ = ' + f(st.c1) + '. That is the first dashed arrow.',
+          'Scale b by c₂ = ' + f(st.c2) + ', the second dashed arrow, laid head to tail.',
           'Add them: c₁a + c₂b = [' + f(st.c1 * a.x + st.c2 * b.x) + ', ' + f(st.c1 * a.y + st.c2 * b.y) + '].',
           'Every choice of c₁ and c₂ gives a different reachable point. That whole set is the span.',
           det === 0
@@ -434,7 +434,7 @@
     };
   });
 
-  /* ============ N — magnitude ============ */
+  /* ============ N - magnitude ============ */
   W.register('magnitude', function () {
     const pl = W.Plane(560, 380, 44);
     const st = { x: 3, y: 4 };
@@ -476,9 +476,9 @@
     };
   });
 
-  /* ============ U — normalisation ============ */
+  /* ============ U - normalisation ============ */
   W.register('normalise', function () {
-    const pl = W.Plane(560, 380, 60);
+    const pl = W.Plane(560, 380, 40);
     const st = { x: 3, y: 4 };
     function draw() {
       pl.clear();
@@ -493,11 +493,11 @@
         (n ? W.sideBySide([['v̂ = v/‖v‖ ='], W.colBlock([f(st.x / n, 4), f(st.y / n, 4)])], 1) : 'v̂ undefined') + '\n\n' +
         (n ? '‖v̂‖ = √(' + f((st.x / n) * (st.x / n), 4) + ' + ' + f((st.y / n) * (st.y / n), 4) + ') = ' +
           f(Math.hypot(st.x / n, st.y / n), 4) + '   ✓ exactly 1'
-          : 'the zero vector cannot be normalised — you would divide by zero') + '\n\n' +
+          : 'the zero vector cannot be normalised, since you would divide by zero') + '\n\n' +
         'v̂ always lands on the dashed unit circle.'
       );
     }
-    W.attachDrag(pl, () => [st], (i, x, y) => { st.x = x; st.y = y; draw(); }, { bx: 4, by: 3 });
+    W.attachDrag(pl, () => [st], (i, x, y) => { st.x = x; st.y = y; draw(); }, { bx: 6, by: 4 });
     return {
       cv: pl.cv, draw: draw,
       reset: function () { st.x = 3; st.y = 4; draw(); },
@@ -507,7 +507,7 @@
           'First find the length: ‖v‖ = ' + f(n, 4) + '.',
           'Divide each component by it: ' + st.x + '/' + f(n, 4) + ' = ' + f(st.x / n, 4) +
             ' and ' + st.y + '/' + f(n, 4) + ' = ' + f(st.y / n, 4) + '.',
-          'That is v̂ — the red arrow, sitting exactly on the unit circle.',
+          'That is v̂, the red arrow, sitting exactly on the unit circle.',
           'Check it: ‖v̂‖ = ' + f(Math.hypot(st.x / n, st.y / n), 4) + '. Every non-zero vector normalises to length 1.',
           'Direction survives, magnitude is discarded. That is exactly what cosine similarity needs.'
         ];
@@ -515,10 +515,10 @@
     };
   });
 
-  /* ============ D — distance ============ */
+  /* ============ D - distance ============ */
   W.register('distance', function () {
     const pl = W.Plane(560, 380, 44);
-    const a = { x: 1, y: 2 }, b = { x: 4, y: 6 };
+    const a = { x: -1, y: -1 }, b = { x: 2, y: 3 };
     function draw() {
       pl.clear();
       const dx = b.x - a.x, dy = b.y - a.y;
@@ -538,29 +538,29 @@
         '       = √(' + dx + '² + ' + dy + '²)\n' +
         '       = √' + sq + '\n' +
         '       = ' + f(Math.sqrt(sq), 4) + '\n\n' +
-        'd(b,a) = ' + f(Math.sqrt(sq), 4) + '   — reversing flips both signs, squaring undoes it'
+        'd(b,a) = ' + f(Math.sqrt(sq), 4) + ', reversing flips both signs, squaring undoes it'
       );
     }
     W.attachDrag(pl, () => [a, b], function (i, x, y) {
       const t = i === 0 ? a : b; t.x = x; t.y = y; draw();
-    }, { by: 6 });
+    }, { by: 4 });
     return {
       cv: pl.cv, draw: draw,
-      reset: function () { a.x = 1; a.y = 2; b.x = 4; b.y = 6; draw(); },
+      reset: function () { a.x = -1; a.y = -1; b.x = 2; b.y = 3; draw(); },
       steps: function () {
         const dx = b.x - a.x, dy = b.y - a.y, sq = dx * dx + dy * dy;
         return [
           'Subtract to get the arrow from a to b: b − a = [' + dx + ', ' + dy + '].',
-          'Its legs are |' + dx + '| across and |' + dy + '| up — the shaded right triangle.',
+          'Its legs are |' + dx + '| across and |' + dy + '| up, the shaded right triangle.',
           'Square and add: ' + (dx * dx) + ' + ' + (dy * dy) + ' = ' + sq + '.',
           'Square root: d(a,b) = ' + f(Math.sqrt(sq), 4) + '.',
-          'Distance is just the magnitude of a difference. Nothing new — item 1.5 followed by item 1.7.'
+          'Distance is just the magnitude of a difference. Nothing new, item 1.5 followed by item 1.7.'
         ];
       }
     };
   });
 
-  /* ============ P — dot product ============ */
+  /* ============ P - dot product ============ */
   W.register('dot', function () {
     const pl = W.Plane(560, 380, 44);
     const a = { x: 3, y: 1 }, b = { x: 1, y: 3 };
@@ -595,7 +595,7 @@
         return [
           'Multiply the first components: ' + a.x + ' × ' + b.x + ' = ' + (a.x * b.x) + '.',
           'Multiply the second components: ' + a.y + ' × ' + b.y + ' = ' + (a.y * b.y) + '.',
-          'Add them. a·b = ' + d + ' — one number, not a vector.',
+          'Add them. a·b = ' + d + ', one number, not a vector.',
           d === 0 ? 'It came out zero, so the two arrows are exactly perpendicular.'
             : d > 0 ? 'It is positive, so the angle between them is under 90°.'
               : 'It is negative, so the angle between them is over 90°.',
@@ -605,7 +605,7 @@
     };
   });
 
-  /* ============ G — angle ============ */
+  /* ============ G - angle ============ */
   W.register('angle', function () {
     const pl = W.Plane(560, 380, 44);
     const a = { x: 4, y: 0 }, b = { x: 2, y: 3 };
@@ -646,7 +646,7 @@
         const d = a.x * b.x + a.y * b.y, cos = d / (na * nb);
         const deg = Math.acos(Math.max(-1, Math.min(1, cos))) * 180 / Math.PI;
         return [
-          'Start from a·b = ‖a‖‖b‖cos θ — the dot product already contains the angle.',
+          'Start from a·b = ‖a‖‖b‖cos θ, the dot product already contains the angle.',
           'Compute the dot product: ' + d + '.',
           'Compute both lengths: ' + f(na, 4) + ' and ' + f(nb, 4) + '.',
           'Divide: cos θ = ' + d + ' / ' + f(na * nb, 4) + ' = ' + f(cos, 4) + '.',
@@ -656,7 +656,7 @@
     };
   });
 
-  /* ============ O — orthogonality ============ */
+  /* ============ O - orthogonality ============ */
   W.register('ortho', function () {
     const pl = W.Plane(560, 380, 44);
     const a = { x: 3, y: 1 }, b = { x: -1, y: 3 };
@@ -679,7 +679,7 @@
         'Here that is [' + (-a.y) + ', ' + a.x + '].\n' +
         'Check: (' + a.x + '×' + (-a.y) + ') + (' + a.y + '×' + a.x + ') = ' +
         (a.x * -a.y) + ' + ' + (a.y * a.x) + ' = 0   ✓ always\n\n' +
-        'No trigonometry anywhere — one multiply-and-add decides it.'
+        'No trigonometry anywhere, one multiply-and-add decides it.'
       );
     }
     W.attachDrag(pl, () => [a, b], function (i, x, y) {
@@ -696,13 +696,13 @@
           d === 0 ? 'It is zero, so a ⊥ b. The small square marks the right angle.'
             : 'It is ' + d + ', not zero, so they are not perpendicular yet. Drag b onto the faint red line.',
           'Why zero means 90°: a·b = ‖a‖‖b‖cos θ, and cos 90° = 0, so the whole product vanishes.',
-          'The quick perpendicular to [x, y] is [−y, x] — here [' + (-a.y) + ', ' + a.x + ']. It works for any vector.'
+          'The quick perpendicular to [x, y] is [−y, x], here [' + (-a.y) + ', ' + a.x + ']. It works for any vector.'
         ];
       }
     };
   });
 
-  /* ============ Q — cosine similarity ============ */
+  /* ============ Q - cosine similarity ============ */
   W.register('cosine', function () {
     const pl = W.Plane(560, 380, 52);
     const a = { x: 3, y: 1 }, b = { x: 1, y: 3 }, st = { t: 1 };
@@ -729,7 +729,7 @@
         f((na && nbRaw) ? dRaw / (na * nbRaw) : 0, 4) + '\n' +
         't = ' + W.pad(f(st.t), 3) + '   ' + W.pad(f(dScaled, 2), 6) + '   ' + W.pad(f(na * nb, 3), 8) + '   ' + f(cos, 4) + '\n\n' +
         'The dot product changes with t.\n' +
-        'cos θ does not — the t cancels:\n\n' +
+        'cos θ does not, the t cancels:\n\n' +
         '   t(a·b)        a·b\n' +
         '  ─────────  =  ───────\n' +
         '  ‖a‖·t‖b‖      ‖a‖‖b‖\n\n' +
@@ -751,7 +751,7 @@
         const cos = d / (na * nb);
         return [
           'Cosine similarity is the dot product divided by both lengths: ' + f(cos, 4) + '.',
-          'Normalise each arrow and it lands on the dashed unit circle — those are â and b̂.',
+          'Normalise each arrow and it lands on the dashed unit circle, those are â and b̂.',
           'Now drag the t slider. The dot product changes: t = ' + f(st.t) + ' scales it to ' + f(d * st.t, 2) + '.',
           'But cos θ stays at ' + f(cos, 4) + '. The t appears in the numerator and the denominator and cancels.',
           'That is the whole point: it measures direction and ignores magnitude, which is why embeddings are compared this way.'
@@ -760,7 +760,7 @@
     };
   });
 
-  /* ============ L1 — L1 norm ============ */
+  /* ============ L1 - L1 norm ============ */
   W.register('l1norm', function () {
     const pl = W.Plane(560, 380, 44);
     const st = { x: 3, y: -4 };
@@ -792,7 +792,7 @@
       steps: function () {
         return [
           'The L1 norm adds absolute values: ‖v‖₁ = |' + st.x + '| + |' + st.y + '| = ' + f(Math.abs(st.x) + Math.abs(st.y)) + '.',
-          'The dashed red path shows the Manhattan route — horizontal then vertical, never diagonal.',
+          'The dashed red path shows the Manhattan route, horizontal then vertical, never diagonal.',
           'Absolute values mean the sign of each component is ignored. Only distance from the axes counts.',
           'The diamond is the unit ball: every point on it has ‖v‖₁ = 1. Notice it has corners on the axes.',
           'L1 favours axis-aligned directions: a unit step along an axis costs 1, but a diagonal step of the same L2 length costs more.'
@@ -801,7 +801,7 @@
     };
   });
 
-  /* ============ LI — L∞ norm ============ */
+  /* ============ LI - L∞ norm ============ */
   W.register('linfnorm', function () {
     const pl = W.Plane(560, 380, 44);
     const st = { x: 3, y: -4 };
@@ -823,7 +823,7 @@
         'MAX / CHEBYSHEV NORM\n' +
         'Only the single biggest component matters.\n' +
         'The faint square shows every vector with ‖v‖∞ = ' + f(m) + '\n' +
-        '— the square just touches the larger of the two components.\n\n' +
+        ', the square just touches the larger of the two components.\n\n' +
         'unit ball: the square of all vectors with ‖v‖∞ = 1'
       );
     }
@@ -838,13 +838,13 @@
           'It ignores every component except the biggest. Here the winner is ' + (Math.abs(st.x) >= Math.abs(st.y) ? '|x| = ' + Math.abs(st.x) : '|y| = ' + Math.abs(st.y)) + '.',
           'The faint square shows all vectors with the same L∞ value. Drag the handle and it snaps to the larger component.',
           'The unit ball is a square. L∞ measures “how far out the box reaches”, not the true diagonal length.',
-          '[5,0] and [5,1000] have the same L∞ norm — proof that a single large component can dominate everything else.'
+          '[5,0] and [5,1000] have the same L∞ norm, proof that a single large component can dominate everything else.'
         ];
       }
     };
   });
 
-  /* ============ NC — compare norms ============ */
+  /* ============ NC - compare norms ============ */
   W.register('normcompare', function () {
     const pl = W.Plane(560, 380, 52);
     const st = { x: 3, y: 2 };
@@ -870,7 +870,7 @@
         'ORDER\n' +
         '  ‖v‖∞ ≤ ‖v‖₂ ≤ ‖v‖₁\n' +
         '  ' + f(li) + ' ≤ ' + f(l2, 4) + ' ≤ ' + f(l1) + '\n\n' +
-        'UNIT BALLS — every point at distance 1 from the origin\n' +
+        'UNIT BALLS, every point at distance 1 from the origin\n' +
         '  diamond  = L1\n' +
         '  circle   = L2\n' +
         '  square   = L∞\n\n' +
@@ -886,7 +886,7 @@
         return [
           'Three norms, one vector. The diamond, circle and square are the three unit balls at distance 1.',
           'L1 = ' + f(l1) + ' is the Manhattan distance; L2 = ' + f(l2, 4) + ' is the straight-line (Euclidean) length; L∞ = ' + f(li) + ' is the largest component.',
-          'They always order the same way: ‖v‖∞ ≤ ‖v‖₂ ≤ ‖v‖₁ — here ' + f(li) + ' ≤ ' + f(l2, 4) + ' ≤ ' + f(l1) + '.',
+          'They always order the same way: ‖v‖∞ ≤ ‖v‖₂ ≤ ‖v‖₁, here ' + f(li) + ' ≤ ' + f(l2, 4) + ' ≤ ' + f(l1) + '.',
           'Drag v along an axis and the three values become equal; drag diagonally and they separate.',
           'This is why the choice matters: L1 favours sparsity, L2 the familiar geometry, and L∞ the worst-case component.'
         ];
